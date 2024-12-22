@@ -11,10 +11,11 @@ public:
 
 public:
     SM83 cpu;
-    std::array<uint8_t, 4*1024> HRAM;
+    std::array<uint8_t, 4*1024> hram;
 
 public:
-    void write(uint16_t addr, uint8_t data);
-    uint8_t read(uint16_t addr);
+    void cpuWrite(uint16_t addr, uint8_t data);
+    uint8_t cpuRead(uint16_t addr);
+    uint8_t* cpuReadPttr(uint16_t addr);
 
 };
