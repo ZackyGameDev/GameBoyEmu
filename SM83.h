@@ -28,12 +28,50 @@ public:
     uint16_t  sp = 0x0000;
     uint16_t  pc = 0x0000;
 
+    // I'm sure therees a more clever way to achieve it, but personally im just maintaining separate variables
+    // for two byte register addressing, and i'm going to have a function which syncs the hi lo and hilo registers
+    // with each other.
+    uint16_t af = 0x0000;
+    uint16_t bc = 0x0000;
+    uint16_t de = 0x0000;
+    uint16_t hl = 0x0000;
+
+    void updateRegisters16() { // this function must be called whenever the uint8_t register vars are affected
+        this->af = (this->a << 8) | this->f;
+        this->bc = (this->b << 8) | this->c;
+        this->de = (this->d << 8) | this->e;
+        this->hl = (this->h << 8) | this->l;
+    }
+
+    void updateRegisters8() { // this function must be calledd whenever the uint16_t register vars are affected
+        this->a = this->af >> 8;
+        this->f = this->af & 0x00FF;
+        this->b = this->bc >> 8;
+        this->c = this->bc & 0x00FF;
+        this->d = this->de >> 8;
+        this->e = this->de & 0x00FF;
+        this->h = this->hl >> 8;
+        this->l = this->hl & 0x00FF;
+    }
+
     enum SM83FLAGS {
         fz = 1 << 7,
         fn = 1 << 6,
         fh = 1 << 5,
         fc = 1 << 4,
     };
+
+    void setFlag(SM83FLAGS flag, bool value) {
+        if (value) {
+            f |= flag;
+        } else {
+            f &= ~flag;
+        }
+    }
+
+    uint8_t getFlag(SM83FLAGS flag) {
+        return (f & flag > 0) ? 1 : 0;
+    }
 
     void connectBus(Bus *n) { bus = n; }
 
@@ -43,7 +81,8 @@ private:
     
     // to facilitate interaction with the bus
     uint8_t fetched = 0x00;
-    uint8_t fetched2 = 0x00;
+    uint16_t fetched16 = 0x0000;
+    uint16_t addr_abs = 0x0000; // if an operand is [a16] then i deal with it using this variable manually 
     //uint8_t *target_register = nullptr; // for LDR instruction
     uint16_t temp = 0x0000;
     uint8_t read(uint16_t addr);
@@ -60,7 +99,7 @@ private:
     };
 
     enum OperandName {
-        A, F, B, C, D, E, H, L, AF, BC, DE, HL, SP, PC, D8, D16, N8, A8, A16,
+        A, F, B, C, D, E, H, L, AF, BC, DE, HL, SP, PC, D8, D16, N8, N16, A8, A16,
     };
 
     struct Operand {
@@ -121,6 +160,10 @@ private:
 
     // instruction wrappers internals;
     uint8_t LD(Operand target, Operand source);
+    uint8_t LD16(Operand target, Operand source);
+    uint8_t LD_HL_SPDD();
+    uint8_t POP(Operand target);
+    uint8_t PUSH(Operand target);
 
 private:
 
@@ -130,6 +173,10 @@ private:
         result += to_add;
         hi = result >> 8;
         lo = result & 0xff;
+    }
+
+    int8_t toSigned(uint8_t b) {
+        return (b > 127) ? (b - 256) : b;
     }
 
 };

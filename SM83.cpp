@@ -79,7 +79,7 @@ uint8_t SM83::read(uint16_t addr) {
     return bus->cpuRead(addr);
 }
 
-uint8_t* SM83::readPttr(uint16_t addr) {
+uint8_t *SM83::readPttr(uint16_t addr) {
     return bus->cpuReadPttr(addr);
 }
 
@@ -88,8 +88,8 @@ void SM83::write(uint16_t addr, uint8_t data) {
 }
 
 
-uint8_t* SM83::process_operand(Operand operand) {
-    uint8_t* value = nullptr;
+uint8_t *SM83::process_operand(Operand operand) {
+    uint8_t *value = nullptr;
     if (operand.immediate) {
         switch (operand.name) {
             case A:
@@ -129,9 +129,6 @@ uint8_t* SM83::process_operand(Operand operand) {
             case SP:
                 value = readPttr(sp);
                 sp += di;
-            case PC:
-                value = readPttr(pc);
-                pc += di;
             case A16: {
                 uint8_t lo = read(pc++);
                 uint8_t hi = read(pc++);
@@ -144,16 +141,120 @@ uint8_t* SM83::process_operand(Operand operand) {
 }
 
 
+uint16_t *SM83::process_operand16(Operand operand) {
+    uint16_t* value = nullptr;
+    if (operand.immediate) {
+        switch (operand.name) {
+            case AF:
+                value = &af;
+            case BC:
+                value = &bc;
+            case DE:
+                value = &de;
+            case HL:
+                value = &hl;
+            case SP:
+                value = &sp;
+            case N16: { 
+                // n16 is never modified, only fetched. thus instead of trying to somehow 
+                // get a pointer to (hram[addr] | (hram[addr+1] << 8)), i'm simply fetching 
+                // it into a third variable and returning its reference.
+                uint8_t lo = read(pc++);
+                uint8_t hi = read(pc++);
+                fetched16 = (hi << 8) | lo;
+                value = &fetched16;
+            }
+        }
+    } else {
+        switch (operand.name) {
+            // the memory is a vector<uint8_t> so instead of trying to figure
+            // out how to return two different pointers to make up a uint16_t*, im simply letting the 
+            // function deal with it manually by fetching the address into a variable.
+
+            // only one case here because none of the opcodes have indirect addressing with a register as an operand.
+            case A16: {
+                uint8_t lo = read(pc++);
+                uint8_t hi = read(pc++);
+                addr_abs = (hi << 8) | lo; 
+            }
+        }
+    }
+
+    return value;
+}
+
 
 ////// PRIMARY OPERATION CORE FUNCTIONS 
 
 uint8_t SM83::LD(Operand target, Operand source) {
-    uint8_t* targetValue = process_operand(target);
-    uint8_t* sourceValue = process_operand(source);
+    uint8_t *targetValue = process_operand(target);
+    uint8_t *sourceValue = process_operand(source);
     *targetValue = *sourceValue;
+
+    updateRegisters16();
     return 0;
 }
 
+uint8_t SM83::LD16(Operand target, Operand source) {
+
+    if (target.immediate) {
+        uint16_t *targetValue = process_operand16(target);
+        uint16_t *sourceValue = process_operand16(source);
+        *targetValue = *sourceValue;
+    } else {
+        uint16_t *sourceValue = process_operand16(source);
+        process_operand16(target); // this should put addr in this->addr_abs
+        write(addr_abs, *sourceValue & 0xff);
+        write(addr_abs + 1, *sourceValue >> 8);
+    }
+
+
+    updateRegisters8();
+    return 0;
+}
+
+
+uint8_t SM83::LD_HL_SPDD() {
+
+    int8_t e8 = toSigned(read(pc++));
+    hl = sp + e8;
+
+    // flags
+    setFlag(fz, 0);
+    setFlag(fn, 0);
+    setFlag( fh, ((sp & 0x0F) + (e8 & 0x0F)) & 0x10 );
+    setFlag( fc, ((sp & 0xFF) + (e8 & 0xFF)) & 0x100 );
+
+    updateRegisters8();
+    return 0;
+}
+
+uint8_t SM83::POP(Operand target) {
+    uint8_t lo = read(sp++);
+    uint8_t hi = read(sp++);
+
+    uint16_t *target_register = process_operand16(target);
+    
+    *target_register = (hi << 8) | lo;
+
+    // flags
+    // since f register *is* my flag carrier, flags get set automatically
+
+    updateRegisters8();
+    return 0;
+}
+
+uint8_t SM83::PUSH(Operand target) {
+    uint16_t *target_register = process_operand16(target);
+
+    write(--sp, *target_register >> 8);
+    write(--sp, *target_register & 0xff);
+
+    updateRegisters8();
+    return 0;
+}
+
+// \todo wire up the cores to wrappers for 16 bit LD instructions and do LDH 
 
 //// WRAPPER FUNCTIONS
 
