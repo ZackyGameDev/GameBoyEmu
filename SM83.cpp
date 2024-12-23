@@ -229,6 +229,33 @@ uint8_t SM83::LD_HL_SPDD() {
     return 0;
 }
 
+
+uint8_t SM83::LDH(Operand source, Operand target) {
+    uint8_t sourceValue = 0;
+    if (source.name == C) {
+        sourceValue = read(0xff00 + read(c));
+    } else if (source.name == A8) {
+        sourceValue = read(0xff00 + read(pc++));
+    } else if (source.name = A) {
+        sourceValue = a;
+    }
+
+    uint8_t *targetValue = nullptr;
+    if (target.name == A) {
+        targetValue = &a;
+    } else if (target.name == C) {
+        targetValue = readPttr(0xff00 + c);
+    } else if (target.name == A8) {
+        targetValue = readPttr(0xff00 + read(pc++));
+    }
+
+    *targetValue = sourceValue; 
+    
+    updateRegisters16();
+    return 0;
+}
+
+
 uint8_t SM83::POP(Operand target) {
     uint8_t lo = read(sp++);
     uint8_t hi = read(sp++);

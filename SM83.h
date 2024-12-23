@@ -162,6 +162,7 @@ private:
     uint8_t LD(Operand target, Operand source);
     uint8_t LD16(Operand target, Operand source);
     uint8_t LD_HL_SPDD();
+    uint8_t LDH(Operand source, Operand target);
     uint8_t POP(Operand target);
     uint8_t PUSH(Operand target);
 
