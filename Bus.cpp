@@ -1,9 +1,13 @@
 #include "Bus.h"
+#include <iostream>
 
 Bus::Bus() {
     cpu.connectBus(this);
 
     for (auto &i : hram) i = 0x00;
+    
+    std::cout << "[DEBUG] BUS CREATED <-------\n";
+
 }
 
 

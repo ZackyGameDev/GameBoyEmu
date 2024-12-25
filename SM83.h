@@ -54,14 +54,14 @@ public:
         this->l = this->hl & 0x00FF;
     }
 
-    enum SM83FLAGS {
+    enum SM83Flags {
         fz = 1 << 7,
         fn = 1 << 6,
         fh = 1 << 5,
         fc = 1 << 4,
     };
 
-    void setFlag(SM83FLAGS flag, bool value) {
+    void setFlag(SM83Flags flag, bool value) {
         if (value) {
             f |= flag;
         } else {
@@ -69,7 +69,7 @@ public:
         }
     }
 
-    uint8_t getFlag(SM83FLAGS flag) {
+    uint8_t getFlag(SM83Flags flag) {
         return (f & flag > 0) ? 1 : 0;
     }
 
@@ -102,6 +102,10 @@ private:
         A, F, B, C, D, E, H, L, AF, BC, DE, HL, SP, PC, D8, D16, N8, N16, A8, A16,
     };
 
+    enum ArithematicOperation {
+        ADD, ADC, SUB, SBC, XOR, AND, OR, CP, INC, DEC, 
+    };
+
     struct Operand {
         OperandName name;
         bool immediate;
@@ -117,8 +121,8 @@ private:
     uint16_t* process_operand16(Operand operand);
 
     // instruction operations/wrappers
-    //uint8_t NOP(); uint8_t LDBC(); uint8_t LDmBC(); uint8_t INCBC(); uint8_t INCB(); uint8_t DECB(); uint8_t LDB(); uint8_t RLCA();
-    //uint8_t LDaddr(); uint8_t ADDHL(); uint8_t LDA(); uint8_t 
+    // uint8_t NOP(); uint8_t LDBC(); uint8_t LDmBC(); uint8_t INCBC(); uint8_t INCB(); uint8_t DECB(); uint8_t LDB(); uint8_t RLCA();
+    // uint8_t LDaddr(); uint8_t ADDHL(); uint8_t LDA(); uint8_t
     uint8_t NOP(); uint8_t LD_BC_n16(); uint8_t LD_aBC_A(); uint8_t INC_BC(); uint8_t INC_B(); uint8_t DEC_B(); uint8_t LD_B_n8();
     uint8_t RLCA(); uint8_t LD_aa16_SP(); uint8_t ADD_HL_BC(); uint8_t LD_A_aBC(); uint8_t DEC_BC(); uint8_t INC_C(); uint8_t DEC_C();
     uint8_t LD_C_n8(); uint8_t RRCA(); uint8_t STOP_n8(); uint8_t LD_DE_n16(); uint8_t LD_aDE_A(); uint8_t INC_DE(); uint8_t INC_D();
@@ -166,7 +170,15 @@ private:
     uint8_t POP(Operand target);
     uint8_t PUSH(Operand target);
 
+    uint8_t PROCESS_ALU(Operand target, ArithematicOperation operation);
+    uint8_t PROCESS_ALU(Operand target, Operand source, ArithematicOperation operation);
+
 private:
+    // these are technically core functions, but they are called by wrapping core functions 
+    uint8_t ADD8(uint8_t *targetValue, uint8_t *sourceValue, bool isADC=false);
+    uint8_t SUB8(uint8_t *targetValue, uint8_t *sourceValue, bool isSBC=false);
+
+
 
     // useful utility functions
     void addToHiLo(uint8_t &hi, uint8_t &lo, int8_t to_add) {

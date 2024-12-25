@@ -1,6 +1,6 @@
 #include "SM83.h"
 #include "Bus.h"
-
+#include <iostream>
 
 SM83::SM83() {
 
@@ -59,6 +59,8 @@ SM83::SM83() {
         {"LD", &x::LD_A_aa16, 16}, {"EI", &x::EI, 4}, {"ILLEGAL_FC", &x::ILLEGAL_FC, 4}, {"ILLEGAL_FD", &x::ILLEGAL_FD, 4}, {"CP", &x::CP_A_n8, 8},
         {"RST", &x::RST_38, 16}, 
     };
+
+    std::cout << "[DEBUG] opcodes loaded into the lookup table <-----\n";
 }
 
 SM83::~SM83() {
@@ -186,6 +188,7 @@ uint16_t *SM83::process_operand16(Operand operand) {
 
 ////// PRIMARY OPERATION CORE FUNCTIONS 
 
+// LOAD INSTRUCTIONS
 uint8_t SM83::LD(Operand target, Operand source) {
     uint8_t *targetValue = process_operand(target);
     uint8_t *sourceValue = process_operand(source);
@@ -277,6 +280,117 @@ uint8_t SM83::PUSH(Operand target) {
     write(--sp, *target_register & 0xff);
 
     updateRegisters8();
+    return 0;
+}
+
+//// 8 BIT ALU INSTRUCTIONS 
+
+// C and Z flags and the register update is called by this function only. 
+// rest is by core functions (if present)
+
+uint8_t SM83::PROCESS_ALU(Operand target, ArithematicOperation operation) {
+    uint8_t *targetValue = process_operand(target);
+
+    switch (operation) {
+    
+        case INC:
+            *targetValue += 1;
+            setFlag(fh, *targetValue & 0x10);
+            setFlag(fn, 0);
+        break;
+        case DEC:
+            *targetValue -= 1;
+            setFlag(fn, 1);
+            setFlag(fh, *targetValue & 0x10);
+        break;
+    }
+    
+    setFlag(fz, *targetValue == 0);
+    updateRegisters16();
+    return 0;
+}
+
+
+
+uint8_t SM83::PROCESS_ALU(Operand target, Operand source, ArithematicOperation operation) {
+    uint8_t *targetValue = process_operand(target);
+    uint8_t *sourceValue = process_operand(source);
+
+    switch (operation) {
+        case ADD:
+            SM83::ADD8(targetValue, sourceValue);
+            break;
+        case ADC:
+            SM83::ADD8(targetValue, sourceValue, true);
+            break;
+        case SUB:
+            SM83::SUB8(targetValue, sourceValue);
+            break;
+        case SBC:
+            SM83::SUB8(targetValue, sourceValue, true);
+            break;
+        case AND:
+            *targetValue &= *sourceValue;
+            setFlag(fh, 1);
+            break;
+        case XOR:
+            *targetValue ^= *sourceValue;
+            setFlag(fh, 0);
+            break;
+        case OR:
+            *targetValue |= *sourceValue;
+            setFlag(fh, 0);
+            break;
+        case CP: {
+            uint16_t result = *targetValue - *sourceValue;
+            setFlag(fn, 1);
+            setFlag(fh, (*targetValue & 0x0F) + (*sourceValue & 0x0F) & 0x10);
+            setFlag(fz, result == 0);
+            setFlag(fc, result & 0x0100);
+            return 0;
+        }
+    }
+
+    setFlag(fz, *targetValue & 0xff == 0);
+    setFlag(fc, *targetValue & 0x0100);
+
+    updateRegisters16();
+    return 0;
+}
+
+
+uint8_t SM83::ADD8(uint8_t *targetValue, uint8_t *sourceValue, bool isADC) {
+    short carry = 0;
+    if (isADC) {
+        carry = getFlag(fc);
+    }
+
+    uint16_t result = *targetValue + *sourceValue + carry;
+
+    // flags
+    setFlag(fn, 0);
+    setFlag(fh, ((*targetValue & 0x0F) + (*sourceValue & 0x0F) + carry) & 0x10);
+    // Flags C and Z are set by the function wrapping this one (PROCESS_ALU)
+
+    *targetValue = result & 0xff;
+
+    return 0;
+}
+
+uint8_t SM83::SUB8(uint8_t *targetValue, uint8_t *sourceValue, bool isSBC) {
+    short borrow = 0;
+    if (isSBC) {
+        borrow = getFlag(fc);
+    }
+
+    uint16_t result = *targetValue - *sourceValue - borrow;
+
+    // flags
+    setFlag(fn, 1);
+    setFlag(fh, ((*targetValue & 0x0F) - (*sourceValue & 0x0F) - borrow) & 0x10);
+
+    *targetValue = result & 0xff;
+
     return 0;
 }
 
