@@ -394,6 +394,65 @@ uint8_t SM83::PROCESS_ALU(Operand target, Operand source, ALUOperation operation
 }
 
 
+
+uint8_t SM83::PROCESS_ALU16(Operand target, ALUOperation operation) {
+
+    uint16_t *targetValue = process_operand16(target);
+
+    switch (operation) {
+    case INC:
+        *targetValue++;
+        break;
+    case DEC:
+        *targetValue--;
+        break;
+    }
+
+    updateRegisters8();
+    return 0;
+
+}
+
+
+uint8_t SM83::PROCESS_ALU16(Operand target, Operand source, ALUOperation operation) {
+
+    uint16_t *targetValue = process_operand16(target);
+
+    uint16_t storage = 0;
+    uint16_t *sourceValue = &storage;
+
+    if (source.name == E8) { 
+        // something tells me this implementation is not supposed to be this easy. 
+        // but it really depends how C++ handles uint and int behind the scenes
+        // so i wont know which method of implementation is correct until i 
+        // actually test it out.
+    
+        *sourceValue = static_cast<uint16_t>(toSigned(read(pc++)));
+    } else {
+        sourceValue = process_operand16(source);
+    }
+
+    switch (operation) {
+    // theres only one operation in 16 bit ALU other than inc and dec. so i'm 
+    // so i'm not separating addition out into a different core helper function.
+    case ADD: 
+        uint32_t result = *targetValue + *sourceValue;
+
+        setFlag(fh, ((*targetValue & 0xFFF) + (*sourceValue & 0xFFF)) & 0x1000);
+        setFlag(fc, result > 0xFFFF);
+        setFlag(fn, 0);
+        
+        *targetValue = result & 0xFFFF;
+    }
+
+    updateRegisters8();
+    return 0;
+}
+
+
+
+// CORE HELPERS
+
 uint8_t SM83::ADD8(uint8_t *targetValue, uint8_t *sourceValue, bool isADC) {
     short carry = 0;
     if (isADC) {
