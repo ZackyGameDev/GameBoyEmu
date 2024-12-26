@@ -288,10 +288,10 @@ uint8_t SM83::PUSH(Operand target) {
 // C and Z flags and the register update is called by this function only. 
 // rest is by core functions (if present)
 
-uint8_t SM83::PROCESS_ALU(ArithematicOperation operation) {
+uint8_t SM83::PROCESS_ALU(ALUOperation operation) {
 
     switch (operation) {
-        
+
     case CCF:
         setFlag(fc, !getFlag(fc));
         break;
@@ -323,7 +323,7 @@ uint8_t SM83::PROCESS_ALU(ArithematicOperation operation) {
 }
 
 
-uint8_t SM83::PROCESS_ALU(Operand target, ArithematicOperation operation) {
+uint8_t SM83::PROCESS_ALU(Operand target, ALUOperation operation) {
     uint8_t *targetValue = process_operand(target);
 
     switch (operation) {
@@ -347,7 +347,7 @@ uint8_t SM83::PROCESS_ALU(Operand target, ArithematicOperation operation) {
 
 
 
-uint8_t SM83::PROCESS_ALU(Operand target, Operand source, ArithematicOperation operation) {
+uint8_t SM83::PROCESS_ALU(Operand target, Operand source, ALUOperation operation) {
     uint8_t *targetValue = process_operand(target);
     uint8_t *sourceValue = process_operand(source);
 
