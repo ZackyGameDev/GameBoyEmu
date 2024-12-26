@@ -103,7 +103,7 @@ private:
     };
 
     enum ALUOperation {
-        ADD, ADC, SUB, SBC, XOR, AND, OR, CP, INC, DEC, CCF, CPL, SCF, DAA, 
+        ADD, ADC, SUB, SBC, XOR, AND, OR, CP, INC, DEC, enumCCF, enumCPL, enumSCF, enumDAA, 
     };
 
     struct Operand {

@@ -292,20 +292,20 @@ uint8_t SM83::PROCESS_ALU(ALUOperation operation) {
 
     switch (operation) {
 
-    case CCF:
+    case enumCCF:
         setFlag(fc, !getFlag(fc));
         break;
-    case CPL:
+    case enumCPL:
         a = ~a;
         setFlag(fn, 1);
         setFlag(fh, 1);
         break;
-    case SCF:
+    case enumSCF:
         setFlag(fc, 1);
         setFlag(fn, 0);
         setFlag(fh, 0);
         break;
-    case DAA:
+    case enumDAA:
         if (getFlag(fn)) {
             if (getFlag(fc)) { a -= 0x60; }
             if (getFlag(fh)) { a -= 0x06; }
@@ -313,7 +313,7 @@ uint8_t SM83::PROCESS_ALU(ALUOperation operation) {
             if (getFlag(fc) || (a & 0xFF) > 0x99) { a += 0x60; setFlag(fc, 1); }
             if (getFlag(fh) || (a & 0x0F) > 0x09) { a += 0x06; }
         }
-        setFlag(fz, reg.a == 0);
+        setFlag(fz, a == 0);
         setFlag(fh, 0);
         break;
     }
