@@ -103,7 +103,7 @@ private:
     };
 
     enum ArithematicOperation {
-        ADD, ADC, SUB, SBC, XOR, AND, OR, CP, INC, DEC, 
+        ADD, ADC, SUB, SBC, XOR, AND, OR, CP, INC, DEC, CCF, CPL, SCF, DAA, 
     };
 
     struct Operand {
@@ -170,6 +170,7 @@ private:
     uint8_t POP(Operand target);
     uint8_t PUSH(Operand target);
 
+    uint8_t PROCESS_ALU(ArithematicOperation operation);
     uint8_t PROCESS_ALU(Operand target, ArithematicOperation operation);
     uint8_t PROCESS_ALU(Operand target, Operand source, ArithematicOperation operation);
 
