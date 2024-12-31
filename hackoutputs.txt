@@ -1,67 +1,67 @@
 uint8_t SM83::NOP() { return 0; }
 uint8_t SM83::LD_BC_n16() { return LD16({BC, true}, {N16, true}); }
 uint8_t SM83::LD_aBC_A() { return LD({BC, false}, {A, true}); }
-uint8_t SM83::INC_BC() { return 0; }
-uint8_t SM83::INC_B() { return 0; }
-uint8_t SM83::DEC_B() { return 0; }
+uint8_t SM83::INC_BC() { return PROCESS_ALU16({BC, true}, INC); }
+uint8_t SM83::INC_B() { return PROCESS_ALU({B, true}, INC); }
+uint8_t SM83::DEC_B() { return PROCESS_ALU({B, true}, DEC); }
 uint8_t SM83::LD_B_n8() { return LD({B, true}, {N8, true}); }
 uint8_t SM83::RLCA() { return 0; }
 uint8_t SM83::LD_aa16_SP() { return LD16({A16, false}, {SP, true}); }
-uint8_t SM83::ADD_HL_BC() { return 0; }
+uint8_t SM83::ADD_HL_BC() { return PROCESS_ALU16({HL, true}, {BC, true}, ADD); }
 uint8_t SM83::LD_A_aBC() { return LD({A, true}, {BC, false}); }
-uint8_t SM83::DEC_BC() { return 0; }
-uint8_t SM83::INC_C() { return 0; }
-uint8_t SM83::DEC_C() { return 0; }
+uint8_t SM83::DEC_BC() { return PROCESS_ALU16({BC, true}, DEC); }
+uint8_t SM83::INC_C() { return PROCESS_ALU({C, true}, INC); }
+uint8_t SM83::DEC_C() { return PROCESS_ALU({C, true}, DEC); }
 uint8_t SM83::LD_C_n8() { return LD({C, true}, {N8, true}); }
 uint8_t SM83::RRCA() { return 0; }
 uint8_t SM83::STOP_n8() { return 0; }
 uint8_t SM83::LD_DE_n16() { return LD16({DE, true}, {N16, true}); }
 uint8_t SM83::LD_aDE_A() { return LD({DE, false}, {A, true}); }
-uint8_t SM83::INC_DE() { return 0; }
-uint8_t SM83::INC_D() { return 0; }
-uint8_t SM83::DEC_D() { return 0; }
+uint8_t SM83::INC_DE() { return PROCESS_ALU16({DE, true}, INC); }
+uint8_t SM83::INC_D() { return PROCESS_ALU({D, true}, INC); }
+uint8_t SM83::DEC_D() { return PROCESS_ALU({D, true}, DEC); }
 uint8_t SM83::LD_D_n8() { return LD({D, true}, {N8, true}); }
 uint8_t SM83::RLA() { return 0; }
 uint8_t SM83::JR_e8() { return 0; }
-uint8_t SM83::ADD_HL_DE() { return 0; }
+uint8_t SM83::ADD_HL_DE() { return PROCESS_ALU16({HL, true}, {DE, true}, ADD); }
 uint8_t SM83::LD_A_aDE() { return LD({A, true}, {DE, false}); }
-uint8_t SM83::DEC_DE() { return 0; }
-uint8_t SM83::INC_E() { return 0; }
-uint8_t SM83::DEC_E() { return 0; }
+uint8_t SM83::DEC_DE() { return PROCESS_ALU16({DE, true}, DEC); }
+uint8_t SM83::INC_E() { return PROCESS_ALU({E, true}, INC); }
+uint8_t SM83::DEC_E() { return PROCESS_ALU({E, true}, DEC); }
 uint8_t SM83::LD_E_n8() { return LD({E, true}, {N8, true}); }
 uint8_t SM83::RRA() { return 0; }
 uint8_t SM83::JR_NZ_e8() { return 0; }
 uint8_t SM83::LD_HL_n16() { return LD16({HL, true}, {N16, true}); }
 uint8_t SM83::LD_aHLI_A() { return LD({HL, false, .increment=true}, {A, true}); }
-uint8_t SM83::INC_HL() { return 0; }
-uint8_t SM83::INC_H() { return 0; }
-uint8_t SM83::DEC_H() { return 0; }
+uint8_t SM83::INC_HL() { return PROCESS_ALU16({HL, true}, INC); }
+uint8_t SM83::INC_H() { return PROCESS_ALU({H, true}, INC); }
+uint8_t SM83::DEC_H() { return PROCESS_ALU({H, true}, DEC); }
 uint8_t SM83::LD_H_n8() { return LD({H, true}, {N8, true}); }
-uint8_t SM83::DAA() { return 0; }
+uint8_t SM83::DAA() { return PROCESS_ALU(enumDAA); }
 uint8_t SM83::JR_Z_e8() { return 0; }
-uint8_t SM83::ADD_HL_HL() { return 0; }
+uint8_t SM83::ADD_HL_HL() { return PROCESS_ALU16({HL, true}, {HL, true}, ADD); }
 uint8_t SM83::LD_A_aHLI() { return LD({A, true}, {HL, false, .increment=true}); }
-uint8_t SM83::DEC_HL() { return 0; }
-uint8_t SM83::INC_L() { return 0; }
-uint8_t SM83::DEC_L() { return 0; }
+uint8_t SM83::DEC_HL() { return PROCESS_ALU16({HL, true}, DEC); }
+uint8_t SM83::INC_L() { return PROCESS_ALU({L, true}, INC); }
+uint8_t SM83::DEC_L() { return PROCESS_ALU({L, true}, DEC); }
 uint8_t SM83::LD_L_n8() { return LD({L, true}, {N8, true}); }
-uint8_t SM83::CPL() { return 0; }
+uint8_t SM83::CPL() { return PROCESS_ALU(enumCPL); }
 uint8_t SM83::JR_NC_e8() { return 0; }
 uint8_t SM83::LD_SP_n16() { return LD16({SP, true}, {N16, true}); }
 uint8_t SM83::LD_aHLD_A() { return LD({HL, false, .decrement=true}, {A, true}); }
-uint8_t SM83::INC_SP() { return 0; }
-uint8_t SM83::INC_aHL() { return 0; }
-uint8_t SM83::DEC_aHL() { return 0; }
+uint8_t SM83::INC_SP() { return PROCESS_ALU16({SP, true}, INC); }
+uint8_t SM83::INC_aHL() { return PROCESS_ALU({HL, false}, INC); }
+uint8_t SM83::DEC_aHL() { return PROCESS_ALU({HL, false}, DEC); }
 uint8_t SM83::LD_aHL_n8() { return LD({HL, false}, {N8, true}); }
-uint8_t SM83::SCF() { return 0; }
+uint8_t SM83::SCF() { return PROCESS_ALU(enumSCF); }
 uint8_t SM83::JR_C_e8() { return 0; }
-uint8_t SM83::ADD_HL_SP() { return 0; }
+uint8_t SM83::ADD_HL_SP() { return PROCESS_ALU16({HL, true}, {SP, true}, ADD); }
 uint8_t SM83::LD_A_aHLD() { return LD({A, true}, {HL, false, .decrement=true}); }
-uint8_t SM83::DEC_SP() { return 0; }
-uint8_t SM83::INC_A() { return 0; }
-uint8_t SM83::DEC_A() { return 0; }
+uint8_t SM83::DEC_SP() { return PROCESS_ALU16({SP, true}, DEC); }
+uint8_t SM83::INC_A() { return PROCESS_ALU({A, true}, INC); }
+uint8_t SM83::DEC_A() { return PROCESS_ALU({A, true}, DEC); }
 uint8_t SM83::LD_A_n8() { return LD({A, true}, {N8, true}); }
-uint8_t SM83::CCF() { return 0; }
+uint8_t SM83::CCF() { return PROCESS_ALU(enumCCF); }
 uint8_t SM83::LD_B_B() { return LD({B, true}, {B, true}); }
 uint8_t SM83::LD_B_C() { return LD({B, true}, {C, true}); }
 uint8_t SM83::LD_B_D() { return LD({B, true}, {D, true}); }
@@ -126,77 +126,77 @@ uint8_t SM83::LD_A_H() { return LD({A, true}, {H, true}); }
 uint8_t SM83::LD_A_L() { return LD({A, true}, {L, true}); }
 uint8_t SM83::LD_A_aHL() { return LD({A, true}, {HL, false}); }
 uint8_t SM83::LD_A_A() { return LD({A, true}, {A, true}); }
-uint8_t SM83::ADD_A_B() { return 0; }
-uint8_t SM83::ADD_A_C() { return 0; }
-uint8_t SM83::ADD_A_D() { return 0; }
-uint8_t SM83::ADD_A_E() { return 0; }
-uint8_t SM83::ADD_A_H() { return 0; }
-uint8_t SM83::ADD_A_L() { return 0; }
-uint8_t SM83::ADD_A_aHL() { return 0; }
-uint8_t SM83::ADD_A_A() { return 0; }
-uint8_t SM83::ADC_A_B() { return 0; }
-uint8_t SM83::ADC_A_C() { return 0; }
-uint8_t SM83::ADC_A_D() { return 0; }
-uint8_t SM83::ADC_A_E() { return 0; }
-uint8_t SM83::ADC_A_H() { return 0; }
-uint8_t SM83::ADC_A_L() { return 0; }
-uint8_t SM83::ADC_A_aHL() { return 0; }
-uint8_t SM83::ADC_A_A() { return 0; }
-uint8_t SM83::SUB_A_B() { return 0; }
-uint8_t SM83::SUB_A_C() { return 0; }
-uint8_t SM83::SUB_A_D() { return 0; }
-uint8_t SM83::SUB_A_E() { return 0; }
-uint8_t SM83::SUB_A_H() { return 0; }
-uint8_t SM83::SUB_A_L() { return 0; }
-uint8_t SM83::SUB_A_aHL() { return 0; }
-uint8_t SM83::SUB_A_A() { return 0; }
-uint8_t SM83::SBC_A_B() { return 0; }
-uint8_t SM83::SBC_A_C() { return 0; }
-uint8_t SM83::SBC_A_D() { return 0; }
-uint8_t SM83::SBC_A_E() { return 0; }
-uint8_t SM83::SBC_A_H() { return 0; }
-uint8_t SM83::SBC_A_L() { return 0; }
-uint8_t SM83::SBC_A_aHL() { return 0; }
-uint8_t SM83::SBC_A_A() { return 0; }
-uint8_t SM83::AND_A_B() { return 0; }
-uint8_t SM83::AND_A_C() { return 0; }
-uint8_t SM83::AND_A_D() { return 0; }
-uint8_t SM83::AND_A_E() { return 0; }
-uint8_t SM83::AND_A_H() { return 0; }
-uint8_t SM83::AND_A_L() { return 0; }
-uint8_t SM83::AND_A_aHL() { return 0; }
-uint8_t SM83::AND_A_A() { return 0; }
-uint8_t SM83::XOR_A_B() { return 0; }
-uint8_t SM83::XOR_A_C() { return 0; }
-uint8_t SM83::XOR_A_D() { return 0; }
-uint8_t SM83::XOR_A_E() { return 0; }
-uint8_t SM83::XOR_A_H() { return 0; }
-uint8_t SM83::XOR_A_L() { return 0; }
-uint8_t SM83::XOR_A_aHL() { return 0; }
-uint8_t SM83::XOR_A_A() { return 0; }
-uint8_t SM83::OR_A_B() { return 0; }
-uint8_t SM83::OR_A_C() { return 0; }
-uint8_t SM83::OR_A_D() { return 0; }
-uint8_t SM83::OR_A_E() { return 0; }
-uint8_t SM83::OR_A_H() { return 0; }
-uint8_t SM83::OR_A_L() { return 0; }
-uint8_t SM83::OR_A_aHL() { return 0; }
-uint8_t SM83::OR_A_A() { return 0; }
-uint8_t SM83::CP_A_B() { return 0; }
-uint8_t SM83::CP_A_C() { return 0; }
-uint8_t SM83::CP_A_D() { return 0; }
-uint8_t SM83::CP_A_E() { return 0; }
-uint8_t SM83::CP_A_H() { return 0; }
-uint8_t SM83::CP_A_L() { return 0; }
-uint8_t SM83::CP_A_aHL() { return 0; }
-uint8_t SM83::CP_A_A() { return 0; }
+uint8_t SM83::ADD_A_B() { return PROCESS_ALU({A, true}, {B, true}, ADD); }
+uint8_t SM83::ADD_A_C() { return PROCESS_ALU({A, true}, {C, true}, ADD); }
+uint8_t SM83::ADD_A_D() { return PROCESS_ALU({A, true}, {D, true}, ADD); }
+uint8_t SM83::ADD_A_E() { return PROCESS_ALU({A, true}, {E, true}, ADD); }
+uint8_t SM83::ADD_A_H() { return PROCESS_ALU({A, true}, {H, true}, ADD); }
+uint8_t SM83::ADD_A_L() { return PROCESS_ALU({A, true}, {L, true}, ADD); }
+uint8_t SM83::ADD_A_aHL() { return PROCESS_ALU({A, true}, {HL, false}, ADD); }
+uint8_t SM83::ADD_A_A() { return PROCESS_ALU({A, true}, {A, true}, ADD); }
+uint8_t SM83::ADC_A_B() { return PROCESS_ALU({A, true}, {B, true}, ADC); }
+uint8_t SM83::ADC_A_C() { return PROCESS_ALU({A, true}, {C, true}, ADC); }
+uint8_t SM83::ADC_A_D() { return PROCESS_ALU({A, true}, {D, true}, ADC); }
+uint8_t SM83::ADC_A_E() { return PROCESS_ALU({A, true}, {E, true}, ADC); }
+uint8_t SM83::ADC_A_H() { return PROCESS_ALU({A, true}, {H, true}, ADC); }
+uint8_t SM83::ADC_A_L() { return PROCESS_ALU({A, true}, {L, true}, ADC); }
+uint8_t SM83::ADC_A_aHL() { return PROCESS_ALU({A, true}, {HL, false}, ADC); }
+uint8_t SM83::ADC_A_A() { return PROCESS_ALU({A, true}, {A, true}, ADC); }
+uint8_t SM83::SUB_A_B() { return PROCESS_ALU({A, true}, {B, true}, SUB); }
+uint8_t SM83::SUB_A_C() { return PROCESS_ALU({A, true}, {C, true}, SUB); }
+uint8_t SM83::SUB_A_D() { return PROCESS_ALU({A, true}, {D, true}, SUB); }
+uint8_t SM83::SUB_A_E() { return PROCESS_ALU({A, true}, {E, true}, SUB); }
+uint8_t SM83::SUB_A_H() { return PROCESS_ALU({A, true}, {H, true}, SUB); }
+uint8_t SM83::SUB_A_L() { return PROCESS_ALU({A, true}, {L, true}, SUB); }
+uint8_t SM83::SUB_A_aHL() { return PROCESS_ALU({A, true}, {HL, false}, SUB); }
+uint8_t SM83::SUB_A_A() { return PROCESS_ALU({A, true}, {A, true}, SUB); }
+uint8_t SM83::SBC_A_B() { return PROCESS_ALU({A, true}, {B, true}, SBC); }
+uint8_t SM83::SBC_A_C() { return PROCESS_ALU({A, true}, {C, true}, SBC); }
+uint8_t SM83::SBC_A_D() { return PROCESS_ALU({A, true}, {D, true}, SBC); }
+uint8_t SM83::SBC_A_E() { return PROCESS_ALU({A, true}, {E, true}, SBC); }
+uint8_t SM83::SBC_A_H() { return PROCESS_ALU({A, true}, {H, true}, SBC); }
+uint8_t SM83::SBC_A_L() { return PROCESS_ALU({A, true}, {L, true}, SBC); }
+uint8_t SM83::SBC_A_aHL() { return PROCESS_ALU({A, true}, {HL, false}, SBC); }
+uint8_t SM83::SBC_A_A() { return PROCESS_ALU({A, true}, {A, true}, SBC); }
+uint8_t SM83::AND_A_B() { return PROCESS_ALU({A, true}, {B, true}, AND); }
+uint8_t SM83::AND_A_C() { return PROCESS_ALU({A, true}, {C, true}, AND); }
+uint8_t SM83::AND_A_D() { return PROCESS_ALU({A, true}, {D, true}, AND); }
+uint8_t SM83::AND_A_E() { return PROCESS_ALU({A, true}, {E, true}, AND); }
+uint8_t SM83::AND_A_H() { return PROCESS_ALU({A, true}, {H, true}, AND); }
+uint8_t SM83::AND_A_L() { return PROCESS_ALU({A, true}, {L, true}, AND); }
+uint8_t SM83::AND_A_aHL() { return PROCESS_ALU({A, true}, {HL, false}, AND); }
+uint8_t SM83::AND_A_A() { return PROCESS_ALU({A, true}, {A, true}, AND); }
+uint8_t SM83::XOR_A_B() { return PROCESS_ALU({A, true}, {B, true}, XOR); }
+uint8_t SM83::XOR_A_C() { return PROCESS_ALU({A, true}, {C, true}, XOR); }
+uint8_t SM83::XOR_A_D() { return PROCESS_ALU({A, true}, {D, true}, XOR); }
+uint8_t SM83::XOR_A_E() { return PROCESS_ALU({A, true}, {E, true}, XOR); }
+uint8_t SM83::XOR_A_H() { return PROCESS_ALU({A, true}, {H, true}, XOR); }
+uint8_t SM83::XOR_A_L() { return PROCESS_ALU({A, true}, {L, true}, XOR); }
+uint8_t SM83::XOR_A_aHL() { return PROCESS_ALU({A, true}, {HL, false}, XOR); }
+uint8_t SM83::XOR_A_A() { return PROCESS_ALU({A, true}, {A, true}, XOR); }
+uint8_t SM83::OR_A_B() { return PROCESS_ALU({A, true}, {B, true}, OR); }
+uint8_t SM83::OR_A_C() { return PROCESS_ALU({A, true}, {C, true}, OR); }
+uint8_t SM83::OR_A_D() { return PROCESS_ALU({A, true}, {D, true}, OR); }
+uint8_t SM83::OR_A_E() { return PROCESS_ALU({A, true}, {E, true}, OR); }
+uint8_t SM83::OR_A_H() { return PROCESS_ALU({A, true}, {H, true}, OR); }
+uint8_t SM83::OR_A_L() { return PROCESS_ALU({A, true}, {L, true}, OR); }
+uint8_t SM83::OR_A_aHL() { return PROCESS_ALU({A, true}, {HL, false}, OR); }
+uint8_t SM83::OR_A_A() { return PROCESS_ALU({A, true}, {A, true}, OR); }
+uint8_t SM83::CP_A_B() { return PROCESS_ALU({A, true}, {B, true}, CP); }
+uint8_t SM83::CP_A_C() { return PROCESS_ALU({A, true}, {C, true}, CP); }
+uint8_t SM83::CP_A_D() { return PROCESS_ALU({A, true}, {D, true}, CP); }
+uint8_t SM83::CP_A_E() { return PROCESS_ALU({A, true}, {E, true}, CP); }
+uint8_t SM83::CP_A_H() { return PROCESS_ALU({A, true}, {H, true}, CP); }
+uint8_t SM83::CP_A_L() { return PROCESS_ALU({A, true}, {L, true}, CP); }
+uint8_t SM83::CP_A_aHL() { return PROCESS_ALU({A, true}, {HL, false}, CP); }
+uint8_t SM83::CP_A_A() { return PROCESS_ALU({A, true}, {A, true}, CP); }
 uint8_t SM83::RET_NZ() { return 0; }
 uint8_t SM83::POP_BC() { return POP({BC, true}); }
 uint8_t SM83::JP_NZ_a16() { return 0; }
 uint8_t SM83::JP_a16() { return 0; }
 uint8_t SM83::CALL_NZ_a16() { return 0; }
 uint8_t SM83::PUSH_BC() { return PUSH({BC, true}); }
-uint8_t SM83::ADD_A_n8() { return 0; }
+uint8_t SM83::ADD_A_n8() { return PROCESS_ALU({A, true}, {N8, true}, ADD); }
 uint8_t SM83::RST_00() { return 0; }
 uint8_t SM83::RET_Z() { return 0; }
 uint8_t SM83::RET() { return 0; }
@@ -204,7 +204,7 @@ uint8_t SM83::JP_Z_a16() { return 0; }
 uint8_t SM83::PREFIX() { return 0; }
 uint8_t SM83::CALL_Z_a16() { return 0; }
 uint8_t SM83::CALL_a16() { return 0; }
-uint8_t SM83::ADC_A_n8() { return 0; }
+uint8_t SM83::ADC_A_n8() { return PROCESS_ALU({A, true}, {N8, true}, ADC); }
 uint8_t SM83::RST_08() { return 0; }
 uint8_t SM83::RET_NC() { return 0; }
 uint8_t SM83::POP_DE() { return POP({DE, true}); }
@@ -212,7 +212,7 @@ uint8_t SM83::JP_NC_a16() { return 0; }
 uint8_t SM83::ILLEGAL_D3() { return 0; }
 uint8_t SM83::CALL_NC_a16() { return 0; }
 uint8_t SM83::PUSH_DE() { return PUSH({DE, true}); }
-uint8_t SM83::SUB_A_n8() { return 0; }
+uint8_t SM83::SUB_A_n8() { return PROCESS_ALU({A, true}, {N8, true}, SUB); }
 uint8_t SM83::RST_10() { return 0; }
 uint8_t SM83::RET_C() { return 0; }
 uint8_t SM83::RETI() { return 0; }
@@ -220,7 +220,7 @@ uint8_t SM83::JP_C_a16() { return 0; }
 uint8_t SM83::ILLEGAL_DB() { return 0; }
 uint8_t SM83::CALL_C_a16() { return 0; }
 uint8_t SM83::ILLEGAL_DD() { return 0; }
-uint8_t SM83::SBC_A_n8() { return 0; }
+uint8_t SM83::SBC_A_n8() { return PROCESS_ALU({A, true}, {N8, true}, SBC); }
 uint8_t SM83::RST_18() { return 0; }
 uint8_t SM83::LDH_aa8_A() { return LDH({A8, false}, {A, true}); }
 uint8_t SM83::POP_HL() { return POP({HL, true}); }
@@ -228,15 +228,15 @@ uint8_t SM83::LDH_aC_A() { return LDH({C, false}, {A, true}); }
 uint8_t SM83::ILLEGAL_E3() { return 0; }
 uint8_t SM83::ILLEGAL_E4() { return 0; }
 uint8_t SM83::PUSH_HL() { return PUSH({HL, true}); }
-uint8_t SM83::AND_A_n8() { return 0; }
+uint8_t SM83::AND_A_n8() { return PROCESS_ALU({A, true}, {N8, true}, AND); }
 uint8_t SM83::RST_20() { return 0; }
-uint8_t SM83::ADD_SP_e8() { return 0; }
+uint8_t SM83::ADD_SP_e8() { return PROCESS_ALU16({SP, true}, {E8, true}, ADD); }
 uint8_t SM83::JP_HL() { return 0; }
 uint8_t SM83::LD_aa16_A() { return LD({A16, false}, {A, true}); }
 uint8_t SM83::ILLEGAL_EB() { return 0; }
 uint8_t SM83::ILLEGAL_EC() { return 0; }
 uint8_t SM83::ILLEGAL_ED() { return 0; }
-uint8_t SM83::XOR_A_n8() { return 0; }
+uint8_t SM83::XOR_A_n8() { return PROCESS_ALU({A, true}, {N8, true}, XOR); }
 uint8_t SM83::RST_28() { return 0; }
 uint8_t SM83::LDH_A_aa8() { return LDH({A, true}, {A8, false}); }
 uint8_t SM83::POP_AF() { return POP({AF, true}); }
@@ -244,7 +244,7 @@ uint8_t SM83::LDH_A_aC() { return LDH({A, true}, {C, false}); }
 uint8_t SM83::DI() { return 0; }
 uint8_t SM83::ILLEGAL_F4() { return 0; }
 uint8_t SM83::PUSH_AF() { return PUSH({AF, true}); }
-uint8_t SM83::OR_A_n8() { return 0; }
+uint8_t SM83::OR_A_n8() { return PROCESS_ALU({A, true}, {N8, true}, OR); }
 uint8_t SM83::RST_30() { return 0; }
 uint8_t SM83::LD_HL_SPI_e8() { return LD_HL_SPDD(); }
 uint8_t SM83::LD_SP_HL() { return LD16({SP, true}, {HL, true}); }
@@ -252,5 +252,5 @@ uint8_t SM83::LD_A_aa16() { return LD({A, true}, {A16, false}); }
 uint8_t SM83::EI() { return 0; }
 uint8_t SM83::ILLEGAL_FC() { return 0; }
 uint8_t SM83::ILLEGAL_FD() { return 0; }
-uint8_t SM83::CP_A_n8() { return 0; }
+uint8_t SM83::CP_A_n8() { return PROCESS_ALU({A, true}, {N8, true}, CP); }
 uint8_t SM83::RST_38() { return 0; }

@@ -109,6 +109,35 @@ for i in unpre:
         function_definition =  makedefinition(function_name, '{ return LDH(' + fargs[0] + ', ' + fargs[1] + '); }')
 
 
+    # ALU STUFF
+    # all INC and DEC
+    if (function_name.startswith("INC_") or function_name.startswith("DEC_")):
+        fargs = unpre[i]['operands'].copy()
+        fargs[0] = '{' + fargs[0]['name'].upper() + ', ' + str(fargs[0]['immediate']).lower() + '}'
+        
+        if i[-1] == '3' or i[-1] == 'B': # 16 bit columns
+            function_definition = makedefinition(function_name, '{ return PROCESS_ALU16(' + fargs[0] + ', ' + function_name[:3] + '); }')
+        else: # 8 bit
+            function_definition = makedefinition(function_name, '{ return PROCESS_ALU(' + fargs[0] + ', ' + function_name[:3] + '); }')
+
+    # Remaining operand relying operations of ALU
+    if function_name[:3] in ("ADD", "ADC", "SUB", "SBC", "AND", "OR_", "XOR", "CP_", ):
+        args = unpre[i]['operands']
+        fargs = args.copy()
+        fargs[0] = '{' + args[0]['name'].upper() + ', ' + str(args[0]['immediate']).lower() + '}'
+        fargs[1] = '{' + args[1]['name'].upper() + ', ' + str(args[1]['immediate']).lower() + '}'
+
+        # 16 bit ADD
+        if i[-1] in ('8', '9') and function_name.startswith("ADD"):
+            function_definition = makedefinition(function_name, '{ return PROCESS_ALU16(' + fargs[0] + ', ' + fargs[1] + ', ADD); }' )
+
+        else:
+            function_definition = makedefinition(function_name, '{ return PROCESS_ALU(' + fargs[0] + ', ' + fargs[1] + ', ' + function_name[:3].replace("_", "") + '); }' )
+            
+    # the four quirky ones
+    if function_name in ("DAA", "SCF", "CPL", "CCF"):
+        function_definition = makedefinition(function_name, '{ return PROCESS_ALU(enum' + function_name + '); }')
+
     count += 1
     if count == 1:
         # print("uint8_t " + function_name + "();")
