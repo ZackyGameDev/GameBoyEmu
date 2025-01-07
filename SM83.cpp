@@ -5,6 +5,8 @@
 SM83::SM83() {
 
     using x = SM83;
+
+    // \todo: fix the jr and jp and such clock cycle amount
     unprefixed_opcode_lookup = { 
         {"NOP", &x::NOP, 4}, {"LD", &x::LD_BC_n16, 12}, {"LD", &x::LD_aBC_A, 8}, {"INC", &x::INC_BC, 8}, {"INC", &x::INC_B, 4},
         {"DEC", &x::DEC_B, 4}, {"LD", &x::LD_B_n8, 8}, {"RLCA", &x::RLCA, 4}, {"LD", &x::LD_aa16_SP, 20}, {"ADD", &x::ADD_HL_BC, 8},
@@ -12,12 +14,12 @@ SM83::SM83() {
         {"RRCA", &x::RRCA, 4}, {"STOP", &x::STOP_n8, 4}, {"LD", &x::LD_DE_n16, 12}, {"LD", &x::LD_aDE_A, 8}, {"INC", &x::INC_DE, 8},
         {"INC", &x::INC_D, 4}, {"DEC", &x::DEC_D, 4}, {"LD", &x::LD_D_n8, 8}, {"RLA", &x::RLA, 4}, {"JR", &x::JR_e8, 12},
         {"ADD", &x::ADD_HL_DE, 8}, {"LD", &x::LD_A_aDE, 8}, {"DEC", &x::DEC_DE, 8}, {"INC", &x::INC_E, 4}, {"DEC", &x::DEC_E, 4},
-        {"LD", &x::LD_E_n8, 8}, {"RRA", &x::RRA, 4}, {"JR", &x::JR_NZ_e8, 12}, {"LD", &x::LD_HL_n16, 12}, {"LD", &x::LD_aHLI_A, 8},
+        {"LD", &x::LD_E_n8, 8}, {"RRA", &x::RRA, 4}, {"JR", &x::JR_NZ_e8, 8}, {"LD", &x::LD_HL_n16, 12}, {"LD", &x::LD_aHLI_A, 8},
         {"INC", &x::INC_HL, 8}, {"INC", &x::INC_H, 4}, {"DEC", &x::DEC_H, 4}, {"LD", &x::LD_H_n8, 8}, {"DAA", &x::DAA, 4},
-        {"JR", &x::JR_Z_e8, 12}, {"ADD", &x::ADD_HL_HL, 8}, {"LD", &x::LD_A_aHLI, 8}, {"DEC", &x::DEC_HL, 8}, {"INC", &x::INC_L, 4},
-        {"DEC", &x::DEC_L, 4}, {"LD", &x::LD_L_n8, 8}, {"CPL", &x::CPL, 4}, {"JR", &x::JR_NC_e8, 12}, {"LD", &x::LD_SP_n16, 12},
+        {"JR", &x::JR_Z_e8, 8}, {"ADD", &x::ADD_HL_HL, 8}, {"LD", &x::LD_A_aHLI, 8}, {"DEC", &x::DEC_HL, 8}, {"INC", &x::INC_L, 4},
+        {"DEC", &x::DEC_L, 4}, {"LD", &x::LD_L_n8, 8}, {"CPL", &x::CPL, 4}, {"JR", &x::JR_NC_e8, 8}, {"LD", &x::LD_SP_n16, 12},
         {"LD", &x::LD_aHLD_A, 8}, {"INC", &x::INC_SP, 8}, {"INC", &x::INC_aHL, 12}, {"DEC", &x::DEC_aHL, 12}, {"LD", &x::LD_aHL_n8, 12},
-        {"SCF", &x::SCF, 4}, {"JR", &x::JR_C_e8, 12}, {"ADD", &x::ADD_HL_SP, 8}, {"LD", &x::LD_A_aHLD, 8}, {"DEC", &x::DEC_SP, 8},
+        {"SCF", &x::SCF, 4}, {"JR", &x::JR_C_e8, 8}, {"ADD", &x::ADD_HL_SP, 8}, {"LD", &x::LD_A_aHLD, 8}, {"DEC", &x::DEC_SP, 8},
         {"INC", &x::INC_A, 4}, {"DEC", &x::DEC_A, 4}, {"LD", &x::LD_A_n8, 8}, {"CCF", &x::CCF, 4}, {"LD", &x::LD_B_B, 4},
         {"LD", &x::LD_B_C, 4}, {"LD", &x::LD_B_D, 4}, {"LD", &x::LD_B_E, 4}, {"LD", &x::LD_B_H, 4}, {"LD", &x::LD_B_L, 4},
         {"LD", &x::LD_B_aHL, 8}, {"LD", &x::LD_B_A, 4}, {"LD", &x::LD_C_B, 4}, {"LD", &x::LD_C_C, 4}, {"LD", &x::LD_C_D, 4},
@@ -44,12 +46,12 @@ SM83::SM83() {
         {"XOR", &x::XOR_A_A, 4}, {"OR", &x::OR_A_B, 4}, {"OR", &x::OR_A_C, 4}, {"OR", &x::OR_A_D, 4}, {"OR", &x::OR_A_E, 4},
         {"OR", &x::OR_A_H, 4}, {"OR", &x::OR_A_L, 4}, {"OR", &x::OR_A_aHL, 8}, {"OR", &x::OR_A_A, 4}, {"CP", &x::CP_A_B, 4},
         {"CP", &x::CP_A_C, 4}, {"CP", &x::CP_A_D, 4}, {"CP", &x::CP_A_E, 4}, {"CP", &x::CP_A_H, 4}, {"CP", &x::CP_A_L, 4},
-        {"CP", &x::CP_A_aHL, 8}, {"CP", &x::CP_A_A, 4}, {"RET", &x::RET_NZ, 20}, {"POP", &x::POP_BC, 12}, {"JP", &x::JP_NZ_a16, 16},
+        {"CP", &x::CP_A_aHL, 8}, {"CP", &x::CP_A_A, 4}, {"RET", &x::RET_NZ, 20}, {"POP", &x::POP_BC, 12}, {"JP", &x::JP_NZ_a16, 12},
         {"JP", &x::JP_a16, 16}, {"CALL", &x::CALL_NZ_a16, 24}, {"PUSH", &x::PUSH_BC, 16}, {"ADD", &x::ADD_A_n8, 8}, {"RST", &x::RST_00, 16},
-        {"RET", &x::RET_Z, 20}, {"RET", &x::RET, 16}, {"JP", &x::JP_Z_a16, 16}, {"PREFIX", &x::PREFIX, 4}, {"CALL", &x::CALL_Z_a16, 24},
+        {"RET", &x::RET_Z, 20}, {"RET", &x::RET, 16}, {"JP", &x::JP_Z_a16, 12}, {"PREFIX", &x::PREFIX, 4}, {"CALL", &x::CALL_Z_a16, 24},
         {"CALL", &x::CALL_a16, 24}, {"ADC", &x::ADC_A_n8, 8}, {"RST", &x::RST_08, 16}, {"RET", &x::RET_NC, 20}, {"POP", &x::POP_DE, 12},
-        {"JP", &x::JP_NC_a16, 16}, {"ILLEGAL_D3", &x::ILLEGAL_D3, 4}, {"CALL", &x::CALL_NC_a16, 24}, {"PUSH", &x::PUSH_DE, 16}, {"SUB", &x::SUB_A_n8, 8},
-        {"RST", &x::RST_10, 16}, {"RET", &x::RET_C, 20}, {"RETI", &x::RETI, 16}, {"JP", &x::JP_C_a16, 16}, {"ILLEGAL_DB", &x::ILLEGAL_DB, 4},
+        {"JP", &x::JP_NC_a16, 12}, {"ILLEGAL_D3", &x::ILLEGAL_D3, 4}, {"CALL", &x::CALL_NC_a16, 24}, {"PUSH", &x::PUSH_DE, 16}, {"SUB", &x::SUB_A_n8, 8},
+        {"RST", &x::RST_10, 16}, {"RET", &x::RET_C, 20}, {"RETI", &x::RETI, 16}, {"JP", &x::JP_C_a16, 12}, {"ILLEGAL_DB", &x::ILLEGAL_DB, 4},
         {"CALL", &x::CALL_C_a16, 24}, {"ILLEGAL_DD", &x::ILLEGAL_DD, 4}, {"SBC", &x::SBC_A_n8, 8}, {"RST", &x::RST_18, 16}, {"LDH", &x::LDH_aa8_A, 12},
         {"POP", &x::POP_HL, 12}, {"LDH", &x::LDH_aC_A, 8}, {"ILLEGAL_E3", &x::ILLEGAL_E3, 4}, {"ILLEGAL_E4", &x::ILLEGAL_E4, 4}, {"PUSH", &x::PUSH_HL, 16},
         {"AND", &x::AND_A_n8, 8}, {"RST", &x::RST_20, 16}, {"ADD", &x::ADD_SP_e8, 16}, {"JP", &x::JP_HL, 4}, {"LD", &x::LD_aa16_A, 16},
@@ -435,7 +437,7 @@ uint8_t SM83::PROCESS_ALU16(Operand target, Operand source, ALUOperation operati
     switch (operation) {
     // theres only one operation in 16 bit ALU other than inc and dec. so i'm 
     // so i'm not separating addition out into a different core helper function.
-    case ADD: 
+    case ADD: {
         uint32_t result = *targetValue + *sourceValue;
 
         setFlag(fh, ((*targetValue & 0xFFF) + (*sourceValue & 0xFFF)) & 0x1000);
@@ -443,12 +445,53 @@ uint8_t SM83::PROCESS_ALU16(Operand target, Operand source, ALUOperation operati
         setFlag(fn, 0);
         
         *targetValue = result & 0xFFFF;
+        break;
+    }
     }
 
     updateRegisters8();
     return 0;
 }
 
+
+uint8_t SM83::JUMPTO(Operand address) {
+
+    // if arg was E8 that means this is a relative jump instruction
+    if (address.name == E8) {
+        uint16_t relative_address = static_cast<uint16_t>(toSigned(read(pc++)));
+        pc += relative_address;
+    } else {
+        uint16_t *target_address = process_operand16(address);
+        pc = *target_address;
+    }
+
+    updateRegisters8();
+    return 0;
+}
+
+
+uint8_t SM83::JUMPTO(OperandName condition, Operand address) {
+    
+    bool conditiontrue = false;
+
+    switch (condition) {
+        case C: conditiontrue = getFlag(fc); break;
+        case NC: conditiontrue = !getFlag(fc); break;
+        case Z: conditiontrue = getFlag(fz); break;
+        case NZ: conditiontrue = !getFlag(fz); break;
+    }
+
+    if (not conditiontrue) {
+        // skip ahead to the next instruction byte;    
+        if (address.name == N16) pc += 2; 
+        else if (address.name == E8) pc += 1;
+        return 0;
+    }   
+
+    JUMPTO(address);
+    return 4; // it will take 4 additional clock cycles if the condition was true 
+
+}
 
 
 // CORE HELPERS

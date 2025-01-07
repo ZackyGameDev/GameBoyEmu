@@ -100,6 +100,7 @@ private:
 
     enum OperandName {
         A, F, B, C, D, E, H, L, AF, BC, DE, HL, SP, PC, N8, N16, A8, A16, E8, 
+        NZ, NC, Z, // for the jump conditions
     };
 
     enum ALUOperation {
@@ -175,6 +176,9 @@ private:
     uint8_t PROCESS_ALU(Operand target, Operand source, ALUOperation operation);
     uint8_t PROCESS_ALU16(Operand target, ALUOperation operation);
     uint8_t PROCESS_ALU16(Operand target, Operand source, ALUOperation operation);
+
+    uint8_t JUMPTO(Operand address);
+    uint8_t JUMPTO(OperandName condition, Operand address);
 
 private:
     // these are technically core functions, but they are called by wrapping core functions 
