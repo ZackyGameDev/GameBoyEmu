@@ -62,7 +62,11 @@ SM83::SM83() {
         {"RST", &x::RST_38, 16}, 
     };
 
-    std::cout << "[DEBUG] opcodes loaded into the lookup table <-----\n";
+    prefixed_opcode_lookup = {
+
+    };
+
+    std::cout << "[DEBUG] opcodes loaded into the lookup tables <-----\n";
 }
 
 SM83::~SM83() {
@@ -71,10 +75,22 @@ SM83::~SM83() {
 
 void SM83::clock() {
     uint8_t opcode = read(pc++);
-    
-    if (opcode != 0xcb) {
-        (this->*unprefixed_opcode_lookup[opcode].operate)();
+    uint8_t additional_clock_cycles = 0;
+
+    if (cycles == 0) {
+        if (ime > 1) ime--; // this is part of IE instruction implementation. because it acts one instruction after the IE instruct.
+
+        if (opcode == 0xcb) {
+            opcode = read(pc++);
+            additional_clock_cycles = (this->*prefixed_opcode_lookup[opcode].operate)();
+            cycles = prefixed_opcode_lookup[opcode].cycles + additional_clock_cycles + 4; // + 4 is for the CB instruction cycles.
+        } else {
+            additional_clock_cycles = (this->*unprefixed_opcode_lookup[opcode].operate)();
+            cycles = unprefixed_opcode_lookup[opcode].cycles + additional_clock_cycles;
+        }
     }
+
+    cycles--;
 
 }
 
@@ -526,12 +542,12 @@ uint8_t SM83::CALL(OperandName condition, Operand address) {
 }
 
 
-uint8_t SM83::RET() {
+uint8_t SM83::RETURNFROMFUNCTION() {
     POP({PC, true});
     return 0;
 }
 
-uint8_t SM83::RET(OperandName condition) {
+uint8_t SM83::RETURNFROMFUNCTION(OperandName condition) {
     switch (condition) {
         case C: if (not getFlag(fc)) return 0;
         case NC: if (not !getFlag(fc)); return 0;
@@ -543,6 +559,21 @@ uint8_t SM83::RET(OperandName condition) {
     return 12; // takes 12 additional cycles if the condition is true;
 }
 
+uint8_t SM83::RETURNANDEI() {
+    EI();
+    RETURNFROMFUNCTION();
+    return 0;
+}
+
+uint8_t SM83::ENABLEINTERRUPTS() {
+    ime = 2;
+    return 0;
+}
+
+uint8_t SM83::DISABLEINTERRUPTS() {
+    ime = 0;
+    return 0;
+}
 
 // CORE HELPERS
 

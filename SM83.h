@@ -36,6 +36,9 @@ public:
     uint16_t de = 0x0000;
     uint16_t hl = 0x0000;
 
+    int8_t ime = 0; // global interrupt flag (not memory mapped) handled by DI and EI instructions
+    // 1 is true, 0 is false. if ime > 1, then after every clock() function, the CPU will decrement ime
+
     void updateRegisters16() { // this function must be called whenever the uint8_t register vars are affected
         this->af = (this->a << 8) | this->f;
         this->bc = (this->b << 8) | this->c;
@@ -84,6 +87,7 @@ private:
     uint16_t fetched16 = 0x0000;
     uint16_t addr_abs = 0x0000; // if an operand is [a16] then i deal with it using this variable manually 
     //uint8_t *target_register = nullptr; // for LDR instruction
+    uint8_t cycles = 0;
     uint16_t temp = 0x0000;
     uint8_t read(uint16_t addr);
     uint8_t* readPttr(uint16_t addr);
@@ -115,6 +119,7 @@ private:
     };
 
     std::vector<Instruction> unprefixed_opcode_lookup;
+    std::vector<Instruction> prefixed_opcode_lookup;
 
     // addressing modes
 //    uint8_t IMM(); uint8_t DRT(); uint8_t 
@@ -124,6 +129,8 @@ private:
     // instruction operations/wrappers
     // uint8_t NOP(); uint8_t LDBC(); uint8_t LDmBC(); uint8_t INCBC(); uint8_t INCB(); uint8_t DECB(); uint8_t LDB(); uint8_t RLCA();
     // uint8_t LDaddr(); uint8_t ADDHL(); uint8_t LDA(); uint8_t
+
+    // UNPREFIXED
     uint8_t NOP(); uint8_t LD_BC_n16(); uint8_t LD_aBC_A(); uint8_t INC_BC(); uint8_t INC_B(); uint8_t DEC_B(); uint8_t LD_B_n8();
     uint8_t RLCA(); uint8_t LD_aa16_SP(); uint8_t ADD_HL_BC(); uint8_t LD_A_aBC(); uint8_t DEC_BC(); uint8_t INC_C(); uint8_t DEC_C();
     uint8_t LD_C_n8(); uint8_t RRCA(); uint8_t STOP_n8(); uint8_t LD_DE_n16(); uint8_t LD_aDE_A(); uint8_t INC_DE(); uint8_t INC_D();
@@ -181,8 +188,13 @@ private:
     uint8_t JUMPTO(OperandName condition, Operand address);
     uint8_t CALL(Operand address);
     uint8_t CALL(OperandName condition, Operand address);
-    uint8_t RET();
-    uint8_t RET(OperandName condition);
+    uint8_t RETURNFROMFUNCTION();
+    uint8_t RETURNFROMFUNCTION(OperandName condition);
+
+    uint8_t ENABLEINTERRUPTS();
+    uint8_t DISABLEINTERRUPTS();
+    uint8_t RETURNANDEI();
+
 
 private:
     // these are technically core functions, but they are called by wrapping core functions 
