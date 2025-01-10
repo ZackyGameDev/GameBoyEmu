@@ -46,12 +46,12 @@ SM83::SM83() {
         {"XOR", &x::XOR_A_A, 4}, {"OR", &x::OR_A_B, 4}, {"OR", &x::OR_A_C, 4}, {"OR", &x::OR_A_D, 4}, {"OR", &x::OR_A_E, 4},
         {"OR", &x::OR_A_H, 4}, {"OR", &x::OR_A_L, 4}, {"OR", &x::OR_A_aHL, 8}, {"OR", &x::OR_A_A, 4}, {"CP", &x::CP_A_B, 4},
         {"CP", &x::CP_A_C, 4}, {"CP", &x::CP_A_D, 4}, {"CP", &x::CP_A_E, 4}, {"CP", &x::CP_A_H, 4}, {"CP", &x::CP_A_L, 4},
-        {"CP", &x::CP_A_aHL, 8}, {"CP", &x::CP_A_A, 4}, {"RET", &x::RET_NZ, 20}, {"POP", &x::POP_BC, 12}, {"JP", &x::JP_NZ_a16, 12},
+        {"CP", &x::CP_A_aHL, 8}, {"CP", &x::CP_A_A, 4}, {"RET", &x::RET_NZ, 8}, {"POP", &x::POP_BC, 12}, {"JP", &x::JP_NZ_a16, 12},
         {"JP", &x::JP_a16, 16}, {"CALL", &x::CALL_NZ_a16, 12}, {"PUSH", &x::PUSH_BC, 16}, {"ADD", &x::ADD_A_n8, 8}, {"RST", &x::RST_00, 16},
-        {"RET", &x::RET_Z, 20}, {"RET", &x::RET, 16}, {"JP", &x::JP_Z_a16, 12}, {"PREFIX", &x::PREFIX, 4}, {"CALL", &x::CALL_Z_a16, 12},
-        {"CALL", &x::CALL_a16, 24}, {"ADC", &x::ADC_A_n8, 8}, {"RST", &x::RST_08, 16}, {"RET", &x::RET_NC, 20}, {"POP", &x::POP_DE, 12},
+        {"RET", &x::RET_Z, 8}, {"RET", &x::RET, 16}, {"JP", &x::JP_Z_a16, 12}, {"PREFIX", &x::PREFIX, 4}, {"CALL", &x::CALL_Z_a16, 12},
+        {"CALL", &x::CALL_a16, 24}, {"ADC", &x::ADC_A_n8, 8}, {"RST", &x::RST_08, 16}, {"RET", &x::RET_NC, 8}, {"POP", &x::POP_DE, 12},
         {"JP", &x::JP_NC_a16, 12}, {"ILLEGAL_D3", &x::ILLEGAL_D3, 4}, {"CALL", &x::CALL_NC_a16, 12}, {"PUSH", &x::PUSH_DE, 16}, {"SUB", &x::SUB_A_n8, 8},
-        {"RST", &x::RST_10, 16}, {"RET", &x::RET_C, 20}, {"RETI", &x::RETI, 16}, {"JP", &x::JP_C_a16, 12}, {"ILLEGAL_DB", &x::ILLEGAL_DB, 4},
+        {"RST", &x::RST_10, 16}, {"RET", &x::RET_C, 8}, {"RETI", &x::RETI, 16}, {"JP", &x::JP_C_a16, 12}, {"ILLEGAL_DB", &x::ILLEGAL_DB, 4},
         {"CALL", &x::CALL_C_a16, 12}, {"ILLEGAL_DD", &x::ILLEGAL_DD, 4}, {"SBC", &x::SBC_A_n8, 8}, {"RST", &x::RST_18, 16}, {"LDH", &x::LDH_aa8_A, 12},
         {"POP", &x::POP_HL, 12}, {"LDH", &x::LDH_aC_A, 8}, {"ILLEGAL_E3", &x::ILLEGAL_E3, 4}, {"ILLEGAL_E4", &x::ILLEGAL_E4, 4}, {"PUSH", &x::PUSH_HL, 16},
         {"AND", &x::AND_A_n8, 8}, {"RST", &x::RST_20, 16}, {"ADD", &x::ADD_SP_e8, 16}, {"JP", &x::JP_HL, 4}, {"LD", &x::LD_aa16_A, 16},
@@ -523,6 +523,24 @@ uint8_t SM83::CALL(OperandName condition, Operand address) {
 
     CALL(address);
     return 12;
+}
+
+
+uint8_t SM83::RET() {
+    POP({PC, true});
+    return 0;
+}
+
+uint8_t SM83::RET(OperandName condition) {
+    switch (condition) {
+        case C: if (not getFlag(fc)) return 0;
+        case NC: if (not !getFlag(fc)); return 0;
+        case Z: if (not getFlag(fz)); return 0;
+        case NZ: if (not !getFlag(fz)); return 0;
+    }
+
+    POP({PC, true});
+    return 12; // takes 12 additional cycles if the condition is true;
 }
 
 
