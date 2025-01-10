@@ -179,6 +179,8 @@ private:
 
     uint8_t JUMPTO(Operand address);
     uint8_t JUMPTO(OperandName condition, Operand address);
+    uint8_t CALL(Operand address);
+    uint8_t CALL(OperandName condition, Operand address);
 
 private:
     // these are technically core functions, but they are called by wrapping core functions 
