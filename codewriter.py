@@ -9,6 +9,7 @@ output = ""
 count = 0
 function_names = []
 unpre = opcodes_dict['unprefixed']
+pre = opcodes_dict['cbprefixed']
 operands = set()
 
 def insertbody(functiondefinition: str, bodytoinsert: str):
@@ -19,6 +20,8 @@ def makedefinition(functionname: str, body: str):
 
 
 # this is my least favourite part of working on this project
+
+
 for i in unpre:
 
     # for operand in unpre[i]['operands']:
@@ -232,5 +235,54 @@ for i in unpre:
 
 # [print(operand) for operand in operands if not operand.startswith("$")]
 
-with open("hackoutputs.txt", 'w') as f:
+with open("codewriteroutput/unprefixeddefinitions.txt", 'w') as f:
     f.write(output)
+
+
+
+output = ""
+print('\n\n')
+for i in pre:
+    
+    # generating function name
+    function_name = pre[i]['mnemonic']
+    for operand in pre[i]['operands']:
+
+        name = operand['name']
+        if not operand['immediate']:
+            name = 'a' + name
+        if 'increment' in operand:
+            name = name + "I"
+        if 'decrement' in operand:
+            name = name + 'D'
+        function_name = function_name + "_" + name
+        function_name = function_name.replace("$", "")
+
+    # now generating function body
+    function_definition = makedefinition(function_name, '{ return 0; }')
+
+    instruction_init_list = '{\"' + pre[i]['mnemonic'] + '\", &x::' + function_name + ", " + str(pre[i]['cycles'][0]) + '},'
+
+    # function_definition: str = "uint8_t SM83::" + function_name + "() {}"
+    # function_definition = function_definition.format('{ return 0; }')
+
+
+    count += 1
+    if count == 6:
+        # print("uint8_t " + function_name + "();")
+        # print(instruction_init_list)
+        # output = output + instruction_init_list + "\n"
+        print(function_definition)
+        output = output + function_definition + "\n"
+        count = 0
+    else:
+        pass
+        print(function_definition)
+        output = output + function_definition + "\n"
+        # print("uint8_t " + function_name + "();", end=' ')
+        # print(instruction_init_list, end=' ')
+        # output = output + instruction_init_list + ' '
+    
+    
+    with open("codewriteroutput/cbprefixeddefinitions.txt", 'w') as f:
+        f.write(output)

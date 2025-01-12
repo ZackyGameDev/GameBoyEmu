@@ -63,7 +63,49 @@ SM83::SM83() {
     };
 
     prefixed_opcode_lookup = {
-
+        {"RLC", &x::RLC_B, 8}, {"RLC", &x::RLC_C, 8}, {"RLC", &x::RLC_D, 8}, {"RLC", &x::RLC_E, 8}, {"RLC", &x::RLC_H, 8}, {"RLC", &x::RLC_L, 8},
+        {"RLC", &x::RLC_aHL, 16}, {"RLC", &x::RLC_A, 8}, {"RRC", &x::RRC_B, 8}, {"RRC", &x::RRC_C, 8}, {"RRC", &x::RRC_D, 8}, {"RRC", &x::RRC_E, 8},
+        {"RRC", &x::RRC_H, 8}, {"RRC", &x::RRC_L, 8}, {"RRC", &x::RRC_aHL, 16}, {"RRC", &x::RRC_A, 8}, {"RL", &x::RL_B, 8}, {"RL", &x::RL_C, 8},
+        {"RL", &x::RL_D, 8}, {"RL", &x::RL_E, 8}, {"RL", &x::RL_H, 8}, {"RL", &x::RL_L, 8}, {"RL", &x::RL_aHL, 16}, {"RL", &x::RL_A, 8},
+        {"RR", &x::RR_B, 8}, {"RR", &x::RR_C, 8}, {"RR", &x::RR_D, 8}, {"RR", &x::RR_E, 8}, {"RR", &x::RR_H, 8}, {"RR", &x::RR_L, 8},
+        {"RR", &x::RR_aHL, 16}, {"RR", &x::RR_A, 8}, {"SLA", &x::SLA_B, 8}, {"SLA", &x::SLA_C, 8}, {"SLA", &x::SLA_D, 8}, {"SLA", &x::SLA_E, 8},
+        {"SLA", &x::SLA_H, 8}, {"SLA", &x::SLA_L, 8}, {"SLA", &x::SLA_aHL, 16}, {"SLA", &x::SLA_A, 8}, {"SRA", &x::SRA_B, 8}, {"SRA", &x::SRA_C, 8},
+        {"SRA", &x::SRA_D, 8}, {"SRA", &x::SRA_E, 8}, {"SRA", &x::SRA_H, 8}, {"SRA", &x::SRA_L, 8}, {"SRA", &x::SRA_aHL, 16}, {"SRA", &x::SRA_A, 8},
+        {"SWAP", &x::SWAP_B, 8}, {"SWAP", &x::SWAP_C, 8}, {"SWAP", &x::SWAP_D, 8}, {"SWAP", &x::SWAP_E, 8}, {"SWAP", &x::SWAP_H, 8}, {"SWAP", &x::SWAP_L, 8},  
+        {"SWAP", &x::SWAP_aHL, 16}, {"SWAP", &x::SWAP_A, 8}, {"SRL", &x::SRL_B, 8}, {"SRL", &x::SRL_C, 8}, {"SRL", &x::SRL_D, 8}, {"SRL", &x::SRL_E, 8},       
+        {"SRL", &x::SRL_H, 8}, {"SRL", &x::SRL_L, 8}, {"SRL", &x::SRL_aHL, 16}, {"SRL", &x::SRL_A, 8}, {"BIT", &x::BIT_0_B, 8}, {"BIT", &x::BIT_0_C, 8},       
+        {"BIT", &x::BIT_0_D, 8}, {"BIT", &x::BIT_0_E, 8}, {"BIT", &x::BIT_0_H, 8}, {"BIT", &x::BIT_0_L, 8}, {"BIT", &x::BIT_0_aHL, 12}, {"BIT", &x::BIT_0_A, 8},
+        {"BIT", &x::BIT_1_B, 8}, {"BIT", &x::BIT_1_C, 8}, {"BIT", &x::BIT_1_D, 8}, {"BIT", &x::BIT_1_E, 8}, {"BIT", &x::BIT_1_H, 8}, {"BIT", &x::BIT_1_L, 8},  
+        {"BIT", &x::BIT_1_aHL, 12}, {"BIT", &x::BIT_1_A, 8}, {"BIT", &x::BIT_2_B, 8}, {"BIT", &x::BIT_2_C, 8}, {"BIT", &x::BIT_2_D, 8}, {"BIT", &x::BIT_2_E, 8},
+        {"BIT", &x::BIT_2_H, 8}, {"BIT", &x::BIT_2_L, 8}, {"BIT", &x::BIT_2_aHL, 12}, {"BIT", &x::BIT_2_A, 8}, {"BIT", &x::BIT_3_B, 8}, {"BIT", &x::BIT_3_C, 8},
+        {"BIT", &x::BIT_3_D, 8}, {"BIT", &x::BIT_3_E, 8}, {"BIT", &x::BIT_3_H, 8}, {"BIT", &x::BIT_3_L, 8}, {"BIT", &x::BIT_3_aHL, 12}, {"BIT", &x::BIT_3_A, 8},
+        {"BIT", &x::BIT_4_B, 8}, {"BIT", &x::BIT_4_C, 8}, {"BIT", &x::BIT_4_D, 8}, {"BIT", &x::BIT_4_E, 8}, {"BIT", &x::BIT_4_H, 8}, {"BIT", &x::BIT_4_L, 8},  
+        {"BIT", &x::BIT_4_aHL, 12}, {"BIT", &x::BIT_4_A, 8}, {"BIT", &x::BIT_5_B, 8}, {"BIT", &x::BIT_5_C, 8}, {"BIT", &x::BIT_5_D, 8}, {"BIT", &x::BIT_5_E, 8},
+        {"BIT", &x::BIT_5_H, 8}, {"BIT", &x::BIT_5_L, 8}, {"BIT", &x::BIT_5_aHL, 12}, {"BIT", &x::BIT_5_A, 8}, {"BIT", &x::BIT_6_B, 8}, {"BIT", &x::BIT_6_C, 8},
+        {"BIT", &x::BIT_6_D, 8}, {"BIT", &x::BIT_6_E, 8}, {"BIT", &x::BIT_6_H, 8}, {"BIT", &x::BIT_6_L, 8}, {"BIT", &x::BIT_6_aHL, 12}, {"BIT", &x::BIT_6_A, 8},
+        {"BIT", &x::BIT_7_B, 8}, {"BIT", &x::BIT_7_C, 8}, {"BIT", &x::BIT_7_D, 8}, {"BIT", &x::BIT_7_E, 8}, {"BIT", &x::BIT_7_H, 8}, {"BIT", &x::BIT_7_L, 8},  
+        {"BIT", &x::BIT_7_aHL, 12}, {"BIT", &x::BIT_7_A, 8}, {"RES", &x::RES_0_B, 8}, {"RES", &x::RES_0_C, 8}, {"RES", &x::RES_0_D, 8}, {"RES", &x::RES_0_E, 8},
+        {"RES", &x::RES_0_H, 8}, {"RES", &x::RES_0_L, 8}, {"RES", &x::RES_0_aHL, 16}, {"RES", &x::RES_0_A, 8}, {"RES", &x::RES_1_B, 8}, {"RES", &x::RES_1_C, 8},
+        {"RES", &x::RES_1_D, 8}, {"RES", &x::RES_1_E, 8}, {"RES", &x::RES_1_H, 8}, {"RES", &x::RES_1_L, 8}, {"RES", &x::RES_1_aHL, 16}, {"RES", &x::RES_1_A, 8},
+        {"RES", &x::RES_2_B, 8}, {"RES", &x::RES_2_C, 8}, {"RES", &x::RES_2_D, 8}, {"RES", &x::RES_2_E, 8}, {"RES", &x::RES_2_H, 8}, {"RES", &x::RES_2_L, 8},  
+        {"RES", &x::RES_2_aHL, 16}, {"RES", &x::RES_2_A, 8}, {"RES", &x::RES_3_B, 8}, {"RES", &x::RES_3_C, 8}, {"RES", &x::RES_3_D, 8}, {"RES", &x::RES_3_E, 8},
+        {"RES", &x::RES_3_H, 8}, {"RES", &x::RES_3_L, 8}, {"RES", &x::RES_3_aHL, 16}, {"RES", &x::RES_3_A, 8}, {"RES", &x::RES_4_B, 8}, {"RES", &x::RES_4_C, 8},
+        {"RES", &x::RES_4_D, 8}, {"RES", &x::RES_4_E, 8}, {"RES", &x::RES_4_H, 8}, {"RES", &x::RES_4_L, 8}, {"RES", &x::RES_4_aHL, 16}, {"RES", &x::RES_4_A, 8},
+        {"RES", &x::RES_5_B, 8}, {"RES", &x::RES_5_C, 8}, {"RES", &x::RES_5_D, 8}, {"RES", &x::RES_5_E, 8}, {"RES", &x::RES_5_H, 8}, {"RES", &x::RES_5_L, 8},  
+        {"RES", &x::RES_5_aHL, 16}, {"RES", &x::RES_5_A, 8}, {"RES", &x::RES_6_B, 8}, {"RES", &x::RES_6_C, 8}, {"RES", &x::RES_6_D, 8}, {"RES", &x::RES_6_E, 8},
+        {"RES", &x::RES_6_H, 8}, {"RES", &x::RES_6_L, 8}, {"RES", &x::RES_6_aHL, 16}, {"RES", &x::RES_6_A, 8}, {"RES", &x::RES_7_B, 8}, {"RES", &x::RES_7_C, 8},
+        {"RES", &x::RES_7_D, 8}, {"RES", &x::RES_7_E, 8}, {"RES", &x::RES_7_H, 8}, {"RES", &x::RES_7_L, 8}, {"RES", &x::RES_7_aHL, 16}, {"RES", &x::RES_7_A, 8},
+        {"SET", &x::SET_0_B, 8}, {"SET", &x::SET_0_C, 8}, {"SET", &x::SET_0_D, 8}, {"SET", &x::SET_0_E, 8}, {"SET", &x::SET_0_H, 8}, {"SET", &x::SET_0_L, 8},  
+        {"SET", &x::SET_0_aHL, 16}, {"SET", &x::SET_0_A, 8}, {"SET", &x::SET_1_B, 8}, {"SET", &x::SET_1_C, 8}, {"SET", &x::SET_1_D, 8}, {"SET", &x::SET_1_E, 8},
+        {"SET", &x::SET_1_H, 8}, {"SET", &x::SET_1_L, 8}, {"SET", &x::SET_1_aHL, 16}, {"SET", &x::SET_1_A, 8}, {"SET", &x::SET_2_B, 8}, {"SET", &x::SET_2_C, 8},
+        {"SET", &x::SET_2_D, 8}, {"SET", &x::SET_2_E, 8}, {"SET", &x::SET_2_H, 8}, {"SET", &x::SET_2_L, 8}, {"SET", &x::SET_2_aHL, 16}, {"SET", &x::SET_2_A, 8},
+        {"SET", &x::SET_3_B, 8}, {"SET", &x::SET_3_C, 8}, {"SET", &x::SET_3_D, 8}, {"SET", &x::SET_3_E, 8}, {"SET", &x::SET_3_H, 8}, {"SET", &x::SET_3_L, 8},  
+        {"SET", &x::SET_3_aHL, 16}, {"SET", &x::SET_3_A, 8}, {"SET", &x::SET_4_B, 8}, {"SET", &x::SET_4_C, 8}, {"SET", &x::SET_4_D, 8}, {"SET", &x::SET_4_E, 8},
+        {"SET", &x::SET_4_H, 8}, {"SET", &x::SET_4_L, 8}, {"SET", &x::SET_4_aHL, 16}, {"SET", &x::SET_4_A, 8}, {"SET", &x::SET_5_B, 8}, {"SET", &x::SET_5_C, 8},
+        {"SET", &x::SET_5_D, 8}, {"SET", &x::SET_5_E, 8}, {"SET", &x::SET_5_H, 8}, {"SET", &x::SET_5_L, 8}, {"SET", &x::SET_5_aHL, 16}, {"SET", &x::SET_5_A, 8},
+        {"SET", &x::SET_6_B, 8}, {"SET", &x::SET_6_C, 8}, {"SET", &x::SET_6_D, 8}, {"SET", &x::SET_6_E, 8}, {"SET", &x::SET_6_H, 8}, {"SET", &x::SET_6_L, 8},  
+        {"SET", &x::SET_6_aHL, 16}, {"SET", &x::SET_6_A, 8}, {"SET", &x::SET_7_B, 8}, {"SET", &x::SET_7_C, 8}, {"SET", &x::SET_7_D, 8}, {"SET", &x::SET_7_E, 8},
+        {"SET", &x::SET_7_H, 8}, {"SET", &x::SET_7_L, 8}, {"SET", &x::SET_7_aHL, 16}, {"SET", &x::SET_7_A, 8},
     };
 
     std::cout << "[DEBUG] opcodes loaded into the lookup tables <-----\n";
@@ -881,3 +923,262 @@ uint8_t SM83::ILLEGAL_FC() { return 0; }
 uint8_t SM83::ILLEGAL_FD() { return 0; }
 uint8_t SM83::CP_A_n8() { return PROCESS_ALU({A, true}, {N8, true}, CP); }
 uint8_t SM83::RST_38() { return 0; }
+
+
+// CB PREFIXED
+uint8_t SM83::RLC_B() { return 0; }
+uint8_t SM83::RLC_C() { return 0; }
+uint8_t SM83::RLC_D() { return 0; }
+uint8_t SM83::RLC_E() { return 0; }
+uint8_t SM83::RLC_H() { return 0; }
+uint8_t SM83::RLC_L() { return 0; }
+uint8_t SM83::RLC_aHL() { return 0; }
+uint8_t SM83::RLC_A() { return 0; }
+uint8_t SM83::RRC_B() { return 0; }
+uint8_t SM83::RRC_C() { return 0; }
+uint8_t SM83::RRC_D() { return 0; }
+uint8_t SM83::RRC_E() { return 0; }
+uint8_t SM83::RRC_H() { return 0; }
+uint8_t SM83::RRC_L() { return 0; }
+uint8_t SM83::RRC_aHL() { return 0; }
+uint8_t SM83::RRC_A() { return 0; }
+uint8_t SM83::RL_B() { return 0; }
+uint8_t SM83::RL_C() { return 0; }
+uint8_t SM83::RL_D() { return 0; }
+uint8_t SM83::RL_E() { return 0; }
+uint8_t SM83::RL_H() { return 0; }
+uint8_t SM83::RL_L() { return 0; }
+uint8_t SM83::RL_aHL() { return 0; }
+uint8_t SM83::RL_A() { return 0; }
+uint8_t SM83::RR_B() { return 0; }
+uint8_t SM83::RR_C() { return 0; }
+uint8_t SM83::RR_D() { return 0; }
+uint8_t SM83::RR_E() { return 0; }
+uint8_t SM83::RR_H() { return 0; }
+uint8_t SM83::RR_L() { return 0; }
+uint8_t SM83::RR_aHL() { return 0; }
+uint8_t SM83::RR_A() { return 0; }
+uint8_t SM83::SLA_B() { return 0; }
+uint8_t SM83::SLA_C() { return 0; }
+uint8_t SM83::SLA_D() { return 0; }
+uint8_t SM83::SLA_E() { return 0; }
+uint8_t SM83::SLA_H() { return 0; }
+uint8_t SM83::SLA_L() { return 0; }
+uint8_t SM83::SLA_aHL() { return 0; }
+uint8_t SM83::SLA_A() { return 0; }
+uint8_t SM83::SRA_B() { return 0; }
+uint8_t SM83::SRA_C() { return 0; }
+uint8_t SM83::SRA_D() { return 0; }
+uint8_t SM83::SRA_E() { return 0; }
+uint8_t SM83::SRA_H() { return 0; }
+uint8_t SM83::SRA_L() { return 0; }
+uint8_t SM83::SRA_aHL() { return 0; }
+uint8_t SM83::SRA_A() { return 0; }
+uint8_t SM83::SWAP_B() { return 0; }
+uint8_t SM83::SWAP_C() { return 0; }
+uint8_t SM83::SWAP_D() { return 0; }
+uint8_t SM83::SWAP_E() { return 0; }
+uint8_t SM83::SWAP_H() { return 0; }
+uint8_t SM83::SWAP_L() { return 0; }
+uint8_t SM83::SWAP_aHL() { return 0; }
+uint8_t SM83::SWAP_A() { return 0; }
+uint8_t SM83::SRL_B() { return 0; }
+uint8_t SM83::SRL_C() { return 0; }
+uint8_t SM83::SRL_D() { return 0; }
+uint8_t SM83::SRL_E() { return 0; }
+uint8_t SM83::SRL_H() { return 0; }
+uint8_t SM83::SRL_L() { return 0; }
+uint8_t SM83::SRL_aHL() { return 0; }
+uint8_t SM83::SRL_A() { return 0; }
+uint8_t SM83::BIT_0_B() { return 0; }
+uint8_t SM83::BIT_0_C() { return 0; }
+uint8_t SM83::BIT_0_D() { return 0; }
+uint8_t SM83::BIT_0_E() { return 0; }
+uint8_t SM83::BIT_0_H() { return 0; }
+uint8_t SM83::BIT_0_L() { return 0; }
+uint8_t SM83::BIT_0_aHL() { return 0; }
+uint8_t SM83::BIT_0_A() { return 0; }
+uint8_t SM83::BIT_1_B() { return 0; }
+uint8_t SM83::BIT_1_C() { return 0; }
+uint8_t SM83::BIT_1_D() { return 0; }
+uint8_t SM83::BIT_1_E() { return 0; }
+uint8_t SM83::BIT_1_H() { return 0; }
+uint8_t SM83::BIT_1_L() { return 0; }
+uint8_t SM83::BIT_1_aHL() { return 0; }
+uint8_t SM83::BIT_1_A() { return 0; }
+uint8_t SM83::BIT_2_B() { return 0; }
+uint8_t SM83::BIT_2_C() { return 0; }
+uint8_t SM83::BIT_2_D() { return 0; }
+uint8_t SM83::BIT_2_E() { return 0; }
+uint8_t SM83::BIT_2_H() { return 0; }
+uint8_t SM83::BIT_2_L() { return 0; }
+uint8_t SM83::BIT_2_aHL() { return 0; }
+uint8_t SM83::BIT_2_A() { return 0; }
+uint8_t SM83::BIT_3_B() { return 0; }
+uint8_t SM83::BIT_3_C() { return 0; }
+uint8_t SM83::BIT_3_D() { return 0; }
+uint8_t SM83::BIT_3_E() { return 0; }
+uint8_t SM83::BIT_3_H() { return 0; }
+uint8_t SM83::BIT_3_L() { return 0; }
+uint8_t SM83::BIT_3_aHL() { return 0; }
+uint8_t SM83::BIT_3_A() { return 0; }
+uint8_t SM83::BIT_4_B() { return 0; }
+uint8_t SM83::BIT_4_C() { return 0; }
+uint8_t SM83::BIT_4_D() { return 0; }
+uint8_t SM83::BIT_4_E() { return 0; }
+uint8_t SM83::BIT_4_H() { return 0; }
+uint8_t SM83::BIT_4_L() { return 0; }
+uint8_t SM83::BIT_4_aHL() { return 0; }
+uint8_t SM83::BIT_4_A() { return 0; }
+uint8_t SM83::BIT_5_B() { return 0; }
+uint8_t SM83::BIT_5_C() { return 0; }
+uint8_t SM83::BIT_5_D() { return 0; }
+uint8_t SM83::BIT_5_E() { return 0; }
+uint8_t SM83::BIT_5_H() { return 0; }
+uint8_t SM83::BIT_5_L() { return 0; }
+uint8_t SM83::BIT_5_aHL() { return 0; }
+uint8_t SM83::BIT_5_A() { return 0; }
+uint8_t SM83::BIT_6_B() { return 0; }
+uint8_t SM83::BIT_6_C() { return 0; }
+uint8_t SM83::BIT_6_D() { return 0; }
+uint8_t SM83::BIT_6_E() { return 0; }
+uint8_t SM83::BIT_6_H() { return 0; }
+uint8_t SM83::BIT_6_L() { return 0; }
+uint8_t SM83::BIT_6_aHL() { return 0; }
+uint8_t SM83::BIT_6_A() { return 0; }
+uint8_t SM83::BIT_7_B() { return 0; }
+uint8_t SM83::BIT_7_C() { return 0; }
+uint8_t SM83::BIT_7_D() { return 0; }
+uint8_t SM83::BIT_7_E() { return 0; }
+uint8_t SM83::BIT_7_H() { return 0; }
+uint8_t SM83::BIT_7_L() { return 0; }
+uint8_t SM83::BIT_7_aHL() { return 0; }
+uint8_t SM83::BIT_7_A() { return 0; }
+uint8_t SM83::RES_0_B() { return 0; }
+uint8_t SM83::RES_0_C() { return 0; }
+uint8_t SM83::RES_0_D() { return 0; }
+uint8_t SM83::RES_0_E() { return 0; }
+uint8_t SM83::RES_0_H() { return 0; }
+uint8_t SM83::RES_0_L() { return 0; }
+uint8_t SM83::RES_0_aHL() { return 0; }
+uint8_t SM83::RES_0_A() { return 0; }
+uint8_t SM83::RES_1_B() { return 0; }
+uint8_t SM83::RES_1_C() { return 0; }
+uint8_t SM83::RES_1_D() { return 0; }
+uint8_t SM83::RES_1_E() { return 0; }
+uint8_t SM83::RES_1_H() { return 0; }
+uint8_t SM83::RES_1_L() { return 0; }
+uint8_t SM83::RES_1_aHL() { return 0; }
+uint8_t SM83::RES_1_A() { return 0; }
+uint8_t SM83::RES_2_B() { return 0; }
+uint8_t SM83::RES_2_C() { return 0; }
+uint8_t SM83::RES_2_D() { return 0; }
+uint8_t SM83::RES_2_E() { return 0; }
+uint8_t SM83::RES_2_H() { return 0; }
+uint8_t SM83::RES_2_L() { return 0; }
+uint8_t SM83::RES_2_aHL() { return 0; }
+uint8_t SM83::RES_2_A() { return 0; }
+uint8_t SM83::RES_3_B() { return 0; }
+uint8_t SM83::RES_3_C() { return 0; }
+uint8_t SM83::RES_3_D() { return 0; }
+uint8_t SM83::RES_3_E() { return 0; }
+uint8_t SM83::RES_3_H() { return 0; }
+uint8_t SM83::RES_3_L() { return 0; }
+uint8_t SM83::RES_3_aHL() { return 0; }
+uint8_t SM83::RES_3_A() { return 0; }
+uint8_t SM83::RES_4_B() { return 0; }
+uint8_t SM83::RES_4_C() { return 0; }
+uint8_t SM83::RES_4_D() { return 0; }
+uint8_t SM83::RES_4_E() { return 0; }
+uint8_t SM83::RES_4_H() { return 0; }
+uint8_t SM83::RES_4_L() { return 0; }
+uint8_t SM83::RES_4_aHL() { return 0; }
+uint8_t SM83::RES_4_A() { return 0; }
+uint8_t SM83::RES_5_B() { return 0; }
+uint8_t SM83::RES_5_C() { return 0; }
+uint8_t SM83::RES_5_D() { return 0; }
+uint8_t SM83::RES_5_E() { return 0; }
+uint8_t SM83::RES_5_H() { return 0; }
+uint8_t SM83::RES_5_L() { return 0; }
+uint8_t SM83::RES_5_aHL() { return 0; }
+uint8_t SM83::RES_5_A() { return 0; }
+uint8_t SM83::RES_6_B() { return 0; }
+uint8_t SM83::RES_6_C() { return 0; }
+uint8_t SM83::RES_6_D() { return 0; }
+uint8_t SM83::RES_6_E() { return 0; }
+uint8_t SM83::RES_6_H() { return 0; }
+uint8_t SM83::RES_6_L() { return 0; }
+uint8_t SM83::RES_6_aHL() { return 0; }
+uint8_t SM83::RES_6_A() { return 0; }
+uint8_t SM83::RES_7_B() { return 0; }
+uint8_t SM83::RES_7_C() { return 0; }
+uint8_t SM83::RES_7_D() { return 0; }
+uint8_t SM83::RES_7_E() { return 0; }
+uint8_t SM83::RES_7_H() { return 0; }
+uint8_t SM83::RES_7_L() { return 0; }
+uint8_t SM83::RES_7_aHL() { return 0; }
+uint8_t SM83::RES_7_A() { return 0; }
+uint8_t SM83::SET_0_B() { return 0; }
+uint8_t SM83::SET_0_C() { return 0; }
+uint8_t SM83::SET_0_D() { return 0; }
+uint8_t SM83::SET_0_E() { return 0; }
+uint8_t SM83::SET_0_H() { return 0; }
+uint8_t SM83::SET_0_L() { return 0; }
+uint8_t SM83::SET_0_aHL() { return 0; }
+uint8_t SM83::SET_0_A() { return 0; }
+uint8_t SM83::SET_1_B() { return 0; }
+uint8_t SM83::SET_1_C() { return 0; }
+uint8_t SM83::SET_1_D() { return 0; }
+uint8_t SM83::SET_1_E() { return 0; }
+uint8_t SM83::SET_1_H() { return 0; }
+uint8_t SM83::SET_1_L() { return 0; }
+uint8_t SM83::SET_1_aHL() { return 0; }
+uint8_t SM83::SET_1_A() { return 0; }
+uint8_t SM83::SET_2_B() { return 0; }
+uint8_t SM83::SET_2_C() { return 0; }
+uint8_t SM83::SET_2_D() { return 0; }
+uint8_t SM83::SET_2_E() { return 0; }
+uint8_t SM83::SET_2_H() { return 0; }
+uint8_t SM83::SET_2_L() { return 0; }
+uint8_t SM83::SET_2_aHL() { return 0; }
+uint8_t SM83::SET_2_A() { return 0; }
+uint8_t SM83::SET_3_B() { return 0; }
+uint8_t SM83::SET_3_C() { return 0; }
+uint8_t SM83::SET_3_D() { return 0; }
+uint8_t SM83::SET_3_E() { return 0; }
+uint8_t SM83::SET_3_H() { return 0; }
+uint8_t SM83::SET_3_L() { return 0; }
+uint8_t SM83::SET_3_aHL() { return 0; }
+uint8_t SM83::SET_3_A() { return 0; }
+uint8_t SM83::SET_4_B() { return 0; }
+uint8_t SM83::SET_4_C() { return 0; }
+uint8_t SM83::SET_4_D() { return 0; }
+uint8_t SM83::SET_4_E() { return 0; }
+uint8_t SM83::SET_4_H() { return 0; }
+uint8_t SM83::SET_4_L() { return 0; }
+uint8_t SM83::SET_4_aHL() { return 0; }
+uint8_t SM83::SET_4_A() { return 0; }
+uint8_t SM83::SET_5_B() { return 0; }
+uint8_t SM83::SET_5_C() { return 0; }
+uint8_t SM83::SET_5_D() { return 0; }
+uint8_t SM83::SET_5_E() { return 0; }
+uint8_t SM83::SET_5_H() { return 0; }
+uint8_t SM83::SET_5_L() { return 0; }
+uint8_t SM83::SET_5_aHL() { return 0; }
+uint8_t SM83::SET_5_A() { return 0; }
+uint8_t SM83::SET_6_B() { return 0; }
+uint8_t SM83::SET_6_C() { return 0; }
+uint8_t SM83::SET_6_D() { return 0; }
+uint8_t SM83::SET_6_E() { return 0; }
+uint8_t SM83::SET_6_H() { return 0; }
+uint8_t SM83::SET_6_L() { return 0; }
+uint8_t SM83::SET_6_aHL() { return 0; }
+uint8_t SM83::SET_6_A() { return 0; }
+uint8_t SM83::SET_7_B() { return 0; }
+uint8_t SM83::SET_7_C() { return 0; }
+uint8_t SM83::SET_7_D() { return 0; }
+uint8_t SM83::SET_7_E() { return 0; }
+uint8_t SM83::SET_7_H() { return 0; }
+uint8_t SM83::SET_7_L() { return 0; }
+uint8_t SM83::SET_7_aHL() { return 0; }
+uint8_t SM83::SET_7_A() { return 0; }
