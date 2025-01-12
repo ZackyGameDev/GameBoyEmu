@@ -291,7 +291,7 @@ for i in pre:
         args = '{' + args[0]['name'].upper() + ', ' + str(args[0]['immediate']).lower() + '}'
 
         # SHIFTS
-        if len(mnemonic) == 2:
+        if len(mnemonic) == 3:
             if mnemonic[1] == 'R':
                 args = args + ", .reversed=true"
             if mnemonic[2] == 'L':
@@ -299,7 +299,7 @@ for i in pre:
             function_definition = makedefinition(function_name, '{ return SHIFTLEFT(' + args + '); }')
 
         # SWAPS
-        if len(mnemonic) == 3:
+        if len(mnemonic) == 4:
             function_definition = makedefinition(function_name, '{ return SWAP(' + args + '); }')
 
     # the rest of them BITS, SETS, and RESETS
