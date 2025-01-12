@@ -293,9 +293,13 @@ for i in pre:
         # SHIFTS
         if len(mnemonic) == 3:
             if mnemonic[1] == 'R':
-                args = args + ", .reversed=true"
+                args = args + ", true"
+            else:
+                args = args + ", false"
             if mnemonic[2] == 'L':
-                args = args + ", .is_logical=true"
+                args = args + ", true"
+            else:
+                args = args + ", false"
             function_definition = makedefinition(function_name, '{ return SHIFTLEFT(' + args + '); }')
 
         # SWAPS

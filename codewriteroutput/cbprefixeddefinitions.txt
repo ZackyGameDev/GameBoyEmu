@@ -30,22 +30,22 @@ uint8_t SM83::RR_H() { return ROTATELEFT({H, true}, true, false); }
 uint8_t SM83::RR_L() { return ROTATELEFT({L, true}, true, false); }
 uint8_t SM83::RR_aHL() { return ROTATELEFT({HL, false}, true, false); }
 uint8_t SM83::RR_A() { return ROTATELEFT({A, true}, true, false); }
-uint8_t SM83::SLA_B() { return SHIFTLEFT({B, true}); }
-uint8_t SM83::SLA_C() { return SHIFTLEFT({C, true}); }
-uint8_t SM83::SLA_D() { return SHIFTLEFT({D, true}); }
-uint8_t SM83::SLA_E() { return SHIFTLEFT({E, true}); }
-uint8_t SM83::SLA_H() { return SHIFTLEFT({H, true}); }
-uint8_t SM83::SLA_L() { return SHIFTLEFT({L, true}); }
-uint8_t SM83::SLA_aHL() { return SHIFTLEFT({HL, false}); }
-uint8_t SM83::SLA_A() { return SHIFTLEFT({A, true}); }
-uint8_t SM83::SRA_B() { return SHIFTLEFT({B, true}, .reversed=true); }
-uint8_t SM83::SRA_C() { return SHIFTLEFT({C, true}, .reversed=true); }
-uint8_t SM83::SRA_D() { return SHIFTLEFT({D, true}, .reversed=true); }
-uint8_t SM83::SRA_E() { return SHIFTLEFT({E, true}, .reversed=true); }
-uint8_t SM83::SRA_H() { return SHIFTLEFT({H, true}, .reversed=true); }
-uint8_t SM83::SRA_L() { return SHIFTLEFT({L, true}, .reversed=true); }
-uint8_t SM83::SRA_aHL() { return SHIFTLEFT({HL, false}, .reversed=true); }
-uint8_t SM83::SRA_A() { return SHIFTLEFT({A, true}, .reversed=true); }
+uint8_t SM83::SLA_B() { return SHIFTLEFT({B, true}, false, false); }
+uint8_t SM83::SLA_C() { return SHIFTLEFT({C, true}, false, false); }
+uint8_t SM83::SLA_D() { return SHIFTLEFT({D, true}, false, false); }
+uint8_t SM83::SLA_E() { return SHIFTLEFT({E, true}, false, false); }
+uint8_t SM83::SLA_H() { return SHIFTLEFT({H, true}, false, false); }
+uint8_t SM83::SLA_L() { return SHIFTLEFT({L, true}, false, false); }
+uint8_t SM83::SLA_aHL() { return SHIFTLEFT({HL, false}, false, false); }
+uint8_t SM83::SLA_A() { return SHIFTLEFT({A, true}, false, false); }
+uint8_t SM83::SRA_B() { return SHIFTLEFT({B, true}, true, false); }
+uint8_t SM83::SRA_C() { return SHIFTLEFT({C, true}, true, false); }
+uint8_t SM83::SRA_D() { return SHIFTLEFT({D, true}, true, false); }
+uint8_t SM83::SRA_E() { return SHIFTLEFT({E, true}, true, false); }
+uint8_t SM83::SRA_H() { return SHIFTLEFT({H, true}, true, false); }
+uint8_t SM83::SRA_L() { return SHIFTLEFT({L, true}, true, false); }
+uint8_t SM83::SRA_aHL() { return SHIFTLEFT({HL, false}, true, false); }
+uint8_t SM83::SRA_A() { return SHIFTLEFT({A, true}, true, false); }
 uint8_t SM83::SWAP_B() { return SWAP({B, true}); }
 uint8_t SM83::SWAP_C() { return SWAP({C, true}); }
 uint8_t SM83::SWAP_D() { return SWAP({D, true}); }
@@ -54,14 +54,14 @@ uint8_t SM83::SWAP_H() { return SWAP({H, true}); }
 uint8_t SM83::SWAP_L() { return SWAP({L, true}); }
 uint8_t SM83::SWAP_aHL() { return SWAP({HL, false}); }
 uint8_t SM83::SWAP_A() { return SWAP({A, true}); }
-uint8_t SM83::SRL_B() { return SHIFTLEFT({B, true}, .reversed=true, .is_logical=true); }
-uint8_t SM83::SRL_C() { return SHIFTLEFT({C, true}, .reversed=true, .is_logical=true); }
-uint8_t SM83::SRL_D() { return SHIFTLEFT({D, true}, .reversed=true, .is_logical=true); }
-uint8_t SM83::SRL_E() { return SHIFTLEFT({E, true}, .reversed=true, .is_logical=true); }
-uint8_t SM83::SRL_H() { return SHIFTLEFT({H, true}, .reversed=true, .is_logical=true); }
-uint8_t SM83::SRL_L() { return SHIFTLEFT({L, true}, .reversed=true, .is_logical=true); }
-uint8_t SM83::SRL_aHL() { return SHIFTLEFT({HL, false}, .reversed=true, .is_logical=true); }
-uint8_t SM83::SRL_A() { return SHIFTLEFT({A, true}, .reversed=true, .is_logical=true); }
+uint8_t SM83::SRL_B() { return SHIFTLEFT({B, true}, true, true); }
+uint8_t SM83::SRL_C() { return SHIFTLEFT({C, true}, true, true); }
+uint8_t SM83::SRL_D() { return SHIFTLEFT({D, true}, true, true); }
+uint8_t SM83::SRL_E() { return SHIFTLEFT({E, true}, true, true); }
+uint8_t SM83::SRL_H() { return SHIFTLEFT({H, true}, true, true); }
+uint8_t SM83::SRL_L() { return SHIFTLEFT({L, true}, true, true); }
+uint8_t SM83::SRL_aHL() { return SHIFTLEFT({HL, false}, true, true); }
+uint8_t SM83::SRL_A() { return SHIFTLEFT({A, true}, true, true); }
 uint8_t SM83::BIT_0_B() { return BIT(0, {B, true}); }
 uint8_t SM83::BIT_0_C() { return BIT(0, {C, true}); }
 uint8_t SM83::BIT_0_D() { return BIT(0, {D, true}); }
