@@ -267,8 +267,51 @@ for i in pre:
     # function_definition = function_definition.format('{ return 0; }')
 
 
+
+    # ROTATES
+    if i[-2] in ("0", "1"):
+        mnemonic = pre[i]["mnemonic"]
+        args = pre[i]['operands'].copy()
+        args = '{' + args[0]['name'].upper() + ', ' + str(args[0]['immediate']).lower() + '}'
+        if mnemonic[1] == 'R':
+            args = args + ", true"
+        else:
+            args = args + ", false"
+        if len(mnemonic) == 3:
+            args = args + ", true"
+        else:
+            args = args + ", false"
+
+        function_definition = makedefinition(function_name, '{ return ROTATELEFT(' + args + '); }')
+
+    # SHIFTS and SWAPS
+    elif i[-2] in ("2", "3"):
+        mnemonic = pre[i]["mnemonic"]
+        args = pre[i]['operands'].copy()
+        args = '{' + args[0]['name'].upper() + ', ' + str(args[0]['immediate']).lower() + '}'
+
+        # SHIFTS
+        if len(mnemonic) == 2:
+            if mnemonic[1] == 'R':
+                args = args + ", .reversed=true"
+            if mnemonic[2] == 'L':
+                args = args + ", .is_logical=true"
+            function_definition = makedefinition(function_name, '{ return SHIFTLEFT(' + args + '); }')
+
+        # SWAPS
+        if len(mnemonic) == 3:
+            function_definition = makedefinition(function_name, '{ return SWAP(' + args + '); }')
+
+    # the rest of them BITS, SETS, and RESETS
+    else:
+        mnemonic = pre[i]['mnemonic']
+        args = pre[i]['operands'].copy()
+        args = args[0]['name'] + ', {' + args[1]['name'].upper() + ', ' + str(args[1]['immediate']).lower() + '}'
+        function_definition = makedefinition(function_name, '{ return ' + mnemonic + '(' + args + '); }')
+
+
     count += 1
-    if count == 6:
+    if count == 1:
         # print("uint8_t " + function_name + "();")
         # print(instruction_init_list)
         # output = output + instruction_init_list + "\n"

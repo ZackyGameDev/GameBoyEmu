@@ -4,3 +4,6 @@ build/a.exe
 .vscode/settings.json
 test.cpp
 .vscode/c_cpp_properties.json
+build/SDL2.dll
+include/
+lib/
