@@ -234,8 +234,9 @@ private:
     uint8_t ENABLEINTERRUPTS();
     uint8_t DISABLEINTERRUPTS();
     uint8_t RETURNANDEI();
-    
+
     uint8_t ROTATELEFT(Operand operand, bool reversed=false, bool through_carry=false);
+    uint8_t ROTATEREGALEFT(bool reversed=false, bool through_carry=false);
     uint8_t SHIFTLEFT(Operand operand, bool reversed=false, bool is_logical=false);
     uint8_t SWAP(Operand operand);
     uint8_t BIT(uint8_t bit, Operand operand);

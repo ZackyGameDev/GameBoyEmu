@@ -215,6 +215,23 @@ for i in unpre:
     if function_name in ("DAA", "SCF", "CPL", "CCF"):
         function_definition = makedefinition(function_name, '{ return PROCESS_ALU(enum' + function_name + '); }')
 
+    # a rotates
+    if unpre[i]["mnemonic"] in ("RLCA", "RLA", "RRCA", "RRA"):
+        mnemonic = unpre[i]["mnemonic"]
+        args = unpre[i]['operands'].copy()
+        args = ''
+        if mnemonic[1] == 'R':
+            args = args + "true"
+        else:
+            args = args + "false"
+        if mnemonic[2] == 'C':
+            args = args + ", false"
+        else:
+            args = args + ", true"
+
+        function_definition = makedefinition(function_name, '{ return ROTATEREGALEFT(' + args + '); }')
+
+
     count += 1
     if count == 1:
         # print("uint8_t " + function_name + "();")

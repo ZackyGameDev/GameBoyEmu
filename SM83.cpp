@@ -642,6 +642,16 @@ uint8_t SM83::ROTATELEFT(Operand operand, bool reversed, bool through_carry) {
     }
     
     setFlag(fz, *targetValue == 0);
+    setFlag(fn, 0);
+    setFlag(fh, 0);
+    updateRegisters16();
+    return 0;
+}
+
+uint8_t SM83::ROTATEREGALEFT(bool reversed, bool through_carry) {
+
+    ROTATELEFT({A, true}, reversed, through_carry);
+    setFlag(fz, 0);
     updateRegisters16();
     return 0;
 }
@@ -665,6 +675,8 @@ uint8_t SM83::SHIFTLEFT(Operand operand, bool reversed, bool is_logical) {
     }
 
     setFlag(fz, *targetValue == 0);
+    setFlag(fn, 0);
+    setFlag(fh, 0);
     updateRegisters16();
     return 0;
 }
@@ -678,6 +690,9 @@ uint8_t SM83::SWAP(Operand operand) {
     *targetValue = (lo << 4) | (hi >> 4);
 
     setFlag(fz, *targetValue == 0);
+    setFlag(fn, 0);
+    setFlag(fh, 0);
+    setFlag(fc, 0);
     updateRegisters16();
     return 0;
 }
@@ -727,6 +742,7 @@ uint8_t SM83::ADD8(uint8_t *targetValue, uint8_t *sourceValue, bool isADC) {
 
     *targetValue = result & 0xff;
 
+    updateRegisters16(); // because the flags are stored in an 8 bit register
     return 0;
 }
 
@@ -744,6 +760,7 @@ uint8_t SM83::SUB8(uint8_t *targetValue, uint8_t *sourceValue, bool isSBC) {
 
     *targetValue = result & 0xff;
 
+    updateRegisters16(); // because the flags are stored in an 8 bit register
     return 0;
 }
 
@@ -757,7 +774,7 @@ uint8_t SM83::INC_BC() { return PROCESS_ALU16({BC, true}, INC); }
 uint8_t SM83::INC_B() { return PROCESS_ALU({B, true}, INC); }
 uint8_t SM83::DEC_B() { return PROCESS_ALU({B, true}, DEC); }
 uint8_t SM83::LD_B_n8() { return LD({B, true}, {N8, true}); }
-uint8_t SM83::RLCA() { return 0; }
+uint8_t SM83::RLCA() { return ROTATEREGALEFT(false, false); }
 uint8_t SM83::LD_aa16_SP() { return LD16({A16, false}, {SP, true}); }
 uint8_t SM83::ADD_HL_BC() { return PROCESS_ALU16({HL, true}, {BC, true}, ADD); }
 uint8_t SM83::LD_A_aBC() { return LD({A, true}, {BC, false}); }
@@ -765,7 +782,7 @@ uint8_t SM83::DEC_BC() { return PROCESS_ALU16({BC, true}, DEC); }
 uint8_t SM83::INC_C() { return PROCESS_ALU({C, true}, INC); }
 uint8_t SM83::DEC_C() { return PROCESS_ALU({C, true}, DEC); }
 uint8_t SM83::LD_C_n8() { return LD({C, true}, {N8, true}); }
-uint8_t SM83::RRCA() { return 0; }
+uint8_t SM83::RRCA() { return ROTATEREGALEFT(true, false); }
 uint8_t SM83::STOP_n8() { return 0; }
 uint8_t SM83::LD_DE_n16() { return LD16({DE, true}, {N16, true}); }
 uint8_t SM83::LD_aDE_A() { return LD({DE, false}, {A, true}); }
@@ -773,7 +790,7 @@ uint8_t SM83::INC_DE() { return PROCESS_ALU16({DE, true}, INC); }
 uint8_t SM83::INC_D() { return PROCESS_ALU({D, true}, INC); }
 uint8_t SM83::DEC_D() { return PROCESS_ALU({D, true}, DEC); }
 uint8_t SM83::LD_D_n8() { return LD({D, true}, {N8, true}); }
-uint8_t SM83::RLA() { return 0; }
+uint8_t SM83::RLA() { return ROTATEREGALEFT(false, true); }
 uint8_t SM83::JR_e8() { return JUMPTO({E8, true}); }
 uint8_t SM83::ADD_HL_DE() { return PROCESS_ALU16({HL, true}, {DE, true}, ADD); }
 uint8_t SM83::LD_A_aDE() { return LD({A, true}, {DE, false}); }
@@ -781,7 +798,7 @@ uint8_t SM83::DEC_DE() { return PROCESS_ALU16({DE, true}, DEC); }
 uint8_t SM83::INC_E() { return PROCESS_ALU({E, true}, INC); }
 uint8_t SM83::DEC_E() { return PROCESS_ALU({E, true}, DEC); }
 uint8_t SM83::LD_E_n8() { return LD({E, true}, {N8, true}); }
-uint8_t SM83::RRA() { return 0; }
+uint8_t SM83::RRA() { return ROTATEREGALEFT(true, true); }
 uint8_t SM83::JR_NZ_e8() { return JUMPTO(NZ, {E8, true}); }
 uint8_t SM83::LD_HL_n16() { return LD16({HL, true}, {N16, true}); }
 uint8_t SM83::LD_aHLI_A() { return LD({HL, false, .increment=true}, {A, true}); }
@@ -1006,6 +1023,7 @@ uint8_t SM83::ILLEGAL_FC() { return 0; }
 uint8_t SM83::ILLEGAL_FD() { return 0; }
 uint8_t SM83::CP_A_n8() { return PROCESS_ALU({A, true}, {N8, true}, CP); }
 uint8_t SM83::RST_38() { return 0; }
+
 
 
 // CB PREFIXED

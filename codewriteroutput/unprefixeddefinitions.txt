@@ -5,7 +5,7 @@ uint8_t SM83::INC_BC() { return PROCESS_ALU16({BC, true}, INC); }
 uint8_t SM83::INC_B() { return PROCESS_ALU({B, true}, INC); }
 uint8_t SM83::DEC_B() { return PROCESS_ALU({B, true}, DEC); }
 uint8_t SM83::LD_B_n8() { return LD({B, true}, {N8, true}); }
-uint8_t SM83::RLCA() { return 0; }
+uint8_t SM83::RLCA() { return ROTATEREGALEFT(false, false); }
 uint8_t SM83::LD_aa16_SP() { return LD16({A16, false}, {SP, true}); }
 uint8_t SM83::ADD_HL_BC() { return PROCESS_ALU16({HL, true}, {BC, true}, ADD); }
 uint8_t SM83::LD_A_aBC() { return LD({A, true}, {BC, false}); }
@@ -13,7 +13,7 @@ uint8_t SM83::DEC_BC() { return PROCESS_ALU16({BC, true}, DEC); }
 uint8_t SM83::INC_C() { return PROCESS_ALU({C, true}, INC); }
 uint8_t SM83::DEC_C() { return PROCESS_ALU({C, true}, DEC); }
 uint8_t SM83::LD_C_n8() { return LD({C, true}, {N8, true}); }
-uint8_t SM83::RRCA() { return 0; }
+uint8_t SM83::RRCA() { return ROTATEREGALEFT(true, false); }
 uint8_t SM83::STOP_n8() { return 0; }
 uint8_t SM83::LD_DE_n16() { return LD16({DE, true}, {N16, true}); }
 uint8_t SM83::LD_aDE_A() { return LD({DE, false}, {A, true}); }
@@ -21,7 +21,7 @@ uint8_t SM83::INC_DE() { return PROCESS_ALU16({DE, true}, INC); }
 uint8_t SM83::INC_D() { return PROCESS_ALU({D, true}, INC); }
 uint8_t SM83::DEC_D() { return PROCESS_ALU({D, true}, DEC); }
 uint8_t SM83::LD_D_n8() { return LD({D, true}, {N8, true}); }
-uint8_t SM83::RLA() { return 0; }
+uint8_t SM83::RLA() { return ROTATEREGALEFT(false, true); }
 uint8_t SM83::JR_e8() { return JUMPTO({E8, true}); }
 uint8_t SM83::ADD_HL_DE() { return PROCESS_ALU16({HL, true}, {DE, true}, ADD); }
 uint8_t SM83::LD_A_aDE() { return LD({A, true}, {DE, false}); }
@@ -29,7 +29,7 @@ uint8_t SM83::DEC_DE() { return PROCESS_ALU16({DE, true}, DEC); }
 uint8_t SM83::INC_E() { return PROCESS_ALU({E, true}, INC); }
 uint8_t SM83::DEC_E() { return PROCESS_ALU({E, true}, DEC); }
 uint8_t SM83::LD_E_n8() { return LD({E, true}, {N8, true}); }
-uint8_t SM83::RRA() { return 0; }
+uint8_t SM83::RRA() { return ROTATEREGALEFT(true, true); }
 uint8_t SM83::JR_NZ_e8() { return JUMPTO(NZ, {E8, true}); }
 uint8_t SM83::LD_HL_n16() { return LD16({HL, true}, {N16, true}); }
 uint8_t SM83::LD_aHLI_A() { return LD({HL, false, .increment=true}, {A, true}); }
