@@ -109,6 +109,80 @@ for i in unpre:
         function_definition =  makedefinition(function_name, '{ return LDH(' + fargs[0] + ', ' + fargs[1] + '); }')
 
 
+    # JP
+    if function_name.startswith("JP_"):
+        args = unpre[i]['operands']
+        if len(args) == 2:
+            fargs = args.copy()
+            fargs[0] = args[0]['name'].upper()
+            fargs[1] = '{' + args[1]['name'].upper() + ', ' + str(args[1]['immediate']).lower() + '}'
+
+            function_definition = makedefinition(function_name, '{ return JUMPTO(' + fargs[0] + ', ' + fargs[1] + '); }')
+        elif len(args) == 1:
+            fargs = args.copy()
+            fargs[0] = '{' + args[0]['name'].upper() + ', ' + str(args[0]['immediate']).lower() + '}'
+
+            function_definition = makedefinition(function_name, '{ return JUMPTO(' + fargs[0] + '); }')
+
+    # JR
+    if function_name.startswith("JR_"):
+        args = unpre[i]['operands']
+        if len(args) == 2:
+            fargs = args.copy()
+            fargs[0] = args[0]['name'].upper()
+            fargs[1] = '{' + args[1]['name'].upper() + ', ' + str(args[1]['immediate']).lower() + '}'
+
+            function_definition = makedefinition(function_name, '{ return JUMPTO(' + fargs[0] + ', ' + fargs[1] + '); }')
+        elif len(args) == 1:
+            fargs = args.copy()
+            fargs[0] = '{' + args[0]['name'].upper() + ', ' + str(args[0]['immediate']).lower() + '}'
+
+            function_definition = makedefinition(function_name, '{ return JUMPTO(' + fargs[0] + '); }')
+
+    # CALL
+    if function_name.startswith("CALL_"):
+        args = unpre[i]['operands']
+        if len(args) == 2:
+            fargs = args.copy()
+            fargs[0] = args[0]['name'].upper()
+            fargs[1] = '{' + args[1]['name'].upper() + ', ' + str(args[1]['immediate']).lower() + '}'
+
+            function_definition = makedefinition(function_name, '{ return CALL(' + fargs[0] + ', ' + fargs[1] + '); }')
+        elif len(args) == 1:
+            fargs = args.copy()
+            fargs[0] = '{' + args[0]['name'].upper() + ', ' + str(args[0]['immediate']).lower() + '}'
+
+            function_definition = makedefinition(function_name, '{ return CALL(' + fargs[0] + '); }') 
+
+    # RET
+    if function_name.startswith("RET_"):
+        args = unpre[i]['operands']
+        if len(args) == 1:
+            fargs = args.copy()
+            fargs[0] = args[0]['name'].upper()
+
+            function_definition = makedefinition(function_name, '{ return RETURNFROMFUNCTION(' + fargs[0] + '); }')
+        elif len(args) == 0:
+            function_definition = makedefinition(function_name, '{ return RETURNFROMFUNCTION(); }')
+
+    # RETI
+    if function_name.startswith("RETI"):
+        function_definition = makedefinition(function_name, '{ return RETURNANDEI(); }')
+    
+    # RST
+    if function_definition.startswith("RST_"):
+        args = unpre[i]['operands']
+        fargs = args.copy()
+        fargs[0] = args[0]['name'].upper().replace("$", "0x")
+
+        function_definition = makedefinition(function_name, '{ return RST(' + fargs[0] + '); }')
+    
+    # EI AND DI
+    if function_name.startswith("EI"):
+        function_definition = makedefinition(function_name, '{ return ENABLEINTERRUPTS(); }')
+    if function_name.startswith("DI"):
+        function_definition = makedefinition(function_name, '{ return DISABLEINTERRUPTS(); }')
+
     # ALU STUFF
     # all INC and DEC
     if (function_name.startswith("INC_") or function_name.startswith("DEC_")):

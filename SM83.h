@@ -169,6 +169,9 @@ private:
     uint8_t PUSH_AF(); uint8_t OR_A_n8(); uint8_t RST_30(); uint8_t LD_HL_SPI_e8(); uint8_t LD_SP_HL(); uint8_t LD_A_aa16(); uint8_t EI();
     uint8_t ILLEGAL_FC(); uint8_t ILLEGAL_FD(); uint8_t CP_A_n8(); uint8_t RST_38(); 
 
+    // PREFIXED
+    uint8_t RLC_B();
+
 
     // instruction wrappers internals;
     uint8_t LD(Operand target, Operand source);
@@ -188,13 +191,13 @@ private:
     uint8_t JUMPTO(OperandName condition, Operand address);
     uint8_t CALL(Operand address);
     uint8_t CALL(OperandName condition, Operand address);
+    uint8_t RST(uint8_t address_lo);
     uint8_t RETURNFROMFUNCTION();
     uint8_t RETURNFROMFUNCTION(OperandName condition);
 
     uint8_t ENABLEINTERRUPTS();
     uint8_t DISABLEINTERRUPTS();
     uint8_t RETURNANDEI();
-
 
 private:
     // these are technically core functions, but they are called by wrapping core functions 
