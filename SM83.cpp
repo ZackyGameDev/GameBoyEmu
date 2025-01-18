@@ -129,6 +129,8 @@ void SM83::clock() {
         } else {
             additional_clock_cycles = (this->*unprefixed_opcode_lookup[opcode].operate)();
             cycles = unprefixed_opcode_lookup[opcode].cycles + additional_clock_cycles;
+
+            bus->joypad.update();
         }
     }
 

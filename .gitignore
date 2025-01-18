@@ -7,3 +7,5 @@ test.cpp
 build/SDL2.dll
 include/
 lib/
+experiments/
+ROMS/
