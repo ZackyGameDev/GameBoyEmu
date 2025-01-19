@@ -2,11 +2,15 @@
 // #include <SDL2/SDL.h>
 #include "SM83.h"
 #include "Bus.h"
+#include <filesystem>
 #include <bitset>
 
 
 int main() {
-    std::cout << "HERE IS THE OUPTUT look at ME <--------------\n";
+    std::cout << "DID IT WORK <--------------\n";
+
+    std::filesystem::path cwd = std::filesystem::current_path();
+    std::cout << "Current working directory: " << cwd << std::endl;
 
     Bus bus;
 

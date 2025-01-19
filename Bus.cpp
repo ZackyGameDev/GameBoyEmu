@@ -1,14 +1,15 @@
 #include "Bus.h"
 #include <iostream>
 
-Bus::Bus() {
+Bus::Bus() : cart("ROMS/Tetris (Japan) (En).gb") {
     cpu.connectBus(this);
     joypad.connectBus(this);
     ppu.connectBus(this);
+    cart.connectBus(this);
 
-    for (auto &i : hram) i = 0x00;
+    for (auto &i : wram) i = 0x00;
     
-    std::cout << "[DEBUG] BUS CREATED <-------\n";
+    std::cout << "[DEBUG] BUS CREATED <-------" << std::endl;
 
 }
 
@@ -20,12 +21,17 @@ Bus::~Bus() {
 
 uint8_t Bus::cpuRead(uint16_t addr) {
     uint8_t data = 0x00;
-    if (0xc000 <= addr and addr <= 0xdfff) {
-        data = hram[addr-0xc000];
+
+    if (0x0000 <= addr and addr <= 0x7fff) {
+        data = cart.read(addr);
+    } else if (0xc000 <= addr and addr <= 0xdfff) {
+        data = wram[addr-0xc000];
+    } else if ((0xfe00 <= addr and addr <= 0xfe9f) or (0xff40 <= addr and addr <= 0xff4b)) {
+        data = ppu.cpuRead(addr);
     } else if (addr == 0xff00) {
         data = joypad.read();
     } else {
-        std::cout << "[WARNING] " << std::hex << addr << std::dec << " INVALID READ ADDRESS <-------\n";
+        std::cout << "[WARNING] " << std::hex << addr << std::dec << " INVALID READ ADDRESS <------" << std::endl;
     }
 
     return data;
@@ -34,8 +40,14 @@ uint8_t Bus::cpuRead(uint16_t addr) {
 
 uint8_t* Bus::cpuReadPttr(uint16_t addr) {
     uint8_t *data = nullptr;
-    if (0xc000 <=  addr and addr <= 0xdfff) {
-        data = &hram[addr-0x8000];
+    if (0x0000 <= addr and addr <= 0x7fff) {
+        data = cart.readPttr(addr);
+    } else if (0xc000 <=  addr and addr <= 0xdfff) {
+        data = &wram[addr-0xc000];
+    } else if ((0xfe00 <= addr and addr <= 0xfe9f) or (0xff40 <= addr and addr <= 0xff4b)) {
+        data = ppu.cpuReadPttr(addr);
+    } else {
+        std::cout << "[WARNING] " << std::hex << addr << std::dec << " INVALID READPTTR ADDRESS <-------" << std::endl;
     }
     return data;
 }
@@ -43,11 +55,13 @@ uint8_t* Bus::cpuReadPttr(uint16_t addr) {
 
 void Bus::cpuWrite(uint16_t addr, uint8_t data) {
     if (0xc000 <= addr and addr <= 0xdfff) {    
-        hram[addr-0xc000] = data;
+        wram[addr-0xc000] = data;
     } else if (addr == 0xff00) {
         joypad.write(data);
+    } else if ((0xfe00 <= addr and addr <= 0xfe9f) or (0xff40 <= addr and addr <= 0xff4b)) {
+        ppu.cpuWrite(addr, data);
     } else {
-        std::cout << "[WARNING] INVALID WRITE ADDRESS <-------\n";
+        std::cout << "[WARNING] " << std::hex << addr << std::dec << " INVALID WRITE ADDRESS <-------" << std::endl;
     }
 }
 

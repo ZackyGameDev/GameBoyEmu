@@ -13,15 +13,19 @@ public:
         std::cout << "[DEBUG] Joypad created <-----\n" << std::endl;
     }
 
+    ~Joypad() {
+        std::cout << "[DEBUG] Joypad destroyed? <-----\n" << std::endl;
+    };
+
 private:
     uint8_t p1register = 0x00;
 
     // select start b a down up left right
     std::vector<int> keyboardmapping = {16, 13, 90, 88, 40, 38, 37, 39};
 
+    Bus *bus = nullptr;
 
 public:
-    Bus *bus = nullptr;
     void connectBus(Bus *n) { bus = n; }
 
 

@@ -2,6 +2,7 @@
 #include "SM83.h"
 #include "Joypad.h"
 #include "PPU.h"
+#include "Cartridge.h"
 #include <array>
 #include <cstdint>
 
@@ -15,7 +16,8 @@ public:
     SM83 cpu;
     Joypad joypad;
     PPU ppu;
-    std::array<uint8_t, 4*1024> hram;
+    Cartridge cart;
+    std::array<uint8_t, 8*1024> wram;
 
 public:
     void cpuWrite(uint16_t addr, uint8_t data);

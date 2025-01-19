@@ -1,6 +1,7 @@
 #include "SM83.h"
 #include "Bus.h"
 #include <iostream>
+#include <iomanip>
 
 SM83::SM83() {
 
@@ -116,11 +117,34 @@ SM83::~SM83() {
 }
 
 void SM83::clock() {
-    uint8_t opcode = read(pc++);
-    uint8_t additional_clock_cycles = 0;
 
     if (cycles == 0) {
         if (ime > 1) ime--; // this is part of IE instruction implementation. because it acts one instruction after the IE instruct.
+
+        uint8_t opcode = read(pc++);
+        uint8_t additional_clock_cycles = 0;
+
+        // std::cout << "[PC|OP] " << std::hex << pc-1 << '|' << (int)opcode << std::dec << std::endl;
+
+        /// DEBUG
+
+        std::cout << std::hex << std::setfill('0');
+        std::cout << "a  = 0x" << std::setw(2) << static_cast<int>(a) << std::endl;
+        std::cout << "f  = 0x" << std::setw(2) << static_cast<int>(f) << std::endl;
+        std::cout << "b  = 0x" << std::setw(2) << static_cast<int>(b) << std::endl;
+        std::cout << "c  = 0x" << std::setw(2) << static_cast<int>(c) << std::endl;
+        std::cout << "d  = 0x" << std::setw(2) << static_cast<int>(d) << std::endl;
+        std::cout << "e  = 0x" << std::setw(2) << static_cast<int>(e) << std::endl;
+        std::cout << "h  = 0x" << std::setw(2) << static_cast<int>(h) << std::endl;
+        std::cout << "l  = 0x" << std::setw(2) << static_cast<int>(l) << std::endl;
+        std::cout << "sp = 0x" << std::setw(4) << sp << std::endl;
+        std::cout << "pc = 0x" << std::setw(4) << pc << std::endl;
+
+        std::cout << "af = 0x" << std::setw(4) << af << std::endl;
+        std::cout << "bc = 0x" << std::setw(4) << bc << std::endl;
+        std::cout << "de = 0x" << std::setw(4) << de << std::endl;
+        std::cout << "hl = 0x" << std::setw(4) << hl << std::endl;
+
 
         if (opcode == 0xcb) {
             opcode = read(pc++);
@@ -157,23 +181,23 @@ uint8_t *SM83::process_operand(Operand operand) {
     if (operand.immediate) {
         switch (operand.name) {
             case A:
-                value = &a;
+                value = &a; break;
             case F: 
-                value = &f;
+                value = &f; break;
             case B: 
-                value = &b;
+                value = &b; break;
             case C:
-                value = &c;
+                value = &c; break;
             case D:
-                value = &d;
+                value = &d; break;
             case E:
-                value = &e;
+                value = &e; break;
             case H:
-                value = &h;
+                value = &h; break;
             case L: 
-                value = &l;
+                value = &l; break;
             case N8:
-                value = readPttr(pc++);
+                value = readPttr(pc++); break;
         }
     } else {
         int8_t di = operand.increment - operand.decrement;
@@ -181,22 +205,28 @@ uint8_t *SM83::process_operand(Operand operand) {
             case AF:
                 value = readPttr((a << 8) | f);
                 addToHiLo(a, f, di);
+                break;
             case BC:
                 value = readPttr((b << 8) | c);
                 addToHiLo(b, c, di);
+                break;
             case DE:
                 value = readPttr((d << 8) | e);
                 addToHiLo(d, e, di);
+                break;
             case HL:
                 value = readPttr((h << 8) | l);
                 addToHiLo(h, l, di);
+                break;
             case SP:
                 value = readPttr(sp);
                 sp += di;
+                break;
             case A16: {
                 uint8_t lo = read(pc++);
                 uint8_t hi = read(pc++);
                 value = readPttr((hi << 8) | lo);
+                break;
             }
         }
     }
@@ -210,15 +240,15 @@ uint16_t *SM83::process_operand16(Operand operand) {
     if (operand.immediate) {
         switch (operand.name) {
             case AF:
-                value = &af;
+                value = &af; break;
             case BC:
-                value = &bc;
+                value = &bc; break;
             case DE:
-                value = &de;
+                value = &de; break;
             case HL:
-                value = &hl;
+                value = &hl; break;
             case SP:
-                value = &sp;
+                value = &sp; break;
             case N16: { 
                 // n16 is never modified, only fetched. thus instead of trying to somehow 
                 // get a pointer to (hram[addr] | (hram[addr+1] << 8)), i'm simply fetching 
@@ -227,6 +257,18 @@ uint16_t *SM83::process_operand16(Operand operand) {
                 uint8_t hi = read(pc++);
                 fetched16 = (hi << 8) | lo;
                 value = &fetched16;
+                break;
+            }
+
+            case A16: { 
+                // n16 is never modified, only fetched. thus instead of trying to somehow 
+                // get a pointer to (hram[addr] | (hram[addr+1] << 8)), i'm simply fetching 
+                // it into a third variable and returning its reference.
+                uint8_t lo = read(pc++);
+                uint8_t hi = read(pc++);
+                fetched16 = (hi << 8) | lo;
+                value = &fetched16;
+                break;
             }
         }
     } else {
@@ -240,6 +282,7 @@ uint16_t *SM83::process_operand16(Operand operand) {
                 uint8_t lo = read(pc++);
                 uint8_t hi = read(pc++);
                 addr_abs = (hi << 8) | lo; 
+                break;
             }
         }
     }
@@ -294,12 +337,12 @@ uint8_t SM83::LD_HL_SPDD() {
 }
 
 
-uint8_t SM83::LDH(Operand source, Operand target) {
+uint8_t SM83::LDH(Operand target, Operand source) {
     uint8_t sourceValue = 0;
     if (source.name == C) {
-        sourceValue = read(0xff00 + read(c));
+        sourceValue = read(0xff00 | c);
     } else if (source.name == A8) {
-        sourceValue = read(0xff00 + read(pc++));
+        sourceValue = read(0xff00 | read(pc++));
     } else if (source.name = A) {
         sourceValue = a;
     }

@@ -26,7 +26,7 @@ public:
     uint8_t   h  = 0x00;
     uint8_t   l  = 0x00;
     uint16_t  sp = 0x0000;
-    uint16_t  pc = 0x0000;
+    uint16_t  pc = 0x0150;
 
     // I'm sure therees a more clever way to achieve it, but personally im just maintaining separate variables
     // for two byte register addressing, and i'm going to have a function which syncs the hi lo and hilo registers
