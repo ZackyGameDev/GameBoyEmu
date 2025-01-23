@@ -33,7 +33,7 @@ private:
     };
 
     PPUMODE mode = OAMREAD;
-    uint8_t cycles = 0;
+    uint16_t cycles = 0;    
     uint8_t page_addressing_mode = 0;
 
     uint8_t lcdc = 0x00;
@@ -74,9 +74,8 @@ private:
     }
 
 private:
-    void handleHBlankInterrupt();
-    void handleVBlankInterrupt();
-    void handleLYCInterrupt();
+    void VBlankInterrupt();
+    void LYCInterrupt();
 
 public:
     Bus *bus = nullptr;

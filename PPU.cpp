@@ -127,32 +127,46 @@ void PPU::clock() {
 
     break;
     
-    case PPUMODE::PIXELTRANSFER:
+    case PPUMODE::PIXELTRANSFER: {
 
         // at the end of PIXEL TRANSFER i'll draw
         // an entire scan line.
         
         // BACKGROUND IN VRAM IS STORED IN  9800h to 9BFFh
         // WINDOW 9C00h to 9FFFh
-        uint8_t  scanline_start_index; 
-        uint16_t scanline_start_address;
-        for (int hpos = 0; hpos < 256; hpos++) {
-            scanline_start_index = scx + (scy + ly)*256 + hpos;
-            if (scanline_start_index > 255) scanline_start_index -= 256;
-            scanline_start_address = 0x8000 + scanline_start_index;
-        }
-
-        uint8_t tile_index = this->cpuRead(scanline_start_address);
-
-        uint16_t tile_address;
-        page_addressing_mode = getLCDCFlag(LCDCFLAGS::BGAndWindowTileDataArea);
-        if (page_addressing_mode == 1) {
-            tile_address = 0x8000 + tile_index;
-        } else {
-            tile_address = 0x9000 + (int8_t)tile_index;
-        }
-
         
+        uint16_t bx = scx;
+        uint16_t by = (scy+ly)*256;
+        // (bx, by) will be the coordinate of the pixel in the background vram to be drawn
+        for (uint16_t lx = 0; lx < 160; lx++) {
+            // now (lx, ly) is the coordinate of the currently drawn LCD pixel
+            uint8_t tile_index = bx/8 + (by/8)*32;
+            uint8_t tile_pixel_index = (bx%8) + (by%8)*8;
+            uint8_t tile_addressing_id = this->cpuRead(0x9800+tile_index); // this is the tile id in the tile map
+            uint16_t tile_address; // this is the actual memory address where the tile is 
+            page_addressing_mode = getLCDCFlag(LCDCFLAGS::BGAndWindowTileDataArea);
+            if (page_addressing_mode == 1) {
+                tile_address = 0x8000 + tile_addressing_id*16;
+            } else {
+                tile_address = 0x9000 + (int8_t)tile_addressing_id*16;
+            }
+
+            uint8_t pixel_row_index = tile_pixel_index/8;
+            uint8_t pixel_color_lsb_row = this->cpuRead(tile_address + pixel_row_index*2);
+            uint8_t pixel_color_hsb_row = this->cpuRead(tile_address + pixel_row_index*2 + 1);
+            uint8_t pixel_color_id = 
+                    pixel_color_lsb_row >> (7-tile_pixel_index%8) & 1 |
+                   (pixel_color_hsb_row >> (7-tile_pixel_index%8) & 1) << 1;
+            
+            SDL_SetRenderDrawColor(renderer, 
+                                    (255/3)*pixel_color_id, 
+                                    (255/3)*pixel_color_id, 
+                                    (255/3)*pixel_color_id, 255);
+
+            SDL_RenderDrawPoint(renderer, lx, ly);
+        }
+
+
 
 
         // next mode...
@@ -161,6 +175,14 @@ void PPU::clock() {
 
         // JUST ENTERED HBLANK MODE
         std::cout << "[DEBUG] HBLANK" << std::endl;
+
+        if (ly == lyc) {
+            stat |= 1 << 2;
+            if (stat & 1 << 6) {
+                LYCInterrupt();
+            }
+        }
+    }
     break;
 
     case PPUMODE::HBLANK:
@@ -179,13 +201,11 @@ void PPU::clock() {
 
             // JUST ENTERED VBLANK MODE
             std::cout << "[DEBUG] VBLANK" << std::endl;
-    
-            SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-            SDL_RenderClear(renderer);
 
-            SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-            SDL_RenderDrawPoint(renderer, debug_x, debug_y);
-            debug_x++; debug_y++;
+            VBlankInterrupt();
+            // SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+            // SDL_RenderDrawPoint(renderer, debug_x, debug_y);
+            // debug_x++; debug_y++;
         }
         ly++;
     break;
@@ -213,4 +233,12 @@ void PPU::clock() {
     stat &= 0xf8;
     stat |= ly==lyc << 2;
     stat |= mode;
+}
+
+void PPU::VBlankInterrupt() {
+
+}
+
+void PPU::LYCInterrupt() {
+
 }
