@@ -1,9 +1,13 @@
 #include <iostream>
 // #include <SDL2/SDL.h>
-#include "SM83.h"
 #include "Bus.h"
+#include <chrono>
+#include <thread>
 #include <filesystem>
 #include <bitset>
+
+const int CPU_CLOCK_SPEED = 4194304; 
+const long double CYCLE_DURATION = 1.0 / CPU_CLOCK_SPEED;
 
 
 int main() {
@@ -13,6 +17,27 @@ int main() {
     std::cout << "Current working directory: " << cwd << std::endl;
 
     Bus bus;
+    bus.ppu.initLCD();
+    Sleep(100);
+    while (true) {
+        // Get the start time of the cycle
+        auto start_cycle_time = std::chrono::high_resolution_clock::now();
+
+        bus.cpu.clock();
+        bus.ppu.clock();
+
+        // Get the end time of the cycle
+        auto end_cycle_time = std::chrono::high_resolution_clock::now();
+
+        // Calculate the elapsed time for the cycle
+        std::chrono::duration<double> elapsed_time = end_cycle_time - start_cycle_time;
+
+        // Calculate the time to sleep to match the cycle duration
+        double sleep_time = CYCLE_DURATION - elapsed_time.count();
+        if (sleep_time > 0) {
+            std::this_thread::sleep_for(std::chrono::duration<double>(sleep_time));
+        }
+    }
 
     while(true) {
         bus.cpu.clock();

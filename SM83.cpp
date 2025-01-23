@@ -128,22 +128,23 @@ void SM83::clock() {
 
         /// DEBUG
 
-        std::cout << std::hex << std::setfill('0');
-        std::cout << "a  = 0x" << std::setw(2) << static_cast<int>(a) << std::endl;
-        std::cout << "f  = 0x" << std::setw(2) << static_cast<int>(f) << std::endl;
-        std::cout << "b  = 0x" << std::setw(2) << static_cast<int>(b) << std::endl;
-        std::cout << "c  = 0x" << std::setw(2) << static_cast<int>(c) << std::endl;
-        std::cout << "d  = 0x" << std::setw(2) << static_cast<int>(d) << std::endl;
-        std::cout << "e  = 0x" << std::setw(2) << static_cast<int>(e) << std::endl;
-        std::cout << "h  = 0x" << std::setw(2) << static_cast<int>(h) << std::endl;
-        std::cout << "l  = 0x" << std::setw(2) << static_cast<int>(l) << std::endl;
-        std::cout << "sp = 0x" << std::setw(4) << sp << std::endl;
-        std::cout << "pc = 0x" << std::setw(4) << pc << std::endl;
+        // std::cout << "----------------------------" << std::endl << "----------------------------" << std::endl << "----------------------------" << std::endl;
+        // std::cout << std::hex << std::setfill('0');
+        // std::cout << "a  = 0x" << std::setw(2) << static_cast<int>(a) << std::endl;
+        // std::cout << "f  = 0x" << std::setw(2) << static_cast<int>(f) << std::endl;
+        // std::cout << "b  = 0x" << std::setw(2) << static_cast<int>(b) << std::endl;
+        // std::cout << "c  = 0x" << std::setw(2) << static_cast<int>(c) << std::endl;
+        // std::cout << "d  = 0x" << std::setw(2) << static_cast<int>(d) << std::endl;
+        // std::cout << "e  = 0x" << std::setw(2) << static_cast<int>(e) << std::endl;
+        // std::cout << "h  = 0x" << std::setw(2) << static_cast<int>(h) << std::endl;
+        // std::cout << "l  = 0x" << std::setw(2) << static_cast<int>(l) << std::endl;
+        // std::cout << "sp = 0x" << std::setw(4) << sp << std::endl;
+        // std::cout << "pc = 0x" << std::setw(4) << pc << std::endl;
 
-        std::cout << "af = 0x" << std::setw(4) << af << std::endl;
-        std::cout << "bc = 0x" << std::setw(4) << bc << std::endl;
-        std::cout << "de = 0x" << std::setw(4) << de << std::endl;
-        std::cout << "hl = 0x" << std::setw(4) << hl << std::endl;
+        // std::cout << "af = 0x" << std::setw(4) << af << std::endl;
+        // std::cout << "bc = 0x" << std::setw(4) << bc << std::endl;
+        // std::cout << "de = 0x" << std::setw(4) << de << std::endl;
+        // std::cout << "hl = 0x" << std::setw(4) << hl << std::endl;
 
 
         if (opcode == 0xcb) {
@@ -159,6 +160,7 @@ void SM83::clock() {
     }
 
     cycles--;
+    // std::cout << "CPU CLOCKED" << std::endl;
 
 }
 

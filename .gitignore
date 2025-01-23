@@ -2,6 +2,8 @@ build/a.exe
 .vscode/launch.json
 .vscode/tasks.json
 .vscode/settings.json
+.vscode/
+.vscodeold/
 test.cpp
 .vscode/c_cpp_properties.json
 build/SDL2.dll
@@ -9,3 +11,4 @@ include/
 lib/
 experiments/
 ROMS/
+build/
