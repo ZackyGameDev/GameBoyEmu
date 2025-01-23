@@ -31,6 +31,8 @@ Cartridge::Cartridge(const std::string filename) {
     file.close();
 
     std::cout << "[DEBUG] ROM LOADED! <-------\n";
+    
+    for (auto &i : sram) i = 0x00;
 }
 
 Cartridge::~Cartridge() {

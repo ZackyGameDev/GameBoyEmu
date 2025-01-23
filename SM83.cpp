@@ -116,6 +116,49 @@ SM83::~SM83() {
 
 }
 
+void SM83::handleInterrupts() {
+    if (ime == 1) {
+        
+        for (int interrupt_bit = 0; interrupt_bit < 5; ++interrupt_bit) {
+            uint8_t interrupt = 1 << interrupt_bit;
+            if (ie & interrupt) {
+                if (if_ & interrupt) {
+                    ime = 0;
+                    ie &= ~interrupt;
+                    if_ &= ~interrupt; // reset all interrupt flags 
+                    // and then handle the interrupt;
+
+                    switch (interrupt) {
+                        case InterruptFlags::Joypad:
+                            PUSH({PC, true}); // save the pre-call PC to stack for RET to retreive later
+                            pc = 0xff60;
+                        break;
+                        case InterruptFlags::Serial:
+                            PUSH({PC, true});
+                            pc = 0xff58;
+                        break;
+                        case InterruptFlags::Timer:
+                            PUSH({PC, true});
+                            pc = 0xff50;
+                        break;
+                        case InterruptFlags::Stat:
+                            PUSH({PC, true});
+                            pc = 0xff48;
+                        break;
+                        case InterruptFlags::VBlank:
+                            PUSH({PC, true});
+                            pc = 0xff40;
+                        break;
+                    }
+                    updateRegisters8(); // just for good measure (?)
+                    cycles += 20;
+                }
+
+            } 
+        }
+    }
+}
+
 void SM83::clock() {
 
     if (cycles == 0) {
@@ -157,6 +200,8 @@ void SM83::clock() {
 
             bus->joypad.update();
         }
+
+        handleInterrupts();
     }
 
     cycles--;

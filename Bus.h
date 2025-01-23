@@ -18,6 +18,7 @@ public:
     PPU ppu;
     Cartridge cart;
     std::array<uint8_t, 8*1024> wram;
+    std::array<uint8_t, 128> hram;
 
 public:
     void cpuWrite(uint16_t addr, uint8_t data);

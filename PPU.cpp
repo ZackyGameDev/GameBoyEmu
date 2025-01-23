@@ -1,5 +1,6 @@
 #include "Bus.h"
 #include "PPU.h"
+#include "SM83.h"
 // #include <SDL2/SDL.h>
 #include <iostream>
 
@@ -236,9 +237,9 @@ void PPU::clock() {
 }
 
 void PPU::VBlankInterrupt() {
-
+    this->bus->cpu.requestInterrupt(SM83::InterruptFlags::VBlank);
 }
 
 void PPU::LYCInterrupt() {
-
+    this->bus->cpu.requestInterrupt(SM83::InterruptFlags::Stat);
 }

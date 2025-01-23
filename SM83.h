@@ -38,6 +38,8 @@ public:
 
     int8_t ime = 0; // global interrupt flag (not memory mapped) handled by DI and EI instructions
     // 1 is true, 0 is false. if ime > 1, then after every clock() function, the CPU will decrement ime
+    uint8_t ie = 0x00; // interrupts enabled flags
+    uint8_t if_ = 0x00; // interrupts requested flags
 
     void updateRegisters16() { // this function must be called whenever the uint8_t register vars are affected
         this->af = (this->a << 8) | this->f;
@@ -64,6 +66,15 @@ public:
         fc = 1 << 4,
     };
 
+    enum InterruptFlags {
+        Joypad = 1 << 4,
+        Serial = 1 << 3,
+        Timer = 1 << 2,
+        Stat = 1 << 1,
+        VBlank = 1 << 0,
+    };
+     
+
     void setFlag(SM83Flags flag, bool value) {
         if (value) {
             f |= flag;
@@ -75,6 +86,12 @@ public:
     uint8_t getFlag(SM83Flags flag) {
         return (f & flag > 0) ? 1 : 0;
     }
+
+    void requestInterrupt(InterruptFlags flag) {
+        if_ |= flag;
+    }
+
+    void handleInterrupts();
 
     void connectBus(Bus *n) { bus = n; }
 
@@ -121,8 +138,6 @@ private:
     std::vector<Instruction> unprefixed_opcode_lookup;
     std::vector<Instruction> prefixed_opcode_lookup;
 
-    // addressing modes
-//    uint8_t IMM(); uint8_t DRT(); uint8_t 
     uint8_t* process_operand(Operand operand);
     uint16_t* process_operand16(Operand operand);
 

@@ -2,6 +2,7 @@
 #include <vector>
 #include <iostream>
 #include <cstdint>
+#include <array>
 #include <string>
 
 
@@ -12,6 +13,7 @@ public:
     Cartridge(const std::string filename);
     ~Cartridge();
 
+    std::array<uint8_t, 0x2000> sram;
 private:
     struct RomHeader {
         char name[16];
