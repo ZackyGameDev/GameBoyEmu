@@ -3,6 +3,17 @@
 #include <cstdint>
 #include <string>
 
+#define DEBUGMODE_
+
+#ifdef DEBUGMODE_
+#define SDL_MAIN_HANDLED
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_ttf.h>
+#include <string>
+#include <sstream>
+#include <iomanip>
+#endif 
+
 class Bus;
 
 class SM83 {
@@ -10,6 +21,14 @@ class SM83 {
 public:
     SM83();
     ~SM83();
+
+    #ifdef DEBUGMODE_
+    SDL_Window *registers_debug_window = nullptr;
+    SDL_Renderer *registers_debug_renderer = nullptr;
+    TTF_Font* sdl_ttf_font;
+    SDL_Color sdl_color_white = {255, 255, 255, 255};
+    void drawDebug();
+    #endif
 
 public:
     Bus *bus = nullptr;
@@ -28,9 +47,13 @@ public:
     uint16_t  sp = 0x0000;
     uint16_t  pc = 0x0150;
 
+    // for debugging
+    uint16_t last_executed_pc = 0x0000;
+
     // I'm sure therees a more clever way to achieve it, but personally im just maintaining separate variables
     // for two byte register addressing, and i'm going to have a function which syncs the hi lo and hilo registers
     // with each other.
+    
     uint16_t af = 0x0000;
     uint16_t bc = 0x0000;
     uint16_t de = 0x0000;
@@ -276,5 +299,32 @@ private:
     int8_t toSigned(uint8_t b) {
         return (b > 127) ? (b - 256) : b;
     }
+
+
+    #ifdef DEBUGMODE_
+
+    // Function to convert integer to a formatted hex string
+    std::string formatHex(int value, int width) {
+        std::stringstream ss;
+        ss << "0x" << std::hex << std::setfill('0') << std::setw(width) << value;
+        return ss.str();
+    }
+
+    // Function to render text
+    void renderText(SDL_Renderer* renderer, TTF_Font* font, const std::string& text, int x, int y, SDL_Color color) {
+        SDL_Surface* surface = TTF_RenderText_Solid(font, text.c_str(), color);
+        SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+
+        int w = surface->w;
+        int h = surface->h;
+
+        SDL_Rect destRect = {x, y, w, h};
+        SDL_RenderCopy(renderer, texture, nullptr, &destRect);
+
+        SDL_FreeSurface(surface);
+        SDL_DestroyTexture(texture);
+    }
+
+    #endif
 
 };

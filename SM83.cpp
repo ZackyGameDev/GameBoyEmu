@@ -110,11 +110,58 @@ SM83::SM83() {
     };
 
     std::cout << "[DEBUG] opcodes loaded into the lookup tables <-----\n";
+
+    #ifdef DEBUGMODE_ 
+    SDL_Init(SDL_INIT_VIDEO);
+    TTF_Init();
+    sdl_ttf_font = TTF_OpenFont("./fonts/Early GameBoy.ttf", 12);
+    if(!sdl_ttf_font) {
+        printf("TTF_OpenFont: %s\n", TTF_GetError());
+    }
+    SDL_CreateWindowAndRenderer(160*2, 144*2, 0, &registers_debug_window, &registers_debug_renderer);
+    SDL_DisplayMode current_display;
+    SDL_GetCurrentDisplayMode(0, &current_display); 
+    SDL_SetWindowPosition(registers_debug_window, current_display.w/2 + 170*2, current_display.h/2 - 144*2);
+    SDL_RenderSetScale(registers_debug_renderer, 1, 1);
+
+    SDL_SetRenderDrawColor(registers_debug_renderer, 0, 0, 0, 255);
+    SDL_RenderClear(registers_debug_renderer);
+
+    SDL_RenderPresent(registers_debug_renderer);
+
+    #endif
 }
 
 SM83::~SM83() {
 
 }
+
+#ifdef DEBUGMODE_
+void SM83::drawDebug() {
+    SDL_SetRenderDrawColor(registers_debug_renderer, 0, 0, 0, 255); // Black background
+    SDL_RenderClear(registers_debug_renderer);
+
+    // Render register values
+    int y = 10;
+    renderText(registers_debug_renderer, sdl_ttf_font, "a  = " + formatHex(a,  2), 10, y, sdl_color_white); y += 12;
+    renderText(registers_debug_renderer, sdl_ttf_font, "f  = " + formatHex(f,  2), 10, y, sdl_color_white); y += 12;
+    renderText(registers_debug_renderer, sdl_ttf_font, "b  = " + formatHex(b,  2), 10, y, sdl_color_white); y += 12;
+    renderText(registers_debug_renderer, sdl_ttf_font, "c  = " + formatHex(c,  2), 10, y, sdl_color_white); y += 12;
+    renderText(registers_debug_renderer, sdl_ttf_font, "d  = " + formatHex(d,  2), 10, y, sdl_color_white); y += 12;
+    renderText(registers_debug_renderer, sdl_ttf_font, "e  = " + formatHex(e,  2), 10, y, sdl_color_white); y += 12;
+    renderText(registers_debug_renderer, sdl_ttf_font, "h  = " + formatHex(h,  2), 10, y, sdl_color_white); y += 12;
+    renderText(registers_debug_renderer, sdl_ttf_font, "l  = " + formatHex(l,  2), 10, y, sdl_color_white); y += 12;
+    renderText(registers_debug_renderer, sdl_ttf_font, "sp = " + formatHex(sp, 4), 10, y, sdl_color_white); y += 12;
+    renderText(registers_debug_renderer, sdl_ttf_font, "pc = " + formatHex(pc, 4), 10, y, sdl_color_white); y += 12;
+    renderText(registers_debug_renderer, sdl_ttf_font, "af = " + formatHex(af, 4), 10, y, sdl_color_white); y += 12;
+    renderText(registers_debug_renderer, sdl_ttf_font, "bc = " + formatHex(bc, 4), 10, y, sdl_color_white); y += 12;
+    renderText(registers_debug_renderer, sdl_ttf_font, "de = " + formatHex(de, 4), 10, y, sdl_color_white); y += 12;
+    renderText(registers_debug_renderer, sdl_ttf_font, "hl = " + formatHex(hl, 4), 10, y, sdl_color_white); y += 12;
+    renderText(registers_debug_renderer, sdl_ttf_font, "last pc = " + formatHex(last_executed_pc, 4), 10, y, sdl_color_white); y += 12;
+
+    SDL_RenderPresent(registers_debug_renderer);
+}
+#endif
 
 void SM83::handleInterrupts() {
     if (ime == 1) {
@@ -164,13 +211,15 @@ void SM83::clock() {
     if (cycles == 0) {
         if (ime > 1) ime--; // this is part of IE instruction implementation. because it acts one instruction after the IE instruct.
 
+        last_executed_pc = pc;
         uint8_t opcode = read(pc++);
         uint8_t additional_clock_cycles = 0;
 
         // std::cout << "[PC|OP] " << std::hex << pc-1 << '|' << (int)opcode << std::dec << std::endl;
 
-        /// DEBUG
+        #ifdef DEBUGMODE_
 
+        this->drawDebug();
         // std::cout << "----------------------------" << std::endl << "----------------------------" << std::endl << "----------------------------" << std::endl;
         // std::cout << std::hex << std::setfill('0');
         // std::cout << "a  = 0x" << std::setw(2) << static_cast<int>(a) << std::endl;
@@ -189,8 +238,12 @@ void SM83::clock() {
         // std::cout << "de = 0x" << std::setw(4) << de << std::endl;
         // std::cout << "hl = 0x" << std::setw(4) << hl << std::endl;
 
+        #endif
+
+
 
         if (opcode == 0xcb) {
+            last_executed_pc = pc;
             opcode = read(pc++);
             additional_clock_cycles = (this->*prefixed_opcode_lookup[opcode].operate)();
             cycles = prefixed_opcode_lookup[opcode].cycles + additional_clock_cycles + prefixed_opcode_lookup[0xcb].cycles;

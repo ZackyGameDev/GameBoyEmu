@@ -1,14 +1,14 @@
 #include <iostream>
 // #include <SDL2/SDL.h>
-#include "Bus.h"
 #include <chrono>
 #include <thread>
 #include <filesystem>
 #include <bitset>
+#include "Bus.h"
 
-const int CPU_CLOCK_SPEED = 4194304; 
+// const int CPU_CLOCK_SPEED = 4194304; 
+const int CPU_CLOCK_SPEED = 300;
 const long double CYCLE_DURATION = 1.0 / CPU_CLOCK_SPEED;
-
 
 int main() {
     std::cout << "DID IT WORK <--------------\n";
@@ -23,8 +23,8 @@ int main() {
         // Get the start time of the cycle
         auto start_cycle_time = std::chrono::high_resolution_clock::now();
 
-        bus.cpu.clock();
         bus.ppu.clock();
+        bus.cpu.clock();
 
         // Get the end time of the cycle
         auto end_cycle_time = std::chrono::high_resolution_clock::now();
