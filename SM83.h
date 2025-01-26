@@ -3,7 +3,6 @@
 #include <cstdint>
 #include <string>
 
-#define DEBUGMODE_
 
 #ifdef DEBUGMODE_
 #define SDL_MAIN_HANDLED
@@ -27,7 +26,9 @@ public:
     SDL_Renderer *registers_debug_renderer = nullptr;
     TTF_Font* sdl_ttf_font;
     SDL_Color sdl_color_white = {255, 255, 255, 255};
+    SDL_Color sdl_color_black = {0, 0, 0, 255};
     void drawDebug();
+    void opDebug();
     #endif
 
 public:
@@ -44,8 +45,8 @@ public:
     uint8_t   e  = 0x00;
     uint8_t   h  = 0x00;
     uint8_t   l  = 0x00;
-    uint16_t  sp = 0x0000;
-    uint16_t  pc = 0x0150;
+    uint16_t  sp = 0xfffe;
+    uint16_t  pc = 0x0101;
 
     // for debugging
     uint16_t last_executed_pc = 0x0000;

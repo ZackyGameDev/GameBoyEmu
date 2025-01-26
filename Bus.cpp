@@ -2,7 +2,8 @@
 #include <iostream>
 // 
 // "ROMS/Tetris (Japan) (En).gb"
-Bus::Bus() : cart("ROMS/cpu_instrs.gb") {
+// "ROMS/mytestrom.gb"
+Bus::Bus() : cart("ROMS/Tetris (Japan) (En).gb") {
     cpu.connectBus(this);
     joypad.connectBus(this);
     ppu.connectBus(this);
@@ -38,6 +39,8 @@ uint8_t Bus::cpuRead(uint16_t addr) {
         data = joypad.read();
     } else if (addr == 0xff0f) {
         data = cpu.if_;
+    } else if (0xff00 <= addr and addr <= 0xff7f){
+        data = 0x00; // default for port mode registers
     } else if (0xff80 <= addr and addr <= 0xfffe) {
         data = hram[addr - 0xff80];
     } else if (addr == 0xffff) {
@@ -66,6 +69,8 @@ uint8_t* Bus::cpuReadPttr(uint16_t addr) {
         data = joypad.readPttr();
     } else if (addr == 0xff0f) {
         data = &cpu.if_;
+    } else if (0xff00 <= addr and addr <= 0xff7f){
+        data = &zero; // default for port mode registers
     } else if (0xff80 <= addr and addr <= 0xfffe) {
         data = &hram[addr - 0xff80];
     } else if (addr == 0xffff) {

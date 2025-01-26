@@ -7,106 +7,105 @@ SM83::SM83() {
 
     using x = SM83;
 
-    // \todo: fix the jr and jp and such clock cycle amount
     unprefixed_opcode_lookup = { 
-        {"NOP", &x::NOP, 4}, {"LD", &x::LD_BC_n16, 12}, {"LD", &x::LD_aBC_A, 8}, {"INC", &x::INC_BC, 8}, {"INC", &x::INC_B, 4},
-        {"DEC", &x::DEC_B, 4}, {"LD", &x::LD_B_n8, 8}, {"RLCA", &x::RLCA, 4}, {"LD", &x::LD_aa16_SP, 20}, {"ADD", &x::ADD_HL_BC, 8},
-        {"LD", &x::LD_A_aBC, 8}, {"DEC", &x::DEC_BC, 8}, {"INC", &x::INC_C, 4}, {"DEC", &x::DEC_C, 4}, {"LD", &x::LD_C_n8, 8},
-        {"RRCA", &x::RRCA, 4}, {"STOP", &x::STOP_n8, 4}, {"LD", &x::LD_DE_n16, 12}, {"LD", &x::LD_aDE_A, 8}, {"INC", &x::INC_DE, 8},
-        {"INC", &x::INC_D, 4}, {"DEC", &x::DEC_D, 4}, {"LD", &x::LD_D_n8, 8}, {"RLA", &x::RLA, 4}, {"JR", &x::JR_e8, 12},
-        {"ADD", &x::ADD_HL_DE, 8}, {"LD", &x::LD_A_aDE, 8}, {"DEC", &x::DEC_DE, 8}, {"INC", &x::INC_E, 4}, {"DEC", &x::DEC_E, 4},
-        {"LD", &x::LD_E_n8, 8}, {"RRA", &x::RRA, 4}, {"JR", &x::JR_NZ_e8, 8}, {"LD", &x::LD_HL_n16, 12}, {"LD", &x::LD_aHLI_A, 8},
-        {"INC", &x::INC_HL, 8}, {"INC", &x::INC_H, 4}, {"DEC", &x::DEC_H, 4}, {"LD", &x::LD_H_n8, 8}, {"DAA", &x::DAA, 4},
-        {"JR", &x::JR_Z_e8, 8}, {"ADD", &x::ADD_HL_HL, 8}, {"LD", &x::LD_A_aHLI, 8}, {"DEC", &x::DEC_HL, 8}, {"INC", &x::INC_L, 4},
-        {"DEC", &x::DEC_L, 4}, {"LD", &x::LD_L_n8, 8}, {"CPL", &x::CPL, 4}, {"JR", &x::JR_NC_e8, 8}, {"LD", &x::LD_SP_n16, 12},
-        {"LD", &x::LD_aHLD_A, 8}, {"INC", &x::INC_SP, 8}, {"INC", &x::INC_aHL, 12}, {"DEC", &x::DEC_aHL, 12}, {"LD", &x::LD_aHL_n8, 12},
-        {"SCF", &x::SCF, 4}, {"JR", &x::JR_C_e8, 8}, {"ADD", &x::ADD_HL_SP, 8}, {"LD", &x::LD_A_aHLD, 8}, {"DEC", &x::DEC_SP, 8},
-        {"INC", &x::INC_A, 4}, {"DEC", &x::DEC_A, 4}, {"LD", &x::LD_A_n8, 8}, {"CCF", &x::CCF, 4}, {"LD", &x::LD_B_B, 4},
-        {"LD", &x::LD_B_C, 4}, {"LD", &x::LD_B_D, 4}, {"LD", &x::LD_B_E, 4}, {"LD", &x::LD_B_H, 4}, {"LD", &x::LD_B_L, 4},
-        {"LD", &x::LD_B_aHL, 8}, {"LD", &x::LD_B_A, 4}, {"LD", &x::LD_C_B, 4}, {"LD", &x::LD_C_C, 4}, {"LD", &x::LD_C_D, 4},
-        {"LD", &x::LD_C_E, 4}, {"LD", &x::LD_C_H, 4}, {"LD", &x::LD_C_L, 4}, {"LD", &x::LD_C_aHL, 8}, {"LD", &x::LD_C_A, 4},
-        {"LD", &x::LD_D_B, 4}, {"LD", &x::LD_D_C, 4}, {"LD", &x::LD_D_D, 4}, {"LD", &x::LD_D_E, 4}, {"LD", &x::LD_D_H, 4},
-        {"LD", &x::LD_D_L, 4}, {"LD", &x::LD_D_aHL, 8}, {"LD", &x::LD_D_A, 4}, {"LD", &x::LD_E_B, 4}, {"LD", &x::LD_E_C, 4},
-        {"LD", &x::LD_E_D, 4}, {"LD", &x::LD_E_E, 4}, {"LD", &x::LD_E_H, 4}, {"LD", &x::LD_E_L, 4}, {"LD", &x::LD_E_aHL, 8},
-        {"LD", &x::LD_E_A, 4}, {"LD", &x::LD_H_B, 4}, {"LD", &x::LD_H_C, 4}, {"LD", &x::LD_H_D, 4}, {"LD", &x::LD_H_E, 4},
-        {"LD", &x::LD_H_H, 4}, {"LD", &x::LD_H_L, 4}, {"LD", &x::LD_H_aHL, 8}, {"LD", &x::LD_H_A, 4}, {"LD", &x::LD_L_B, 4},
-        {"LD", &x::LD_L_C, 4}, {"LD", &x::LD_L_D, 4}, {"LD", &x::LD_L_E, 4}, {"LD", &x::LD_L_H, 4}, {"LD", &x::LD_L_L, 4},
-        {"LD", &x::LD_L_aHL, 8}, {"LD", &x::LD_L_A, 4}, {"LD", &x::LD_aHL_B, 8}, {"LD", &x::LD_aHL_C, 8}, {"LD", &x::LD_aHL_D, 8},
-        {"LD", &x::LD_aHL_E, 8}, {"LD", &x::LD_aHL_H, 8}, {"LD", &x::LD_aHL_L, 8}, {"HALT", &x::HALT, 4}, {"LD", &x::LD_aHL_A, 8},
-        {"LD", &x::LD_A_B, 4}, {"LD", &x::LD_A_C, 4}, {"LD", &x::LD_A_D, 4}, {"LD", &x::LD_A_E, 4}, {"LD", &x::LD_A_H, 4},
-        {"LD", &x::LD_A_L, 4}, {"LD", &x::LD_A_aHL, 8}, {"LD", &x::LD_A_A, 4}, {"ADD", &x::ADD_A_B, 4}, {"ADD", &x::ADD_A_C, 4},
-        {"ADD", &x::ADD_A_D, 4}, {"ADD", &x::ADD_A_E, 4}, {"ADD", &x::ADD_A_H, 4}, {"ADD", &x::ADD_A_L, 4}, {"ADD", &x::ADD_A_aHL, 8},
-        {"ADD", &x::ADD_A_A, 4}, {"ADC", &x::ADC_A_B, 4}, {"ADC", &x::ADC_A_C, 4}, {"ADC", &x::ADC_A_D, 4}, {"ADC", &x::ADC_A_E, 4},
-        {"ADC", &x::ADC_A_H, 4}, {"ADC", &x::ADC_A_L, 4}, {"ADC", &x::ADC_A_aHL, 8}, {"ADC", &x::ADC_A_A, 4}, {"SUB", &x::SUB_A_B, 4},
-        {"SUB", &x::SUB_A_C, 4}, {"SUB", &x::SUB_A_D, 4}, {"SUB", &x::SUB_A_E, 4}, {"SUB", &x::SUB_A_H, 4}, {"SUB", &x::SUB_A_L, 4},
-        {"SUB", &x::SUB_A_aHL, 8}, {"SUB", &x::SUB_A_A, 4}, {"SBC", &x::SBC_A_B, 4}, {"SBC", &x::SBC_A_C, 4}, {"SBC", &x::SBC_A_D, 4},
-        {"SBC", &x::SBC_A_E, 4}, {"SBC", &x::SBC_A_H, 4}, {"SBC", &x::SBC_A_L, 4}, {"SBC", &x::SBC_A_aHL, 8}, {"SBC", &x::SBC_A_A, 4},
-        {"AND", &x::AND_A_B, 4}, {"AND", &x::AND_A_C, 4}, {"AND", &x::AND_A_D, 4}, {"AND", &x::AND_A_E, 4}, {"AND", &x::AND_A_H, 4},
-        {"AND", &x::AND_A_L, 4}, {"AND", &x::AND_A_aHL, 8}, {"AND", &x::AND_A_A, 4}, {"XOR", &x::XOR_A_B, 4}, {"XOR", &x::XOR_A_C, 4},
-        {"XOR", &x::XOR_A_D, 4}, {"XOR", &x::XOR_A_E, 4}, {"XOR", &x::XOR_A_H, 4}, {"XOR", &x::XOR_A_L, 4}, {"XOR", &x::XOR_A_aHL, 8},
-        {"XOR", &x::XOR_A_A, 4}, {"OR", &x::OR_A_B, 4}, {"OR", &x::OR_A_C, 4}, {"OR", &x::OR_A_D, 4}, {"OR", &x::OR_A_E, 4},
-        {"OR", &x::OR_A_H, 4}, {"OR", &x::OR_A_L, 4}, {"OR", &x::OR_A_aHL, 8}, {"OR", &x::OR_A_A, 4}, {"CP", &x::CP_A_B, 4},
-        {"CP", &x::CP_A_C, 4}, {"CP", &x::CP_A_D, 4}, {"CP", &x::CP_A_E, 4}, {"CP", &x::CP_A_H, 4}, {"CP", &x::CP_A_L, 4},
-        {"CP", &x::CP_A_aHL, 8}, {"CP", &x::CP_A_A, 4}, {"RET", &x::RET_NZ, 8}, {"POP", &x::POP_BC, 12}, {"JP", &x::JP_NZ_a16, 12},
-        {"JP", &x::JP_a16, 16}, {"CALL", &x::CALL_NZ_a16, 12}, {"PUSH", &x::PUSH_BC, 16}, {"ADD", &x::ADD_A_n8, 8}, {"RST", &x::RST_00, 16},
-        {"RET", &x::RET_Z, 8}, {"RET", &x::RET, 16}, {"JP", &x::JP_Z_a16, 12}, {"PREFIX", &x::PREFIX, 4}, {"CALL", &x::CALL_Z_a16, 12},
-        {"CALL", &x::CALL_a16, 24}, {"ADC", &x::ADC_A_n8, 8}, {"RST", &x::RST_08, 16}, {"RET", &x::RET_NC, 8}, {"POP", &x::POP_DE, 12},
-        {"JP", &x::JP_NC_a16, 12}, {"ILLEGAL_D3", &x::ILLEGAL_D3, 4}, {"CALL", &x::CALL_NC_a16, 12}, {"PUSH", &x::PUSH_DE, 16}, {"SUB", &x::SUB_A_n8, 8},
-        {"RST", &x::RST_10, 16}, {"RET", &x::RET_C, 8}, {"RETI", &x::RETI, 16}, {"JP", &x::JP_C_a16, 12}, {"ILLEGAL_DB", &x::ILLEGAL_DB, 4},
-        {"CALL", &x::CALL_C_a16, 12}, {"ILLEGAL_DD", &x::ILLEGAL_DD, 4}, {"SBC", &x::SBC_A_n8, 8}, {"RST", &x::RST_18, 16}, {"LDH", &x::LDH_aa8_A, 12},
-        {"POP", &x::POP_HL, 12}, {"LDH", &x::LDH_aC_A, 8}, {"ILLEGAL_E3", &x::ILLEGAL_E3, 4}, {"ILLEGAL_E4", &x::ILLEGAL_E4, 4}, {"PUSH", &x::PUSH_HL, 16},
-        {"AND", &x::AND_A_n8, 8}, {"RST", &x::RST_20, 16}, {"ADD", &x::ADD_SP_e8, 16}, {"JP", &x::JP_HL, 4}, {"LD", &x::LD_aa16_A, 16},
-        {"ILLEGAL_EB", &x::ILLEGAL_EB, 4}, {"ILLEGAL_EC", &x::ILLEGAL_EC, 4}, {"ILLEGAL_ED", &x::ILLEGAL_ED, 4}, {"XOR", &x::XOR_A_n8, 8}, {"RST", &x::RST_28, 16},
-        {"LDH", &x::LDH_A_aa8, 12}, {"POP", &x::POP_AF, 12}, {"LDH", &x::LDH_A_aC, 8}, {"DI", &x::DI, 4}, {"ILLEGAL_F4", &x::ILLEGAL_F4, 4},
-        {"PUSH", &x::PUSH_AF, 16}, {"OR", &x::OR_A_n8, 8}, {"RST", &x::RST_30, 16}, {"LD", &x::LD_HL_SPI_e8, 12}, {"LD", &x::LD_SP_HL, 8},
-        {"LD", &x::LD_A_aa16, 16}, {"EI", &x::EI, 4}, {"ILLEGAL_FC", &x::ILLEGAL_FC, 4}, {"ILLEGAL_FD", &x::ILLEGAL_FD, 4}, {"CP", &x::CP_A_n8, 8},
-        {"RST", &x::RST_38, 16}, 
+        {"NOP", &x::NOP, 1}, {"LD", &x::LD_BC_n16, 3}, {"LD", &x::LD_aBC_A, 2}, {"INC", &x::INC_BC, 2}, {"INC", &x::INC_B, 1},
+        {"DEC", &x::DEC_B, 1}, {"LD", &x::LD_B_n8, 2}, {"RLCA", &x::RLCA, 1}, {"LD", &x::LD_aa16_SP, 5}, {"ADD", &x::ADD_HL_BC, 2},
+        {"LD", &x::LD_A_aBC, 2}, {"DEC", &x::DEC_BC, 2}, {"INC", &x::INC_C, 1}, {"DEC", &x::DEC_C, 1}, {"LD", &x::LD_C_n8, 2},
+        {"RRCA", &x::RRCA, 1}, {"STOP", &x::STOP_n8, 1}, {"LD", &x::LD_DE_n16, 3}, {"LD", &x::LD_aDE_A, 2}, {"INC", &x::INC_DE, 2},
+        {"INC", &x::INC_D, 1}, {"DEC", &x::DEC_D, 1}, {"LD", &x::LD_D_n8, 2}, {"RLA", &x::RLA, 1}, {"JR", &x::JR_e8, 3},
+        {"ADD", &x::ADD_HL_DE, 2}, {"LD", &x::LD_A_aDE, 2}, {"DEC", &x::DEC_DE, 2}, {"INC", &x::INC_E, 1}, {"DEC", &x::DEC_E, 1},
+        {"LD", &x::LD_E_n8, 2}, {"RRA", &x::RRA, 1}, {"JR", &x::JR_NZ_e8, 2}, {"LD", &x::LD_HL_n16, 3}, {"LD", &x::LD_aHLI_A, 2},
+        {"INC", &x::INC_HL, 2}, {"INC", &x::INC_H, 1}, {"DEC", &x::DEC_H, 1}, {"LD", &x::LD_H_n8, 2}, {"DAA", &x::DAA, 1},
+        {"JR", &x::JR_Z_e8, 2}, {"ADD", &x::ADD_HL_HL, 2}, {"LD", &x::LD_A_aHLI, 2}, {"DEC", &x::DEC_HL, 2}, {"INC", &x::INC_L, 1},
+        {"DEC", &x::DEC_L, 1}, {"LD", &x::LD_L_n8, 2}, {"CPL", &x::CPL, 1}, {"JR", &x::JR_NC_e8, 2}, {"LD", &x::LD_SP_n16, 3},
+        {"LD", &x::LD_aHLD_A, 2}, {"INC", &x::INC_SP, 2}, {"INC", &x::INC_aHL, 3}, {"DEC", &x::DEC_aHL, 3}, {"LD", &x::LD_aHL_n8, 3},
+        {"SCF", &x::SCF, 1}, {"JR", &x::JR_C_e8, 2}, {"ADD", &x::ADD_HL_SP, 2}, {"LD", &x::LD_A_aHLD, 2}, {"DEC", &x::DEC_SP, 2},
+        {"INC", &x::INC_A, 1}, {"DEC", &x::DEC_A, 1}, {"LD", &x::LD_A_n8, 2}, {"CCF", &x::CCF, 1}, {"LD", &x::LD_B_B, 1},
+        {"LD", &x::LD_B_C, 1}, {"LD", &x::LD_B_D, 1}, {"LD", &x::LD_B_E, 1}, {"LD", &x::LD_B_H, 1}, {"LD", &x::LD_B_L, 1},
+        {"LD", &x::LD_B_aHL, 2}, {"LD", &x::LD_B_A, 1}, {"LD", &x::LD_C_B, 1}, {"LD", &x::LD_C_C, 1}, {"LD", &x::LD_C_D, 1},
+        {"LD", &x::LD_C_E, 1}, {"LD", &x::LD_C_H, 1}, {"LD", &x::LD_C_L, 1}, {"LD", &x::LD_C_aHL, 2}, {"LD", &x::LD_C_A, 1},
+        {"LD", &x::LD_D_B, 1}, {"LD", &x::LD_D_C, 1}, {"LD", &x::LD_D_D, 1}, {"LD", &x::LD_D_E, 1}, {"LD", &x::LD_D_H, 1},
+        {"LD", &x::LD_D_L, 1}, {"LD", &x::LD_D_aHL, 2}, {"LD", &x::LD_D_A, 1}, {"LD", &x::LD_E_B, 1}, {"LD", &x::LD_E_C, 1},
+        {"LD", &x::LD_E_D, 1}, {"LD", &x::LD_E_E, 1}, {"LD", &x::LD_E_H, 1}, {"LD", &x::LD_E_L, 1}, {"LD", &x::LD_E_aHL, 2},
+        {"LD", &x::LD_E_A, 1}, {"LD", &x::LD_H_B, 1}, {"LD", &x::LD_H_C, 1}, {"LD", &x::LD_H_D, 1}, {"LD", &x::LD_H_E, 1},
+        {"LD", &x::LD_H_H, 1}, {"LD", &x::LD_H_L, 1}, {"LD", &x::LD_H_aHL, 2}, {"LD", &x::LD_H_A, 1}, {"LD", &x::LD_L_B, 1},
+        {"LD", &x::LD_L_C, 1}, {"LD", &x::LD_L_D, 1}, {"LD", &x::LD_L_E, 1}, {"LD", &x::LD_L_H, 1}, {"LD", &x::LD_L_L, 1},
+        {"LD", &x::LD_L_aHL, 2}, {"LD", &x::LD_L_A, 1}, {"LD", &x::LD_aHL_B, 2}, {"LD", &x::LD_aHL_C, 2}, {"LD", &x::LD_aHL_D, 2},
+        {"LD", &x::LD_aHL_E, 2}, {"LD", &x::LD_aHL_H, 2}, {"LD", &x::LD_aHL_L, 2}, {"HALT", &x::HALT, 1}, {"LD", &x::LD_aHL_A, 2},
+        {"LD", &x::LD_A_B, 1}, {"LD", &x::LD_A_C, 1}, {"LD", &x::LD_A_D, 1}, {"LD", &x::LD_A_E, 1}, {"LD", &x::LD_A_H, 1},
+        {"LD", &x::LD_A_L, 1}, {"LD", &x::LD_A_aHL, 2}, {"LD", &x::LD_A_A, 1}, {"ADD", &x::ADD_A_B, 1}, {"ADD", &x::ADD_A_C, 1},
+        {"ADD", &x::ADD_A_D, 1}, {"ADD", &x::ADD_A_E, 1}, {"ADD", &x::ADD_A_H, 1}, {"ADD", &x::ADD_A_L, 1}, {"ADD", &x::ADD_A_aHL, 2},
+        {"ADD", &x::ADD_A_A, 1}, {"ADC", &x::ADC_A_B, 1}, {"ADC", &x::ADC_A_C, 1}, {"ADC", &x::ADC_A_D, 1}, {"ADC", &x::ADC_A_E, 1},
+        {"ADC", &x::ADC_A_H, 1}, {"ADC", &x::ADC_A_L, 1}, {"ADC", &x::ADC_A_aHL, 2}, {"ADC", &x::ADC_A_A, 1}, {"SUB", &x::SUB_A_B, 1},
+        {"SUB", &x::SUB_A_C, 1}, {"SUB", &x::SUB_A_D, 1}, {"SUB", &x::SUB_A_E, 1}, {"SUB", &x::SUB_A_H, 1}, {"SUB", &x::SUB_A_L, 1},
+        {"SUB", &x::SUB_A_aHL, 2}, {"SUB", &x::SUB_A_A, 1}, {"SBC", &x::SBC_A_B, 1}, {"SBC", &x::SBC_A_C, 1}, {"SBC", &x::SBC_A_D, 1},
+        {"SBC", &x::SBC_A_E, 1}, {"SBC", &x::SBC_A_H, 1}, {"SBC", &x::SBC_A_L, 1}, {"SBC", &x::SBC_A_aHL, 2}, {"SBC", &x::SBC_A_A, 1},
+        {"AND", &x::AND_A_B, 1}, {"AND", &x::AND_A_C, 1}, {"AND", &x::AND_A_D, 1}, {"AND", &x::AND_A_E, 1}, {"AND", &x::AND_A_H, 1},
+        {"AND", &x::AND_A_L, 1}, {"AND", &x::AND_A_aHL, 2}, {"AND", &x::AND_A_A, 1}, {"XOR", &x::XOR_A_B, 1}, {"XOR", &x::XOR_A_C, 1},
+        {"XOR", &x::XOR_A_D, 1}, {"XOR", &x::XOR_A_E, 1}, {"XOR", &x::XOR_A_H, 1}, {"XOR", &x::XOR_A_L, 1}, {"XOR", &x::XOR_A_aHL, 2},
+        {"XOR", &x::XOR_A_A, 1}, {"OR", &x::OR_A_B, 1}, {"OR", &x::OR_A_C, 1}, {"OR", &x::OR_A_D, 1}, {"OR", &x::OR_A_E, 1},
+        {"OR", &x::OR_A_H, 1}, {"OR", &x::OR_A_L, 1}, {"OR", &x::OR_A_aHL, 2}, {"OR", &x::OR_A_A, 1}, {"CP", &x::CP_A_B, 1},
+        {"CP", &x::CP_A_C, 1}, {"CP", &x::CP_A_D, 1}, {"CP", &x::CP_A_E, 1}, {"CP", &x::CP_A_H, 1}, {"CP", &x::CP_A_L, 1},
+        {"CP", &x::CP_A_aHL, 2}, {"CP", &x::CP_A_A, 1}, {"RET", &x::RET_NZ, 2}, {"POP", &x::POP_BC, 3}, {"JP", &x::JP_NZ_a16, 3},
+        {"JP", &x::JP_a16, 4}, {"CALL", &x::CALL_NZ_a16, 3}, {"PUSH", &x::PUSH_BC, 4}, {"ADD", &x::ADD_A_n8, 2}, {"RST", &x::RST_00, 4},
+        {"RET", &x::RET_Z, 2}, {"RET", &x::RET, 4}, {"JP", &x::JP_Z_a16, 3}, {"PREFIX", &x::PREFIX, 1}, {"CALL", &x::CALL_Z_a16, 3},
+        {"CALL", &x::CALL_a16, 6}, {"ADC", &x::ADC_A_n8, 2}, {"RST", &x::RST_08, 4}, {"RET", &x::RET_NC, 2}, {"POP", &x::POP_DE, 3},
+        {"JP", &x::JP_NC_a16, 3}, {"ILLEGAL_D3", &x::ILLEGAL_D3, 1}, {"CALL", &x::CALL_NC_a16, 3}, {"PUSH", &x::PUSH_DE, 4}, {"SUB", &x::SUB_A_n8, 2},
+        {"RST", &x::RST_10, 4}, {"RET", &x::RET_C, 2}, {"RETI", &x::RETI, 4}, {"JP", &x::JP_C_a16, 3}, {"ILLEGAL_DB", &x::ILLEGAL_DB, 1},
+        {"CALL", &x::CALL_C_a16, 3}, {"ILLEGAL_DD", &x::ILLEGAL_DD, 1}, {"SBC", &x::SBC_A_n8, 2}, {"RST", &x::RST_18, 4}, {"LDH", &x::LDH_aa8_A, 3},
+        {"POP", &x::POP_HL, 3}, {"LDH", &x::LDH_aC_A, 2}, {"ILLEGAL_E3", &x::ILLEGAL_E3, 1}, {"ILLEGAL_E4", &x::ILLEGAL_E4, 1}, {"PUSH", &x::PUSH_HL, 4},
+        {"AND", &x::AND_A_n8, 2}, {"RST", &x::RST_20, 4}, {"ADD", &x::ADD_SP_e8, 4}, {"JP", &x::JP_HL, 1}, {"LD", &x::LD_aa16_A, 4},
+        {"ILLEGAL_EB", &x::ILLEGAL_EB, 1}, {"ILLEGAL_EC", &x::ILLEGAL_EC, 1}, {"ILLEGAL_ED", &x::ILLEGAL_ED, 1}, {"XOR", &x::XOR_A_n8, 2}, {"RST", &x::RST_28, 4},
+        {"LDH", &x::LDH_A_aa8, 3}, {"POP", &x::POP_AF, 3}, {"LDH", &x::LDH_A_aC, 2}, {"DI", &x::DI, 1}, {"ILLEGAL_F4", &x::ILLEGAL_F4, 1},
+        {"PUSH", &x::PUSH_AF, 4}, {"OR", &x::OR_A_n8, 2}, {"RST", &x::RST_30, 4}, {"LD", &x::LD_HL_SPI_e8, 3}, {"LD", &x::LD_SP_HL, 2},
+        {"LD", &x::LD_A_aa16, 4}, {"EI", &x::EI, 1}, {"ILLEGAL_FC", &x::ILLEGAL_FC, 1}, {"ILLEGAL_FD", &x::ILLEGAL_FD, 1}, {"CP", &x::CP_A_n8, 2},
+        {"RST", &x::RST_38, 4}, 
     };
 
     prefixed_opcode_lookup = {
-        {"RLC", &x::RLC_B, 8}, {"RLC", &x::RLC_C, 8}, {"RLC", &x::RLC_D, 8}, {"RLC", &x::RLC_E, 8}, {"RLC", &x::RLC_H, 8}, {"RLC", &x::RLC_L, 8},
-        {"RLC", &x::RLC_aHL, 16}, {"RLC", &x::RLC_A, 8}, {"RRC", &x::RRC_B, 8}, {"RRC", &x::RRC_C, 8}, {"RRC", &x::RRC_D, 8}, {"RRC", &x::RRC_E, 8},
-        {"RRC", &x::RRC_H, 8}, {"RRC", &x::RRC_L, 8}, {"RRC", &x::RRC_aHL, 16}, {"RRC", &x::RRC_A, 8}, {"RL", &x::RL_B, 8}, {"RL", &x::RL_C, 8},
-        {"RL", &x::RL_D, 8}, {"RL", &x::RL_E, 8}, {"RL", &x::RL_H, 8}, {"RL", &x::RL_L, 8}, {"RL", &x::RL_aHL, 16}, {"RL", &x::RL_A, 8},
-        {"RR", &x::RR_B, 8}, {"RR", &x::RR_C, 8}, {"RR", &x::RR_D, 8}, {"RR", &x::RR_E, 8}, {"RR", &x::RR_H, 8}, {"RR", &x::RR_L, 8},
-        {"RR", &x::RR_aHL, 16}, {"RR", &x::RR_A, 8}, {"SLA", &x::SLA_B, 8}, {"SLA", &x::SLA_C, 8}, {"SLA", &x::SLA_D, 8}, {"SLA", &x::SLA_E, 8},
-        {"SLA", &x::SLA_H, 8}, {"SLA", &x::SLA_L, 8}, {"SLA", &x::SLA_aHL, 16}, {"SLA", &x::SLA_A, 8}, {"SRA", &x::SRA_B, 8}, {"SRA", &x::SRA_C, 8},
-        {"SRA", &x::SRA_D, 8}, {"SRA", &x::SRA_E, 8}, {"SRA", &x::SRA_H, 8}, {"SRA", &x::SRA_L, 8}, {"SRA", &x::SRA_aHL, 16}, {"SRA", &x::SRA_A, 8},
-        {"SWAP", &x::SWAP_B, 8}, {"SWAP", &x::SWAP_C, 8}, {"SWAP", &x::SWAP_D, 8}, {"SWAP", &x::SWAP_E, 8}, {"SWAP", &x::SWAP_H, 8}, {"SWAP", &x::SWAP_L, 8},  
-        {"SWAP", &x::SWAP_aHL, 16}, {"SWAP", &x::SWAP_A, 8}, {"SRL", &x::SRL_B, 8}, {"SRL", &x::SRL_C, 8}, {"SRL", &x::SRL_D, 8}, {"SRL", &x::SRL_E, 8},       
-        {"SRL", &x::SRL_H, 8}, {"SRL", &x::SRL_L, 8}, {"SRL", &x::SRL_aHL, 16}, {"SRL", &x::SRL_A, 8}, {"BIT", &x::BIT_0_B, 8}, {"BIT", &x::BIT_0_C, 8},       
-        {"BIT", &x::BIT_0_D, 8}, {"BIT", &x::BIT_0_E, 8}, {"BIT", &x::BIT_0_H, 8}, {"BIT", &x::BIT_0_L, 8}, {"BIT", &x::BIT_0_aHL, 12}, {"BIT", &x::BIT_0_A, 8},
-        {"BIT", &x::BIT_1_B, 8}, {"BIT", &x::BIT_1_C, 8}, {"BIT", &x::BIT_1_D, 8}, {"BIT", &x::BIT_1_E, 8}, {"BIT", &x::BIT_1_H, 8}, {"BIT", &x::BIT_1_L, 8},  
-        {"BIT", &x::BIT_1_aHL, 12}, {"BIT", &x::BIT_1_A, 8}, {"BIT", &x::BIT_2_B, 8}, {"BIT", &x::BIT_2_C, 8}, {"BIT", &x::BIT_2_D, 8}, {"BIT", &x::BIT_2_E, 8},
-        {"BIT", &x::BIT_2_H, 8}, {"BIT", &x::BIT_2_L, 8}, {"BIT", &x::BIT_2_aHL, 12}, {"BIT", &x::BIT_2_A, 8}, {"BIT", &x::BIT_3_B, 8}, {"BIT", &x::BIT_3_C, 8},
-        {"BIT", &x::BIT_3_D, 8}, {"BIT", &x::BIT_3_E, 8}, {"BIT", &x::BIT_3_H, 8}, {"BIT", &x::BIT_3_L, 8}, {"BIT", &x::BIT_3_aHL, 12}, {"BIT", &x::BIT_3_A, 8},
-        {"BIT", &x::BIT_4_B, 8}, {"BIT", &x::BIT_4_C, 8}, {"BIT", &x::BIT_4_D, 8}, {"BIT", &x::BIT_4_E, 8}, {"BIT", &x::BIT_4_H, 8}, {"BIT", &x::BIT_4_L, 8},  
-        {"BIT", &x::BIT_4_aHL, 12}, {"BIT", &x::BIT_4_A, 8}, {"BIT", &x::BIT_5_B, 8}, {"BIT", &x::BIT_5_C, 8}, {"BIT", &x::BIT_5_D, 8}, {"BIT", &x::BIT_5_E, 8},
-        {"BIT", &x::BIT_5_H, 8}, {"BIT", &x::BIT_5_L, 8}, {"BIT", &x::BIT_5_aHL, 12}, {"BIT", &x::BIT_5_A, 8}, {"BIT", &x::BIT_6_B, 8}, {"BIT", &x::BIT_6_C, 8},
-        {"BIT", &x::BIT_6_D, 8}, {"BIT", &x::BIT_6_E, 8}, {"BIT", &x::BIT_6_H, 8}, {"BIT", &x::BIT_6_L, 8}, {"BIT", &x::BIT_6_aHL, 12}, {"BIT", &x::BIT_6_A, 8},
-        {"BIT", &x::BIT_7_B, 8}, {"BIT", &x::BIT_7_C, 8}, {"BIT", &x::BIT_7_D, 8}, {"BIT", &x::BIT_7_E, 8}, {"BIT", &x::BIT_7_H, 8}, {"BIT", &x::BIT_7_L, 8},  
-        {"BIT", &x::BIT_7_aHL, 12}, {"BIT", &x::BIT_7_A, 8}, {"RES", &x::RES_0_B, 8}, {"RES", &x::RES_0_C, 8}, {"RES", &x::RES_0_D, 8}, {"RES", &x::RES_0_E, 8},
-        {"RES", &x::RES_0_H, 8}, {"RES", &x::RES_0_L, 8}, {"RES", &x::RES_0_aHL, 16}, {"RES", &x::RES_0_A, 8}, {"RES", &x::RES_1_B, 8}, {"RES", &x::RES_1_C, 8},
-        {"RES", &x::RES_1_D, 8}, {"RES", &x::RES_1_E, 8}, {"RES", &x::RES_1_H, 8}, {"RES", &x::RES_1_L, 8}, {"RES", &x::RES_1_aHL, 16}, {"RES", &x::RES_1_A, 8},
-        {"RES", &x::RES_2_B, 8}, {"RES", &x::RES_2_C, 8}, {"RES", &x::RES_2_D, 8}, {"RES", &x::RES_2_E, 8}, {"RES", &x::RES_2_H, 8}, {"RES", &x::RES_2_L, 8},  
-        {"RES", &x::RES_2_aHL, 16}, {"RES", &x::RES_2_A, 8}, {"RES", &x::RES_3_B, 8}, {"RES", &x::RES_3_C, 8}, {"RES", &x::RES_3_D, 8}, {"RES", &x::RES_3_E, 8},
-        {"RES", &x::RES_3_H, 8}, {"RES", &x::RES_3_L, 8}, {"RES", &x::RES_3_aHL, 16}, {"RES", &x::RES_3_A, 8}, {"RES", &x::RES_4_B, 8}, {"RES", &x::RES_4_C, 8},
-        {"RES", &x::RES_4_D, 8}, {"RES", &x::RES_4_E, 8}, {"RES", &x::RES_4_H, 8}, {"RES", &x::RES_4_L, 8}, {"RES", &x::RES_4_aHL, 16}, {"RES", &x::RES_4_A, 8},
-        {"RES", &x::RES_5_B, 8}, {"RES", &x::RES_5_C, 8}, {"RES", &x::RES_5_D, 8}, {"RES", &x::RES_5_E, 8}, {"RES", &x::RES_5_H, 8}, {"RES", &x::RES_5_L, 8},  
-        {"RES", &x::RES_5_aHL, 16}, {"RES", &x::RES_5_A, 8}, {"RES", &x::RES_6_B, 8}, {"RES", &x::RES_6_C, 8}, {"RES", &x::RES_6_D, 8}, {"RES", &x::RES_6_E, 8},
-        {"RES", &x::RES_6_H, 8}, {"RES", &x::RES_6_L, 8}, {"RES", &x::RES_6_aHL, 16}, {"RES", &x::RES_6_A, 8}, {"RES", &x::RES_7_B, 8}, {"RES", &x::RES_7_C, 8},
-        {"RES", &x::RES_7_D, 8}, {"RES", &x::RES_7_E, 8}, {"RES", &x::RES_7_H, 8}, {"RES", &x::RES_7_L, 8}, {"RES", &x::RES_7_aHL, 16}, {"RES", &x::RES_7_A, 8},
-        {"SET", &x::SET_0_B, 8}, {"SET", &x::SET_0_C, 8}, {"SET", &x::SET_0_D, 8}, {"SET", &x::SET_0_E, 8}, {"SET", &x::SET_0_H, 8}, {"SET", &x::SET_0_L, 8},  
-        {"SET", &x::SET_0_aHL, 16}, {"SET", &x::SET_0_A, 8}, {"SET", &x::SET_1_B, 8}, {"SET", &x::SET_1_C, 8}, {"SET", &x::SET_1_D, 8}, {"SET", &x::SET_1_E, 8},
-        {"SET", &x::SET_1_H, 8}, {"SET", &x::SET_1_L, 8}, {"SET", &x::SET_1_aHL, 16}, {"SET", &x::SET_1_A, 8}, {"SET", &x::SET_2_B, 8}, {"SET", &x::SET_2_C, 8},
-        {"SET", &x::SET_2_D, 8}, {"SET", &x::SET_2_E, 8}, {"SET", &x::SET_2_H, 8}, {"SET", &x::SET_2_L, 8}, {"SET", &x::SET_2_aHL, 16}, {"SET", &x::SET_2_A, 8},
-        {"SET", &x::SET_3_B, 8}, {"SET", &x::SET_3_C, 8}, {"SET", &x::SET_3_D, 8}, {"SET", &x::SET_3_E, 8}, {"SET", &x::SET_3_H, 8}, {"SET", &x::SET_3_L, 8},  
-        {"SET", &x::SET_3_aHL, 16}, {"SET", &x::SET_3_A, 8}, {"SET", &x::SET_4_B, 8}, {"SET", &x::SET_4_C, 8}, {"SET", &x::SET_4_D, 8}, {"SET", &x::SET_4_E, 8},
-        {"SET", &x::SET_4_H, 8}, {"SET", &x::SET_4_L, 8}, {"SET", &x::SET_4_aHL, 16}, {"SET", &x::SET_4_A, 8}, {"SET", &x::SET_5_B, 8}, {"SET", &x::SET_5_C, 8},
-        {"SET", &x::SET_5_D, 8}, {"SET", &x::SET_5_E, 8}, {"SET", &x::SET_5_H, 8}, {"SET", &x::SET_5_L, 8}, {"SET", &x::SET_5_aHL, 16}, {"SET", &x::SET_5_A, 8},
-        {"SET", &x::SET_6_B, 8}, {"SET", &x::SET_6_C, 8}, {"SET", &x::SET_6_D, 8}, {"SET", &x::SET_6_E, 8}, {"SET", &x::SET_6_H, 8}, {"SET", &x::SET_6_L, 8},  
-        {"SET", &x::SET_6_aHL, 16}, {"SET", &x::SET_6_A, 8}, {"SET", &x::SET_7_B, 8}, {"SET", &x::SET_7_C, 8}, {"SET", &x::SET_7_D, 8}, {"SET", &x::SET_7_E, 8},
-        {"SET", &x::SET_7_H, 8}, {"SET", &x::SET_7_L, 8}, {"SET", &x::SET_7_aHL, 16}, {"SET", &x::SET_7_A, 8},
+        {"RLC", &x::RLC_B, 2}, {"RLC", &x::RLC_C, 2}, {"RLC", &x::RLC_D, 2}, {"RLC", &x::RLC_E, 2}, {"RLC", &x::RLC_H, 2}, {"RLC", &x::RLC_L, 2},
+        {"RLC", &x::RLC_aHL, 4}, {"RLC", &x::RLC_A, 2}, {"RRC", &x::RRC_B, 2}, {"RRC", &x::RRC_C, 2}, {"RRC", &x::RRC_D, 2}, {"RRC", &x::RRC_E, 2},
+        {"RRC", &x::RRC_H, 2}, {"RRC", &x::RRC_L, 2}, {"RRC", &x::RRC_aHL, 4}, {"RRC", &x::RRC_A, 2}, {"RL", &x::RL_B, 2}, {"RL", &x::RL_C, 2},
+        {"RL", &x::RL_D, 2}, {"RL", &x::RL_E, 2}, {"RL", &x::RL_H, 2}, {"RL", &x::RL_L, 2}, {"RL", &x::RL_aHL, 4}, {"RL", &x::RL_A, 2},
+        {"RR", &x::RR_B, 2}, {"RR", &x::RR_C, 2}, {"RR", &x::RR_D, 2}, {"RR", &x::RR_E, 2}, {"RR", &x::RR_H, 2}, {"RR", &x::RR_L, 2},
+        {"RR", &x::RR_aHL, 4}, {"RR", &x::RR_A, 2}, {"SLA", &x::SLA_B, 2}, {"SLA", &x::SLA_C, 2}, {"SLA", &x::SLA_D, 2}, {"SLA", &x::SLA_E, 2},
+        {"SLA", &x::SLA_H, 2}, {"SLA", &x::SLA_L, 2}, {"SLA", &x::SLA_aHL, 4}, {"SLA", &x::SLA_A, 2}, {"SRA", &x::SRA_B, 2}, {"SRA", &x::SRA_C, 2},
+        {"SRA", &x::SRA_D, 2}, {"SRA", &x::SRA_E, 2}, {"SRA", &x::SRA_H, 2}, {"SRA", &x::SRA_L, 2}, {"SRA", &x::SRA_aHL, 4}, {"SRA", &x::SRA_A, 2},
+        {"SWAP", &x::SWAP_B, 2}, {"SWAP", &x::SWAP_C, 2}, {"SWAP", &x::SWAP_D, 2}, {"SWAP", &x::SWAP_E, 2}, {"SWAP", &x::SWAP_H, 2}, {"SWAP", &x::SWAP_L, 2},  
+        {"SWAP", &x::SWAP_aHL, 4}, {"SWAP", &x::SWAP_A, 2}, {"SRL", &x::SRL_B, 2}, {"SRL", &x::SRL_C, 2}, {"SRL", &x::SRL_D, 2}, {"SRL", &x::SRL_E, 2},       
+        {"SRL", &x::SRL_H, 2}, {"SRL", &x::SRL_L, 2}, {"SRL", &x::SRL_aHL, 4}, {"SRL", &x::SRL_A, 2}, {"BIT", &x::BIT_0_B, 2}, {"BIT", &x::BIT_0_C, 2},       
+        {"BIT", &x::BIT_0_D, 2}, {"BIT", &x::BIT_0_E, 2}, {"BIT", &x::BIT_0_H, 2}, {"BIT", &x::BIT_0_L, 2}, {"BIT", &x::BIT_0_aHL, 3}, {"BIT", &x::BIT_0_A, 2},
+        {"BIT", &x::BIT_1_B, 2}, {"BIT", &x::BIT_1_C, 2}, {"BIT", &x::BIT_1_D, 2}, {"BIT", &x::BIT_1_E, 2}, {"BIT", &x::BIT_1_H, 2}, {"BIT", &x::BIT_1_L, 2},  
+        {"BIT", &x::BIT_1_aHL, 3}, {"BIT", &x::BIT_1_A, 2}, {"BIT", &x::BIT_2_B, 2}, {"BIT", &x::BIT_2_C, 2}, {"BIT", &x::BIT_2_D, 2}, {"BIT", &x::BIT_2_E, 2},
+        {"BIT", &x::BIT_2_H, 2}, {"BIT", &x::BIT_2_L, 2}, {"BIT", &x::BIT_2_aHL, 3}, {"BIT", &x::BIT_2_A, 2}, {"BIT", &x::BIT_3_B, 2}, {"BIT", &x::BIT_3_C, 2},
+        {"BIT", &x::BIT_3_D, 2}, {"BIT", &x::BIT_3_E, 2}, {"BIT", &x::BIT_3_H, 2}, {"BIT", &x::BIT_3_L, 2}, {"BIT", &x::BIT_3_aHL, 3}, {"BIT", &x::BIT_3_A, 2},
+        {"BIT", &x::BIT_4_B, 2}, {"BIT", &x::BIT_4_C, 2}, {"BIT", &x::BIT_4_D, 2}, {"BIT", &x::BIT_4_E, 2}, {"BIT", &x::BIT_4_H, 2}, {"BIT", &x::BIT_4_L, 2},  
+        {"BIT", &x::BIT_4_aHL, 3}, {"BIT", &x::BIT_4_A, 2}, {"BIT", &x::BIT_5_B, 2}, {"BIT", &x::BIT_5_C, 2}, {"BIT", &x::BIT_5_D, 2}, {"BIT", &x::BIT_5_E, 2},
+        {"BIT", &x::BIT_5_H, 2}, {"BIT", &x::BIT_5_L, 2}, {"BIT", &x::BIT_5_aHL, 3}, {"BIT", &x::BIT_5_A, 2}, {"BIT", &x::BIT_6_B, 2}, {"BIT", &x::BIT_6_C, 2},
+        {"BIT", &x::BIT_6_D, 2}, {"BIT", &x::BIT_6_E, 2}, {"BIT", &x::BIT_6_H, 2}, {"BIT", &x::BIT_6_L, 2}, {"BIT", &x::BIT_6_aHL, 3}, {"BIT", &x::BIT_6_A, 2},
+        {"BIT", &x::BIT_7_B, 2}, {"BIT", &x::BIT_7_C, 2}, {"BIT", &x::BIT_7_D, 2}, {"BIT", &x::BIT_7_E, 2}, {"BIT", &x::BIT_7_H, 2}, {"BIT", &x::BIT_7_L, 2},  
+        {"BIT", &x::BIT_7_aHL, 3}, {"BIT", &x::BIT_7_A, 2}, {"RES", &x::RES_0_B, 2}, {"RES", &x::RES_0_C, 2}, {"RES", &x::RES_0_D, 2}, {"RES", &x::RES_0_E, 2},
+        {"RES", &x::RES_0_H, 2}, {"RES", &x::RES_0_L, 2}, {"RES", &x::RES_0_aHL, 4}, {"RES", &x::RES_0_A, 2}, {"RES", &x::RES_1_B, 2}, {"RES", &x::RES_1_C, 2},
+        {"RES", &x::RES_1_D, 2}, {"RES", &x::RES_1_E, 2}, {"RES", &x::RES_1_H, 2}, {"RES", &x::RES_1_L, 2}, {"RES", &x::RES_1_aHL, 4}, {"RES", &x::RES_1_A, 2},
+        {"RES", &x::RES_2_B, 2}, {"RES", &x::RES_2_C, 2}, {"RES", &x::RES_2_D, 2}, {"RES", &x::RES_2_E, 2}, {"RES", &x::RES_2_H, 2}, {"RES", &x::RES_2_L, 2},  
+        {"RES", &x::RES_2_aHL, 4}, {"RES", &x::RES_2_A, 2}, {"RES", &x::RES_3_B, 2}, {"RES", &x::RES_3_C, 2}, {"RES", &x::RES_3_D, 2}, {"RES", &x::RES_3_E, 2},
+        {"RES", &x::RES_3_H, 2}, {"RES", &x::RES_3_L, 2}, {"RES", &x::RES_3_aHL, 4}, {"RES", &x::RES_3_A, 2}, {"RES", &x::RES_4_B, 2}, {"RES", &x::RES_4_C, 2},
+        {"RES", &x::RES_4_D, 2}, {"RES", &x::RES_4_E, 2}, {"RES", &x::RES_4_H, 2}, {"RES", &x::RES_4_L, 2}, {"RES", &x::RES_4_aHL, 4}, {"RES", &x::RES_4_A, 2},
+        {"RES", &x::RES_5_B, 2}, {"RES", &x::RES_5_C, 2}, {"RES", &x::RES_5_D, 2}, {"RES", &x::RES_5_E, 2}, {"RES", &x::RES_5_H, 2}, {"RES", &x::RES_5_L, 2},  
+        {"RES", &x::RES_5_aHL, 4}, {"RES", &x::RES_5_A, 2}, {"RES", &x::RES_6_B, 2}, {"RES", &x::RES_6_C, 2}, {"RES", &x::RES_6_D, 2}, {"RES", &x::RES_6_E, 2},
+        {"RES", &x::RES_6_H, 2}, {"RES", &x::RES_6_L, 2}, {"RES", &x::RES_6_aHL, 4}, {"RES", &x::RES_6_A, 2}, {"RES", &x::RES_7_B, 2}, {"RES", &x::RES_7_C, 2},
+        {"RES", &x::RES_7_D, 2}, {"RES", &x::RES_7_E, 2}, {"RES", &x::RES_7_H, 2}, {"RES", &x::RES_7_L, 2}, {"RES", &x::RES_7_aHL, 4}, {"RES", &x::RES_7_A, 2},
+        {"SET", &x::SET_0_B, 2}, {"SET", &x::SET_0_C, 2}, {"SET", &x::SET_0_D, 2}, {"SET", &x::SET_0_E, 2}, {"SET", &x::SET_0_H, 2}, {"SET", &x::SET_0_L, 2},  
+        {"SET", &x::SET_0_aHL, 4}, {"SET", &x::SET_0_A, 2}, {"SET", &x::SET_1_B, 2}, {"SET", &x::SET_1_C, 2}, {"SET", &x::SET_1_D, 2}, {"SET", &x::SET_1_E, 2},
+        {"SET", &x::SET_1_H, 2}, {"SET", &x::SET_1_L, 2}, {"SET", &x::SET_1_aHL, 4}, {"SET", &x::SET_1_A, 2}, {"SET", &x::SET_2_B, 2}, {"SET", &x::SET_2_C, 2},
+        {"SET", &x::SET_2_D, 2}, {"SET", &x::SET_2_E, 2}, {"SET", &x::SET_2_H, 2}, {"SET", &x::SET_2_L, 2}, {"SET", &x::SET_2_aHL, 4}, {"SET", &x::SET_2_A, 2},
+        {"SET", &x::SET_3_B, 2}, {"SET", &x::SET_3_C, 2}, {"SET", &x::SET_3_D, 2}, {"SET", &x::SET_3_E, 2}, {"SET", &x::SET_3_H, 2}, {"SET", &x::SET_3_L, 2},  
+        {"SET", &x::SET_3_aHL, 4}, {"SET", &x::SET_3_A, 2}, {"SET", &x::SET_4_B, 2}, {"SET", &x::SET_4_C, 2}, {"SET", &x::SET_4_D, 2}, {"SET", &x::SET_4_E, 2},
+        {"SET", &x::SET_4_H, 2}, {"SET", &x::SET_4_L, 2}, {"SET", &x::SET_4_aHL, 4}, {"SET", &x::SET_4_A, 2}, {"SET", &x::SET_5_B, 2}, {"SET", &x::SET_5_C, 2},
+        {"SET", &x::SET_5_D, 2}, {"SET", &x::SET_5_E, 2}, {"SET", &x::SET_5_H, 2}, {"SET", &x::SET_5_L, 2}, {"SET", &x::SET_5_aHL, 4}, {"SET", &x::SET_5_A, 2},
+        {"SET", &x::SET_6_B, 2}, {"SET", &x::SET_6_C, 2}, {"SET", &x::SET_6_D, 2}, {"SET", &x::SET_6_E, 2}, {"SET", &x::SET_6_H, 2}, {"SET", &x::SET_6_L, 2},  
+        {"SET", &x::SET_6_aHL, 4}, {"SET", &x::SET_6_A, 2}, {"SET", &x::SET_7_B, 2}, {"SET", &x::SET_7_C, 2}, {"SET", &x::SET_7_D, 2}, {"SET", &x::SET_7_E, 2},
+        {"SET", &x::SET_7_H, 2}, {"SET", &x::SET_7_L, 2}, {"SET", &x::SET_7_aHL, 4}, {"SET", &x::SET_7_A, 2},
     };
 
     std::cout << "[DEBUG] opcodes loaded into the lookup tables <-----\n";
@@ -124,7 +123,7 @@ SM83::SM83() {
     SDL_SetWindowPosition(registers_debug_window, current_display.w/2 + 170*2, current_display.h/2 - 144*2);
     SDL_RenderSetScale(registers_debug_renderer, 1, 1);
 
-    SDL_SetRenderDrawColor(registers_debug_renderer, 0, 0, 0, 255);
+    SDL_SetRenderDrawColor(registers_debug_renderer, 0x0, 0x0, 0x0, 0xff);
     SDL_RenderClear(registers_debug_renderer);
 
     SDL_RenderPresent(registers_debug_renderer);
@@ -138,26 +137,26 @@ SM83::~SM83() {
 
 #ifdef DEBUGMODE_
 void SM83::drawDebug() {
-    SDL_SetRenderDrawColor(registers_debug_renderer, 0, 0, 0, 255); // Black background
+    SDL_SetRenderDrawColor(registers_debug_renderer, 0xff, 0xff, 0xff, 255);
     SDL_RenderClear(registers_debug_renderer);
 
     // Render register values
     int y = 10;
-    renderText(registers_debug_renderer, sdl_ttf_font, "a  = " + formatHex(a,  2), 10, y, sdl_color_white); y += 12;
-    renderText(registers_debug_renderer, sdl_ttf_font, "f  = " + formatHex(f,  2), 10, y, sdl_color_white); y += 12;
-    renderText(registers_debug_renderer, sdl_ttf_font, "b  = " + formatHex(b,  2), 10, y, sdl_color_white); y += 12;
-    renderText(registers_debug_renderer, sdl_ttf_font, "c  = " + formatHex(c,  2), 10, y, sdl_color_white); y += 12;
-    renderText(registers_debug_renderer, sdl_ttf_font, "d  = " + formatHex(d,  2), 10, y, sdl_color_white); y += 12;
-    renderText(registers_debug_renderer, sdl_ttf_font, "e  = " + formatHex(e,  2), 10, y, sdl_color_white); y += 12;
-    renderText(registers_debug_renderer, sdl_ttf_font, "h  = " + formatHex(h,  2), 10, y, sdl_color_white); y += 12;
-    renderText(registers_debug_renderer, sdl_ttf_font, "l  = " + formatHex(l,  2), 10, y, sdl_color_white); y += 12;
-    renderText(registers_debug_renderer, sdl_ttf_font, "sp = " + formatHex(sp, 4), 10, y, sdl_color_white); y += 12;
-    renderText(registers_debug_renderer, sdl_ttf_font, "pc = " + formatHex(pc, 4), 10, y, sdl_color_white); y += 12;
-    renderText(registers_debug_renderer, sdl_ttf_font, "af = " + formatHex(af, 4), 10, y, sdl_color_white); y += 12;
-    renderText(registers_debug_renderer, sdl_ttf_font, "bc = " + formatHex(bc, 4), 10, y, sdl_color_white); y += 12;
-    renderText(registers_debug_renderer, sdl_ttf_font, "de = " + formatHex(de, 4), 10, y, sdl_color_white); y += 12;
-    renderText(registers_debug_renderer, sdl_ttf_font, "hl = " + formatHex(hl, 4), 10, y, sdl_color_white); y += 12;
-    renderText(registers_debug_renderer, sdl_ttf_font, "last pc = " + formatHex(last_executed_pc, 4), 10, y, sdl_color_white); y += 12;
+    renderText(registers_debug_renderer, sdl_ttf_font, "a  = " + formatHex(a,  2), 10, y, sdl_color_black); y += 12;
+    renderText(registers_debug_renderer, sdl_ttf_font, "f  = " + formatHex(f,  2), 10, y, sdl_color_black); y += 12;
+    renderText(registers_debug_renderer, sdl_ttf_font, "b  = " + formatHex(b,  2), 10, y, sdl_color_black); y += 12;
+    renderText(registers_debug_renderer, sdl_ttf_font, "c  = " + formatHex(c,  2), 10, y, sdl_color_black); y += 12;
+    renderText(registers_debug_renderer, sdl_ttf_font, "d  = " + formatHex(d,  2), 10, y, sdl_color_black); y += 12;
+    renderText(registers_debug_renderer, sdl_ttf_font, "e  = " + formatHex(e,  2), 10, y, sdl_color_black); y += 12;
+    renderText(registers_debug_renderer, sdl_ttf_font, "h  = " + formatHex(h,  2), 10, y, sdl_color_black); y += 12;
+    renderText(registers_debug_renderer, sdl_ttf_font, "l  = " + formatHex(l,  2), 10, y, sdl_color_black); y += 12;
+    renderText(registers_debug_renderer, sdl_ttf_font, "sp = " + formatHex(sp, 4), 10, y, sdl_color_black); y += 12;
+    renderText(registers_debug_renderer, sdl_ttf_font, "pc = " + formatHex(pc, 4), 10, y, sdl_color_black); y += 12;
+    renderText(registers_debug_renderer, sdl_ttf_font, "af = " + formatHex(af, 4), 10, y, sdl_color_black); y += 12;
+    renderText(registers_debug_renderer, sdl_ttf_font, "bc = " + formatHex(bc, 4), 10, y, sdl_color_black); y += 12;
+    renderText(registers_debug_renderer, sdl_ttf_font, "de = " + formatHex(de, 4), 10, y, sdl_color_black); y += 12;
+    renderText(registers_debug_renderer, sdl_ttf_font, "hl = " + formatHex(hl, 4), 10, y, sdl_color_black); y += 12;
+    renderText(registers_debug_renderer, sdl_ttf_font, "last pc = " + formatHex(last_executed_pc, 4), 10, y, sdl_color_black); y += 12;
 
     SDL_RenderPresent(registers_debug_renderer);
 }
@@ -178,23 +177,23 @@ void SM83::handleInterrupts() {
                     switch (interrupt) {
                         case InterruptFlags::Joypad:
                             PUSH({PC, true}); // save the pre-call PC to stack for RET to retreive later
-                            pc = 0xff60;
+                            pc = 0x0060;
                         break;
                         case InterruptFlags::Serial:
                             PUSH({PC, true});
-                            pc = 0xff58;
+                            pc = 0x0058;
                         break;
                         case InterruptFlags::Timer:
                             PUSH({PC, true});
-                            pc = 0xff50;
+                            pc = 0x0050;
                         break;
                         case InterruptFlags::Stat:
                             PUSH({PC, true});
-                            pc = 0xff48;
+                            pc = 0x0048;
                         break;
                         case InterruptFlags::VBlank:
                             PUSH({PC, true});
-                            pc = 0xff40;
+                            pc = 0x0040;
                         break;
                     }
                     updateRegisters8(); // just for good measure (?)
@@ -219,7 +218,7 @@ void SM83::clock() {
 
         #ifdef DEBUGMODE_
 
-        this->drawDebug();
+        // this->drawDebug();
         // std::cout << "----------------------------" << std::endl << "----------------------------" << std::endl << "----------------------------" << std::endl;
         // std::cout << std::hex << std::setfill('0');
         // std::cout << "a  = 0x" << std::setw(2) << static_cast<int>(a) << std::endl;
@@ -262,6 +261,19 @@ void SM83::clock() {
 
 }
 
+
+#ifdef DEBUGMODE_
+
+void SM83::opDebug() {
+    pc = 0x160;
+    for (uint8_t opcode = 0; opcode < 0x100; opcode++) {
+        if (opcode == 0xcb) continue;
+        (this->*unprefixed_opcode_lookup[opcode].operate)();
+    }
+
+}
+
+#endif
 
 uint8_t SM83::read(uint16_t addr) {
     return bus->cpuRead(addr);
@@ -349,6 +361,8 @@ uint16_t *SM83::process_operand16(Operand operand) {
                 value = &hl; break;
             case SP:
                 value = &sp; break;
+            case PC:
+                value = &pc; break;
             case N16: { 
                 // n16 is never modified, only fetched. thus instead of trying to somehow 
                 // get a pointer to (hram[addr] | (hram[addr+1] << 8)), i'm simply fetching 
@@ -584,15 +598,16 @@ uint8_t SM83::PROCESS_ALU(Operand target, Operand source, ALUOperation operation
         case CP: {
             uint16_t result = *targetValue - *sourceValue;
             setFlag(fn, 1);
-            setFlag(fh, (*targetValue & 0x0F) + (*sourceValue & 0x0F) & 0x10);
-            setFlag(fz, result == 0);
-            setFlag(fc, result & 0x0100);
+            // setFlag(fh, (*targetValue & 0x0F) + (*sourceValue & 0x0F) & 0x10);
+            setFlag(fh, ((*targetValue & 0x0F) < (*sourceValue & 0x0F)));
+            setFlag(fz, (result && 0xff) == 0);
+            // setFlag(fc, result & 0x0100);
+            setFlag(fc, (*targetValue < *sourceValue));
             return 0;
         }
     }
 
     setFlag(fz, *targetValue & 0xff == 0);
-    setFlag(fc, *targetValue & 0x0100);
 
     updateRegisters16();
     return 0;
@@ -606,10 +621,10 @@ uint8_t SM83::PROCESS_ALU16(Operand target, ALUOperation operation) {
 
     switch (operation) {
     case INC:
-        *targetValue++;
+        *targetValue = *targetValue + 1;
         break;
     case DEC:
-        *targetValue--;
+        *targetValue = *targetValue - 1;
         break;
     }
 
@@ -624,6 +639,7 @@ uint8_t SM83::PROCESS_ALU16(Operand target, Operand source, ALUOperation operati
     uint16_t *targetValue = process_operand16(target);
 
     uint16_t storage = 0;
+    int8_t signed_storage = 0;
     uint16_t *sourceValue = &storage;
 
     if (source.name == E8) { 
@@ -632,18 +648,18 @@ uint8_t SM83::PROCESS_ALU16(Operand target, Operand source, ALUOperation operati
         // so i wont know which method of implementation is correct until i 
         // actually test it out.
     
-        *sourceValue = static_cast<uint16_t>(toSigned(read(pc++)));
+        signed_storage = (toSigned(read(pc++)));// if it is e8 this value will be non zero
     } else {
-        sourceValue = process_operand16(source);
+        sourceValue = process_operand16(source); // else this will be non zero
     }
 
     switch (operation) {
     // theres only one operation in 16 bit ALU other than inc and dec. so i'm 
     // so i'm not separating addition out into a different core helper function.
     case ADD: {
-        uint32_t result = *targetValue + *sourceValue;
+        uint32_t result = *targetValue + *sourceValue + signed_storage;
 
-        setFlag(fh, ((*targetValue & 0xFFF) + (*sourceValue & 0xFFF)) & 0x1000);
+        setFlag(fh, ((*targetValue & 0xFFF) + (*sourceValue & 0xFFF) + (signed_storage & 0xFFF)) & 0x1000);
         setFlag(fc, result > 0xFFFF);
         setFlag(fn, 0);
         
@@ -661,7 +677,7 @@ uint8_t SM83::JUMPTO(Operand address) {
 
     // if arg was E8 that means this is a relative jump instruction
     if (address.name == E8) {
-        uint16_t relative_address = static_cast<uint16_t>(toSigned(read(pc++)));
+        int16_t relative_address = (toSigned(read(pc++)));
         pc += relative_address;
     } else {
         uint16_t *target_address = process_operand16(address);
@@ -692,7 +708,7 @@ uint8_t SM83::JUMPTO(OperandName condition, Operand address) {
     }   
 
     JUMPTO(address);
-    return 4; // it will take 4 additional clock cycles if the condition was true 
+    return 1; // it will take 4 additional clock cycles (i.e. 1 machine cycle) if the condition was true 
 
 }
 
@@ -725,13 +741,13 @@ uint8_t SM83::CALL(OperandName condition, Operand address) {
     }  
 
     CALL(address);
-    return 12;
+    return 3;
 }
 
 uint8_t SM83::RST(uint8_t address_lo) {
     
     PUSH({PC, true});
-    pc = (uint16_t)address_lo;
+    pc = 0x0000 + address_lo;
 
     updateRegisters8();
     return 0;
@@ -753,7 +769,7 @@ uint8_t SM83::RETURNFROMFUNCTION(OperandName condition) {
     }
 
     POP({PC, true});
-    return 12; // takes 12 additional cycles if the condition is true;
+    return 3; // takes 12 additional cycles if the condition is true;
 }
 
 uint8_t SM83::RETURNANDEI() {
@@ -873,17 +889,15 @@ uint8_t SM83::SET(uint8_t bit, Operand operand) {
 // CORE HELPERS
 
 uint8_t SM83::ADD8(uint8_t *targetValue, uint8_t *sourceValue, bool isADC) {
-    short carry = 0;
-    if (isADC) {
-        carry = getFlag(fc);
-    }
+    uint8_t carry = isADC ? getFlag(fc) : 0;
 
     uint16_t result = *targetValue + *sourceValue + carry;
 
     // flags
     setFlag(fn, 0);
     setFlag(fh, ((*targetValue & 0x0F) + (*sourceValue & 0x0F) + carry) & 0x10);
-    // Flags C and Z are set by the function wrapping this one (PROCESS_ALU)
+    setFlag(fc, result & 0x0100);
+    // Flags Z is set by the function wrapping this one (PROCESS_ALU)
 
     *targetValue = result & 0xff;
 
@@ -892,16 +906,17 @@ uint8_t SM83::ADD8(uint8_t *targetValue, uint8_t *sourceValue, bool isADC) {
 }
 
 uint8_t SM83::SUB8(uint8_t *targetValue, uint8_t *sourceValue, bool isSBC) {
-    short borrow = 0;
-    if (isSBC) {
-        borrow = getFlag(fc);
-    }
+    short borrow = isSBC ? getFlag(fc) : 0;
 
     uint16_t result = *targetValue - *sourceValue - borrow;
 
     // flags
     setFlag(fn, 1);
-    setFlag(fh, ((*targetValue & 0x0F) - (*sourceValue & 0x0F) - borrow) & 0x10);
+    // setFlag(fh, ((*targetValue & 0x0F) - (*sourceValue & 0x0F) - borrow) & 0x10);
+    setFlag(fh, ((*targetValue & 0x0F) < ((*sourceValue & 0x0F) + borrow)));
+    // setFlag(fc, result & 0x0100);
+    setFlag(fc, (*targetValue < (*sourceValue + borrow)));
+    // flag z is set by function wrapping this one. (PROCESSALU)
 
     *targetValue = result & 0xff;
 
@@ -928,7 +943,7 @@ uint8_t SM83::INC_C() { return PROCESS_ALU({C, true}, INC); }
 uint8_t SM83::DEC_C() { return PROCESS_ALU({C, true}, DEC); }
 uint8_t SM83::LD_C_n8() { return LD({C, true}, {N8, true}); }
 uint8_t SM83::RRCA() { return ROTATEREGALEFT(true, false); }
-uint8_t SM83::STOP_n8() { return 0; }
+uint8_t SM83::STOP_n8() { pc++; return 0; }
 uint8_t SM83::LD_DE_n16() { return LD16({DE, true}, {N16, true}); }
 uint8_t SM83::LD_aDE_A() { return LD({DE, false}, {A, true}); }
 uint8_t SM83::INC_DE() { return PROCESS_ALU16({DE, true}, INC); }
@@ -1030,7 +1045,7 @@ uint8_t SM83::LD_aHL_D() { return LD({HL, false}, {D, true}); }
 uint8_t SM83::LD_aHL_E() { return LD({HL, false}, {E, true}); }
 uint8_t SM83::LD_aHL_H() { return LD({HL, false}, {H, true}); }
 uint8_t SM83::LD_aHL_L() { return LD({HL, false}, {L, true}); }
-uint8_t SM83::HALT() { return 0; }
+uint8_t SM83::HALT() { std::cout << "SYSTEM HALT REQUESTED!"; return 0; }
 uint8_t SM83::LD_aHL_A() { return LD({HL, false}, {A, true}); }
 uint8_t SM83::LD_A_B() { return LD({A, true}, {B, true}); }
 uint8_t SM83::LD_A_C() { return LD({A, true}, {C, true}); }
@@ -1111,15 +1126,15 @@ uint8_t SM83::JP_a16() { return JUMPTO({A16, true}); }
 uint8_t SM83::CALL_NZ_a16() { return CALL(NZ, {A16, true}); }
 uint8_t SM83::PUSH_BC() { return PUSH({BC, true}); }
 uint8_t SM83::ADD_A_n8() { return PROCESS_ALU({A, true}, {N8, true}, ADD); }
-uint8_t SM83::RST_00() { return 0; }
+uint8_t SM83::RST_00() { return RST(0x00); }
 uint8_t SM83::RET_Z() { return RETURNFROMFUNCTION(Z); }
-uint8_t SM83::RET() { return 0; }
+uint8_t SM83::RET() { return POP({PC, true}); }
 uint8_t SM83::JP_Z_a16() { return JUMPTO(Z, {A16, true}); }
 uint8_t SM83::PREFIX() { return 0; }
 uint8_t SM83::CALL_Z_a16() { return CALL(Z, {A16, true}); }
 uint8_t SM83::CALL_a16() { return CALL({A16, true}); }
 uint8_t SM83::ADC_A_n8() { return PROCESS_ALU({A, true}, {N8, true}, ADC); }
-uint8_t SM83::RST_08() { return 0; }
+uint8_t SM83::RST_08() { return RST(0x08); }
 uint8_t SM83::RET_NC() { return RETURNFROMFUNCTION(NC); }
 uint8_t SM83::POP_DE() { return POP({DE, true}); }
 uint8_t SM83::JP_NC_a16() { return JUMPTO(NC, {A16, true}); }
@@ -1127,7 +1142,7 @@ uint8_t SM83::ILLEGAL_D3() { return 0; }
 uint8_t SM83::CALL_NC_a16() { return CALL(NC, {A16, true}); }
 uint8_t SM83::PUSH_DE() { return PUSH({DE, true}); }
 uint8_t SM83::SUB_A_n8() { return PROCESS_ALU({A, true}, {N8, true}, SUB); }
-uint8_t SM83::RST_10() { return 0; }
+uint8_t SM83::RST_10() { return RST(0x10); }
 uint8_t SM83::RET_C() { return RETURNFROMFUNCTION(C); }
 uint8_t SM83::RETI() { return RETURNANDEI(); }
 uint8_t SM83::JP_C_a16() { return JUMPTO(C, {A16, true}); }
@@ -1135,7 +1150,7 @@ uint8_t SM83::ILLEGAL_DB() { return 0; }
 uint8_t SM83::CALL_C_a16() { return CALL(C, {A16, true}); }
 uint8_t SM83::ILLEGAL_DD() { return 0; }
 uint8_t SM83::SBC_A_n8() { return PROCESS_ALU({A, true}, {N8, true}, SBC); }
-uint8_t SM83::RST_18() { return 0; }
+uint8_t SM83::RST_18() { return RST(0x18); }
 uint8_t SM83::LDH_aa8_A() { return LDH({A8, false}, {A, true}); }
 uint8_t SM83::POP_HL() { return POP({HL, true}); }
 uint8_t SM83::LDH_aC_A() { return LDH({C, false}, {A, true}); }
@@ -1143,7 +1158,7 @@ uint8_t SM83::ILLEGAL_E3() { return 0; }
 uint8_t SM83::ILLEGAL_E4() { return 0; }
 uint8_t SM83::PUSH_HL() { return PUSH({HL, true}); }
 uint8_t SM83::AND_A_n8() { return PROCESS_ALU({A, true}, {N8, true}, AND); }
-uint8_t SM83::RST_20() { return 0; }
+uint8_t SM83::RST_20() { return RST(0x20); }
 uint8_t SM83::ADD_SP_e8() { return PROCESS_ALU16({SP, true}, {E8, true}, ADD); }
 uint8_t SM83::JP_HL() { return JUMPTO({HL, true}); }
 uint8_t SM83::LD_aa16_A() { return LD({A16, false}, {A, true}); }
@@ -1151,7 +1166,7 @@ uint8_t SM83::ILLEGAL_EB() { return 0; }
 uint8_t SM83::ILLEGAL_EC() { return 0; }
 uint8_t SM83::ILLEGAL_ED() { return 0; }
 uint8_t SM83::XOR_A_n8() { return PROCESS_ALU({A, true}, {N8, true}, XOR); }
-uint8_t SM83::RST_28() { return 0; }
+uint8_t SM83::RST_28() { return RST(0x28); }
 uint8_t SM83::LDH_A_aa8() { return LDH({A, true}, {A8, false}); }
 uint8_t SM83::POP_AF() { return POP({AF, true}); }
 uint8_t SM83::LDH_A_aC() { return LDH({A, true}, {C, false}); }
@@ -1159,7 +1174,7 @@ uint8_t SM83::DI() { return DISABLEINTERRUPTS(); }
 uint8_t SM83::ILLEGAL_F4() { return 0; }
 uint8_t SM83::PUSH_AF() { return PUSH({AF, true}); }
 uint8_t SM83::OR_A_n8() { return PROCESS_ALU({A, true}, {N8, true}, OR); }
-uint8_t SM83::RST_30() { return 0; }
+uint8_t SM83::RST_30() { return RST(0x30); }
 uint8_t SM83::LD_HL_SPI_e8() { return LD_HL_SPDD(); }
 uint8_t SM83::LD_SP_HL() { return LD16({SP, true}, {HL, true}); }
 uint8_t SM83::LD_A_aa16() { return LD({A, true}, {A16, false}); }
@@ -1167,7 +1182,7 @@ uint8_t SM83::EI() { return ENABLEINTERRUPTS(); }
 uint8_t SM83::ILLEGAL_FC() { return 0; }
 uint8_t SM83::ILLEGAL_FD() { return 0; }
 uint8_t SM83::CP_A_n8() { return PROCESS_ALU({A, true}, {N8, true}, CP); }
-uint8_t SM83::RST_38() { return 0; }
+uint8_t SM83::RST_38() { return RST(0x38); }
 
 
 

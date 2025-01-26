@@ -14,18 +14,21 @@ Cartridge::Cartridge(const std::string filename) {
     }
 
     std::streampos filesize = file.tellg();
-    unsigned int rombanksize = 32768;
+    unsigned int rombanksize = 0x8000;
     rom.resize(rombanksize);
-    file.seekg(0x150, std::ios::beg);
+    file.seekg(std::ios::beg);
 
-    char* read_buffer = new char[rombanksize];
+    std::vector<char> read_buffer(rombanksize);
     
-    file.read(read_buffer, rombanksize);
+    file.read(read_buffer.data(), rombanksize);
     for (int i = 0; i < rombanksize; i++) {
         rom[i] = read_buffer[i];
+        // if (i > 0x13f && i < 0x170)
+        // std::cout << std::hex << i << " : " << (int)rom[i] << "\n";
     }
     
-    delete[] read_buffer;
+    read_buffer.clear();
+    read_buffer.shrink_to_fit();
 
     // file.read(reinterpret_cast<char*>(), size);
     file.close();
@@ -40,16 +43,10 @@ Cartridge::~Cartridge() {
 }
 
 uint8_t Cartridge::read(uint16_t address) {
-    if (address >= 0x150) {
-        return rom[address - 0x150];
-    }
     return rom[address];
 }
 
 uint8_t* Cartridge::readPttr(uint16_t address) {
-    if (address >= 0x150) {
-        return &rom[address - 0x150];
-    }
     return &rom[address];
 }
 

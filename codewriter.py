@@ -158,6 +158,8 @@ for i in unpre:
             function_definition = makedefinition(function_name, '{ return CALL(' + fargs[0] + '); }') 
 
     # RET
+    if function_name.startswith("RET"):
+        function_definition = makedefinition(function_name, '{ return POP({PC, true}); }')
     if function_name.startswith("RET_"):
         args = unpre[i]['operands']
         if len(args) == 1:
@@ -173,12 +175,28 @@ for i in unpre:
         function_definition = makedefinition(function_name, '{ return RETURNANDEI(); }')
     
     # RST
-    if function_definition.startswith("RST_"):
+    if function_name.startswith("RST_"):
         args = unpre[i]['operands']
         fargs = args.copy()
         fargs[0] = args[0]['name'].upper().replace("$", "0x")
 
         function_definition = makedefinition(function_name, '{ return RST(' + fargs[0] + '); }')
+
+    # STOP
+    if function_name.startswith("STOP_"):
+        # args = unpre[i]['operands']
+        # fargs = args.copy()
+        # fargs[0] = args[0]['name'].upper().replace("$", "0x")
+
+        function_definition = makedefinition(function_name, '{ pc++; return 0; }')
+
+    # HALT
+    if function_name.startswith("HALT"):
+        # args = unpre[i]['operands']
+        # fargs = args.copy()
+        # fargs[0] = args[0]['name'].upper().replace("$", "0x")
+
+        function_definition = makedefinition(function_name, '{ std::cout << "SYSTEM HALT REQUESTED!"; return 0; }')
     
     # EI AND DI
     if function_name.startswith("EI"):
@@ -350,3 +368,45 @@ for i in pre:
     
     with open("codewriteroutput/cbprefixeddefinitions.txt", 'w') as f:
         f.write(output)
+
+
+
+# test rom
+from random import randrange
+
+rom = [] # list of chr
+for addr in range(0, 0x8000):
+    rom.append(0x00)
+
+addr = 0x0150
+for i in unpre:
+    code = int(i[2:], base=16)
+    if code == 0xcb:
+        continue
+    rom[addr] = code
+    addr += 1
+    if unpre[i]['bytes'] == 2:
+        rom[addr] = randrange(0x00, 0xd0)
+        addr += 1
+    if unpre[i]['bytes'] == 3:
+        if unpre[i]['mnemonic'] in ('CALL', 'JP', 'JR'):
+            rom[addr] = randrange(0x00, 0x23)
+            addr += 1
+            rom[addr] = randrange(0x00, 0x80)
+            addr += 1
+        else :
+            rom[addr] = randrange(0x00, 0xff + 1)
+            addr += 1
+            rom[addr] = randrange(0xc0, 0xe0)
+            addr += 1
+
+# JP $150
+rom[0x0101] = 0xc3 
+rom[0x0102] = 0x50
+rom[0x0103] = 0x01
+
+with open("ROMS/mytestrom.gb", "wb") as f:
+    bytecode = bytes(rom)
+    f.write(bytecode)
+
+print("bytes written")

@@ -19,6 +19,7 @@ public:
     Cartridge cart;
     std::array<uint8_t, 8*1024> wram;
     std::array<uint8_t, 128> hram;
+    uint8_t zero = 0x00;
 
 public:
     void cpuWrite(uint16_t addr, uint8_t data);

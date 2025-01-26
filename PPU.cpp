@@ -120,10 +120,10 @@ void PPU::clock() {
 
         // next mode...
         mode = PPUMODE::PIXELTRANSFER;
-        cycles = 43*4; // the *4 is to convert from machine cycles to clock cycles
+        cycles = 43; // in machine cycles
 
         // JUST ENTERED PIXEL TRANSFER MODE
-        std::cout << "[DEBUG] PIXELTRANSFER" << std::endl;
+        // std::cout << "[DEBUG] PIXELTRANSFER" << std::endl;
 
 
     break;
@@ -159,23 +159,21 @@ void PPU::clock() {
                     pixel_color_lsb_row >> (7-tile_pixel_index%8) & 1 |
                    (pixel_color_hsb_row >> (7-tile_pixel_index%8) & 1) << 1;
             
-            SDL_SetRenderDrawColor(renderer, 
-                                    (255/3)*pixel_color_id, 
-                                    (255/3)*pixel_color_id, 
-                                    (255/3)*pixel_color_id, 255);
+            uint8_t pixel_color = 255*(1-(pixel_color_id/3));
+            SDL_SetRenderDrawColor(renderer, pixel_color, pixel_color, pixel_color, 255);
 
             SDL_RenderDrawPoint(renderer, lx, ly);
         }
 
-
+        // SDL_RenderPresent(renderer);
 
 
         // next mode...
         mode = PPUMODE::HBLANK;
-        cycles = 51*4;
+        cycles = 51;
 
         // JUST ENTERED HBLANK MODE
-        std::cout << "[DEBUG] HBLANK" << std::endl;
+        // std::cout << "[DEBUG] HBLANK" << std::endl;
 
         if (ly == lyc) {
             stat |= 1 << 2;
@@ -191,17 +189,17 @@ void PPU::clock() {
         // next mode...
         if (ly < 143) {
             mode = PPUMODE::OAMREAD;
-            cycles = 20*4;
+            cycles = 20;
 
             // JUST ENTERED OAM READ MODE FROM HBLANK
-            std::cout << "[DEBUG] OAMREAD" << std::endl;
+            // std::cout << "[DEBUG] OAMREAD" << std::endl;
 
         } else {
             mode = PPUMODE::VBLANK;
-            cycles = 114*4;
+            cycles = 114;
 
             // JUST ENTERED VBLANK MODE
-            std::cout << "[DEBUG] VBLANK" << std::endl;
+            // std::cout << "[DEBUG] VBLANK" << std::endl;
 
             VBlankInterrupt();
             // SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
@@ -212,18 +210,19 @@ void PPU::clock() {
     break;
 
     case PPUMODE::VBLANK:
-        SDL_RenderPresent(renderer);
+        // printf("Exited VBLANK\n");
 
         // next mode
         if (ly >= 153) {
+            SDL_RenderPresent(renderer);
             mode = PPUMODE::OAMREAD;
             cycles = 20;
             ly = 0;
 
             // JUST ENTERED OAM READ MODE FROM VBLANK
-            std::cout << "[DEBUG] OAMREAD" << std::endl;
+            // std::cout << "[DEBUG] OAMREAD" << std::endl;
         } else {
-            cycles = 114*4;
+            cycles = 114;
             ly++;
         }
     break;

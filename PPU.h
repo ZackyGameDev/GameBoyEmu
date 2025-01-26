@@ -36,7 +36,7 @@ private:
     uint16_t cycles = 0;    
     uint8_t page_addressing_mode = 0;
 
-    uint8_t lcdc = 0x00;
+    uint8_t lcdc = 0x91;
     uint8_t stat = 0x00;
     uint8_t scy = 0x00;
     uint8_t scx = 0x00;
