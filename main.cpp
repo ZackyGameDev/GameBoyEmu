@@ -8,7 +8,8 @@
 #include "Bus.h"
 
 // const int CPU_CLOCK_SPEED = 4194304; // clock cycle speed
-const int CPU_CLOCK_SPEED = 1048576; // machine cycle speed
+const int CPU_CLOCK_SPEED = 4194304/4; // machine cycle speed
+// const int CPU_CLOCK_SPEED = 4; 
 #ifdef DEBUGMODE_
 // const float DEBUG_UPDATE_SPEED = 0.1F;
 const int DEBUG_UPDATE_CYCLES = 500;
@@ -24,7 +25,8 @@ int main() {
     std::cout << "Current working directory: " << cwd << std::endl;
 
     Bus bus;
-    // bus.ppu.initLCD();
+    // bus.cpu.boot();
+    bus.ppu.initLCD();
     #ifdef DEBUGMODE_
     // bus.cpu.opDebug();
     #endif
@@ -33,16 +35,16 @@ int main() {
         // Get the start time of the cycle
         auto start_cycle_time = std::chrono::high_resolution_clock::now();
 
-        // bus.ppu.clock();
+        bus.ppu.clock();
         bus.cpu.clock();
 
-        #ifdef DEBUGMODE_
-        if (debug_cycles == 0) {
-            bus.cpu.drawDebug();
-            debug_cycles = DEBUG_UPDATE_CYCLES;
-        } 
-        debug_cycles--;
-        #endif
+        // #ifdef DEBUGMODE_
+        // if (debug_cycles == 0) {
+        //     bus.cpu.drawDebug();
+        //     debug_cycles = DEBUG_UPDATE_CYCLES;
+        // } 
+        // debug_cycles--;
+        // #endif
 
         // Get the end time of the cycle
         auto end_cycle_time = std::chrono::high_resolution_clock::now();

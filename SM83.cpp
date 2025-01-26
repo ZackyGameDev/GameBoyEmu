@@ -109,6 +109,24 @@ SM83::SM83() {
     };
 
     std::cout << "[DEBUG] opcodes loaded into the lookup tables <-----\n";
+    unprefixed_instructions_names = {
+        "NOP", "LD BC n16", "LD BC A", "INC BC", "INC B", "DEC B", "LD B n8", "RLCA", "LD a16 SP", "ADD HL BC", "LD A BC", "DEC BC", "INC C", "DEC C", "LD C n8", "RRCA",
+        "STOP n8", "LD DE n16", "LD DE A", "INC DE", "INC D", "DEC D", "LD D n8", "RLA", "JR e8", "ADD HL DE", "LD A DE", "DEC DE", "INC E", "DEC E", "LD E n8", "RRA",
+        "JR NZ e8", "LD HL n16", "LD HL A", "INC HL", "INC H", "DEC H", "LD H n8", "DAA", "JR Z e8", "ADD HL HL", "LD A HL", "DEC HL", "INC L", "DEC L", "LD L n8", "CPL",
+        "JR NC e8", "LD SP n16", "LD HL A", "INC SP", "INC HL", "DEC HL", "LD HL n8", "SCF", "JR C e8", "ADD HL SP", "LD A HL", "DEC SP", "INC A", "DEC A", "LD A n8", "CCF",
+        "LD B B", "LD B C", "LD B D", "LD B E", "LD B H", "LD B L", "LD B HL", "LD B A", "LD C B", "LD C C", "LD C D", "LD C E", "LD C H", "LD C L", "LD C HL", "LD C A",
+        "LD D B", "LD D C", "LD D D", "LD D E", "LD D H", "LD D L", "LD D HL", "LD D A", "LD E B", "LD E C", "LD E D", "LD E E", "LD E H", "LD E L", "LD E HL", "LD E A",
+        "LD H B", "LD H C", "LD H D", "LD H E", "LD H H", "LD H L", "LD H HL", "LD H A", "LD L B", "LD L C", "LD L D", "LD L E", "LD L H", "LD L L", "LD L HL", "LD L A",
+        "LD HL B", "LD HL C", "LD HL D", "LD HL E", "LD HL H", "LD HL L", "HALT", "LD HL A", "LD A B", "LD A C", "LD A D", "LD A E", "LD A H", "LD A L", "LD A HL", "LD A A",
+        "ADD A B", "ADD A C", "ADD A D", "ADD A E", "ADD A H", "ADD A L", "ADD A HL", "ADD A A", "ADC A B", "ADC A C", "ADC A D", "ADC A E", "ADC A H", "ADC A L", "ADC A HL", "ADC A A",
+        "SUB A B", "SUB A C", "SUB A D", "SUB A E", "SUB A H", "SUB A L", "SUB A HL", "SUB A A", "SBC A B", "SBC A C", "SBC A D", "SBC A E", "SBC A H", "SBC A L", "SBC A HL", "SBC A A",
+        "AND A B", "AND A C", "AND A D", "AND A E", "AND A H", "AND A L", "AND A HL", "AND A A", "XOR A B", "XOR A C", "XOR A D", "XOR A E", "XOR A H", "XOR A L", "XOR A HL", "XOR A A",
+        "OR A B", "OR A C", "OR A D", "OR A E", "OR A H", "OR A L", "OR A HL", "OR A A", "CP A B", "CP A C", "CP A D", "CP A E", "CP A H", "CP A L", "CP A HL", "CP A A",
+        "RET NZ", "POP BC", "JP NZ a16", "JP a16", "CALL NZ a16", "PUSH BC", "ADD A n8", "RST $00", "RET Z", "RET", "JP Z a16", "PREFIX", "CALL Z a16", "CALL a16", "ADC A n8", "RST $08",
+        "RET NC", "POP DE", "JP NC a16", "ILLEGAL_D3", "CALL NC a16", "PUSH DE", "SUB A n8", "RST $10", "RET C", "RETI", "JP C a16", "ILLEGAL_DB", "CALL C a16", "ILLEGAL_DD", "SBC A n8", "RST $18",
+        "LDH a8 A", "POP HL", "LDH C A", "ILLEGAL_E3", "ILLEGAL_E4", "PUSH HL", "AND A n8", "RST $20", "ADD SP e8", "JP HL", "LD a16 A", "ILLEGAL_EB", "ILLEGAL_EC", "ILLEGAL_ED", "XOR A n8", "RST $28",
+        "LDH A a8", "POP AF", "LDH A C", "DI", "ILLEGAL_F4", "PUSH AF", "OR A n8", "RST $30", "LD HL SP e8", "LD SP HL", "LD A a16", "EI", "ILLEGAL_FC", "ILLEGAL_FD", "CP A n8", "RST $38",
+    };
 
     #ifdef DEBUGMODE_ 
     SDL_Init(SDL_INIT_VIDEO);
@@ -157,68 +175,99 @@ void SM83::drawDebug() {
     renderText(registers_debug_renderer, sdl_ttf_font, "de = " + formatHex(de, 4), 10, y, sdl_color_black); y += 12;
     renderText(registers_debug_renderer, sdl_ttf_font, "hl = " + formatHex(hl, 4), 10, y, sdl_color_black); y += 12;
     renderText(registers_debug_renderer, sdl_ttf_font, "last pc = " + formatHex(last_executed_pc, 4), 10, y, sdl_color_black); y += 12;
+    renderText(registers_debug_renderer, sdl_ttf_font, last_instruction, 10, y, sdl_color_black); y += 12;
+    renderText(registers_debug_renderer, sdl_ttf_font, "opcode = " + formatHex(opcode, 4), 10, y, sdl_color_black); y += 12;
 
     SDL_RenderPresent(registers_debug_renderer);
 }
 #endif
 
 void SM83::handleInterrupts() {
-    if (ime == 1) {
         
-        for (int interrupt_bit = 0; interrupt_bit < 5; ++interrupt_bit) {
-            uint8_t interrupt = 1 << interrupt_bit;
-            if (ie & interrupt) {
-                if (if_ & interrupt) {
-                    ime = 0;
-                    ie &= ~interrupt;
-                    if_ &= ~interrupt; // reset all interrupt flags 
-                    // and then handle the interrupt;
+    for (int interrupt_bit = 0; interrupt_bit < 5; interrupt_bit++) {
+        uint8_t interrupt = 1 << interrupt_bit;
+        if ((ie & interrupt) && (ime == 1) && (if_ & interrupt)) {
+            ime = 0;
+            // ie &= ~interrupt;
+            if_ &= ~interrupt; // reset all interrupt flags 
+            // and then handle the interrupt;
 
-                    switch (interrupt) {
-                        case InterruptFlags::Joypad:
-                            PUSH({PC, true}); // save the pre-call PC to stack for RET to retreive later
-                            pc = 0x0060;
-                        break;
-                        case InterruptFlags::Serial:
-                            PUSH({PC, true});
-                            pc = 0x0058;
-                        break;
-                        case InterruptFlags::Timer:
-                            PUSH({PC, true});
-                            pc = 0x0050;
-                        break;
-                        case InterruptFlags::Stat:
-                            PUSH({PC, true});
-                            pc = 0x0048;
-                        break;
-                        case InterruptFlags::VBlank:
-                            PUSH({PC, true});
-                            pc = 0x0040;
-                        break;
-                    }
-                    updateRegisters8(); // just for good measure (?)
-                    cycles += 20;
-                }
-
-            } 
+            switch (interrupt) {
+                case InterruptFlags::Joypad:
+                    PUSH({PC, true}); // save the pre-call PC to stack for RET to retreive later
+                    pc = 0x0060;
+                break;
+                case InterruptFlags::Serial:
+                    PUSH({PC, true});
+                    pc = 0x0058;
+                break;
+                case InterruptFlags::Timer:
+                    PUSH({PC, true});
+                    pc = 0x0050;
+                break;
+                case InterruptFlags::Stat:
+                    PUSH({PC, true});
+                    pc = 0x0048;
+                break;
+                case InterruptFlags::VBlank:
+                    PUSH({PC, true});
+                    pc = 0x0040;
+                break;
+            }
+            updateRegisters8(); // just for good measure (?)
+            cycles += 5;
+            break;
         }
-    }
+
+    } 
 }
+
+// void SM83::boot() {
+
+//     pc = 0x00;
+//     while (pc < 0x100) {
+//         opcode = read(pc++);
+//         last_instruction = unprefixed_instructions_names[opcode];
+//         if (opcode == 0xcb) {
+//             last_executed_pc = pc;
+//             opcode = read(pc++);
+//             last_instruction = unprefixed_instructions_names[opcode];
+//             (this->*prefixed_opcode_lookup[opcode].operate)();
+//         } else {
+//             (this->*unprefixed_opcode_lookup[opcode].operate)();
+//         }
+//         #ifdef DEBUGMODE_
+//         drawDebug();
+//         #endif
+//     }
+
+//     pc = 0x100;
+//     // unload the bootrom
+//     bus->bootrom = bus->cart; // lazy fix
+
+// }
 
 void SM83::clock() {
 
     if (cycles == 0) {
         if (ime > 1) ime--; // this is part of IE instruction implementation. because it acts one instruction after the IE instruct.
 
+        // if boot rom finished, unload it.
+        if (0x100 <= pc and pc <= 0x102) {
+            bus->bootrom = bus->cart; // lazy fix
+        }
+
+
         last_executed_pc = pc;
-        uint8_t opcode = read(pc++);
+        opcode = read(pc++);
+        last_instruction = unprefixed_instructions_names[opcode];
         uint8_t additional_clock_cycles = 0;
 
         // std::cout << "[PC|OP] " << std::hex << pc-1 << '|' << (int)opcode << std::dec << std::endl;
 
         #ifdef DEBUGMODE_
 
-        // this->drawDebug();
+        this->drawDebug();
         // std::cout << "----------------------------" << std::endl << "----------------------------" << std::endl << "----------------------------" << std::endl;
         // std::cout << std::hex << std::setfill('0');
         // std::cout << "a  = 0x" << std::setw(2) << static_cast<int>(a) << std::endl;
@@ -512,6 +561,8 @@ uint8_t SM83::PROCESS_ALU(ALUOperation operation) {
     switch (operation) {
 
     case enumCCF:
+        setFlag(fn, 0);
+        setFlag(fh, 0);
         setFlag(fc, !getFlag(fc));
         break;
     case enumCPL:
@@ -525,10 +576,10 @@ uint8_t SM83::PROCESS_ALU(ALUOperation operation) {
         setFlag(fh, 0);
         break;
     case enumDAA:
-        if (getFlag(fn)) {
+        if (getFlag(fn)) { // subtraction
             if (getFlag(fc)) { a -= 0x60; }
             if (getFlag(fh)) { a -= 0x06; }
-        } else {
+        } else {           // addition
             if (getFlag(fc) || (a & 0xFF) > 0x99) { a += 0x60; setFlag(fc, 1); }
             if (getFlag(fh) || (a & 0x0F) > 0x09) { a += 0x06; }
         }
@@ -555,7 +606,7 @@ uint8_t SM83::PROCESS_ALU(Operand target, ALUOperation operation) {
     case DEC:
         *targetValue -= 1;
         setFlag(fn, 1);
-        setFlag(fh, *targetValue & 0x10);
+        setFlag(fh, (*targetValue & 0x0F) == 0x0F);
         break;
     }
     
@@ -585,15 +636,24 @@ uint8_t SM83::PROCESS_ALU(Operand target, Operand source, ALUOperation operation
             break;
         case AND:
             *targetValue &= *sourceValue;
+            setFlag(fz, *targetValue == 0);
+            setFlag(fn, 0);
             setFlag(fh, 1);
+            setFlag(fc, 0);
             break;
         case XOR:
             *targetValue ^= *sourceValue;
+            setFlag(fz, *targetValue == 0);
+            setFlag(fn, 0);
             setFlag(fh, 0);
+            setFlag(fc, 0);
             break;
         case OR:
             *targetValue |= *sourceValue;
+            setFlag(fz, *targetValue == 0);
+            setFlag(fn, 0);
             setFlag(fh, 0);
+            setFlag(fc, 0);
             break;
         case CP: {
             uint16_t result = *targetValue - *sourceValue;
@@ -659,12 +719,19 @@ uint8_t SM83::PROCESS_ALU16(Operand target, Operand source, ALUOperation operati
     case ADD: {
         uint32_t result = *targetValue + *sourceValue + signed_storage;
 
-        setFlag(fh, ((*targetValue & 0xFFF) + (*sourceValue & 0xFFF) + (signed_storage & 0xFFF)) & 0x1000);
+        setFlag(fh, ((*targetValue & 0xFFF) + (*sourceValue & 0xFFF)) & 0x1000);
         setFlag(fc, result > 0xFFFF);
         setFlag(fn, 0);
+        if (source.name == OperandName::E8) {
+            setFlag(fz, 0);
+            setFlag(fn, 0);
+            setFlag(fh, ((*targetValue & 0x0F) + (signed_storage & 0x0F)) & 0x10);
+            setFlag(fc, ((*targetValue & 0xFF) + (signed_storage & 0xFF)) & 0x100);
+        }
         
         *targetValue = result & 0xFFFF;
         break;
+
     }
     }
 
@@ -863,6 +930,7 @@ uint8_t SM83::BIT(uint8_t bit, Operand operand) {
 
     setFlag(fz, (*targetValue & (1 << bit)) == 0);
     setFlag(fh, 1);
+    setFlag(fn, 0);
     updateRegisters16();
     return 0;
 }

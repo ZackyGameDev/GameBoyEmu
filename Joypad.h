@@ -13,8 +13,8 @@ public:
     ~Joypad();
 
 private:
-    uint8_t p1register = 0x00;
-    uint8_t p1registerprevious = 0x00;
+    uint8_t p1register = 0xcf;
+    uint8_t p1registerprevious = 0xcf;
 
     void JoypadInterrupt();
 

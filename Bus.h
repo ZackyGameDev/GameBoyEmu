@@ -17,6 +17,7 @@ public:
     Joypad joypad;
     PPU ppu;
     Cartridge cart;
+    Cartridge bootrom = {"ROMS/dmg_boot.bin"};
     std::array<uint8_t, 8*1024> wram;
     std::array<uint8_t, 128> hram;
     uint8_t zero = 0x00;

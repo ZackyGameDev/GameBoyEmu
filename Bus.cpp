@@ -25,7 +25,9 @@ Bus::~Bus() {
 uint8_t Bus::cpuRead(uint16_t addr) {
     uint8_t data = 0x00;
 
-    if (0x0000 <= addr and addr <= 0x7fff) {
+    if (0x0000 <= addr and addr <= 0x00ff) {
+        data = bootrom.read(addr);
+    } else if (0x0100 <= addr and addr <= 0x7fff) {
         data = cart.read(addr);
     } else if (0xa000 <= addr and addr <= 0xbfff) {
         data = cart.sram[addr - 0xa000];
@@ -39,8 +41,9 @@ uint8_t Bus::cpuRead(uint16_t addr) {
         data = joypad.read();
     } else if (addr == 0xff0f) {
         data = cpu.if_;
-    } else if (0xff00 <= addr and addr <= 0xff7f){
+    } else if (0xff00 <= addr and addr <= 0xff7f) {
         data = 0x00; // default for port mode registers
+        std::cout << "[WARNING] " << std::hex << addr << std::dec << " PORT NOT IMPLEMENTED <--" << std::endl;
     } else if (0xff80 <= addr and addr <= 0xfffe) {
         data = hram[addr - 0xff80];
     } else if (addr == 0xffff) {
@@ -55,7 +58,10 @@ uint8_t Bus::cpuRead(uint16_t addr) {
 
 uint8_t* Bus::cpuReadPttr(uint16_t addr) {
     uint8_t *data = nullptr;
-    if (0x0000 <= addr and addr <= 0x7fff) {
+    
+    if (0x0000 <= addr and addr <= 0x0099) {
+        data = bootrom.readPttr(addr);
+    } else if (0x0000 <= addr and addr <= 0x7fff) {
         data = cart.readPttr(addr);
     } else if (0xa000 <= addr and addr <= 0xbfff) {
         data = &cart.sram[addr - 0xa000];
@@ -71,6 +77,7 @@ uint8_t* Bus::cpuReadPttr(uint16_t addr) {
         data = &cpu.if_;
     } else if (0xff00 <= addr and addr <= 0xff7f){
         data = &zero; // default for port mode registers
+        std::cout << "[WARNING] " << std::hex << addr << std::dec << " PORT NOT IMPLEMENTED <--" << std::endl;
     } else if (0xff80 <= addr and addr <= 0xfffe) {
         data = &hram[addr - 0xff80];
     } else if (addr == 0xffff) {

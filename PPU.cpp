@@ -2,6 +2,7 @@
 #include "PPU.h"
 #include "SM83.h"
 // #include <SDL2/SDL.h>
+#include <fstream>
 #include <iostream>
 
 PPU::PPU() {
@@ -9,7 +10,7 @@ PPU::PPU() {
         i = 0;
     } 
     for (auto &i : vram) {
-        i = 0;
+        i = 02;
     }
     
     std::cout << "[DEBUG] Graphics Chip Created." << std::endl;
@@ -214,7 +215,23 @@ void PPU::clock() {
 
         // next mode
         if (ly >= 153) {
+            
+            // Handle events
+            SDL_Event event;
+            while (SDL_PollEvent(&event)) {
+                if (event.type == SDL_QUIT) {
+                    std::cout << "quit sensed. ignoring." << std::endl;
+                }
+            }
+
+            std::ofstream vramwritefile("ROMS/vram.bin", std::ios::binary);
+            vramwritefile.write(reinterpret_cast<char*>(vram.data()), vram.size());
+
+            // Close the file
+            vramwritefile.close();
+
             SDL_RenderPresent(renderer);
+            
             mode = PPUMODE::OAMREAD;
             cycles = 20;
             ly = 0;

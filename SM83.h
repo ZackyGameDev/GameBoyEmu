@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <string>
 
+#define DEBUGMODE_
 
 #ifdef DEBUGMODE_
 #define SDL_MAIN_HANDLED
@@ -45,8 +46,8 @@ public:
     uint8_t   e  = 0x00;
     uint8_t   h  = 0x00;
     uint8_t   l  = 0x00;
-    uint16_t  sp = 0xfffe;
-    uint16_t  pc = 0x0101;
+    uint16_t  sp = 0x0000;
+    uint16_t  pc = 0x0000;
 
     // for debugging
     uint16_t last_executed_pc = 0x0000;
@@ -60,10 +61,18 @@ public:
     uint16_t de = 0x0000;
     uint16_t hl = 0x0000;
 
-    int8_t ime = 0; // global interrupt flag (not memory mapped) handled by DI and EI instructions
+    enum InterruptFlags {
+        Joypad = 1 << 4,
+        Serial = 1 << 3,
+        Timer = 1 << 2,
+        Stat = 1 << 1,
+        VBlank = 1 << 0,
+    };
+
+    int8_t ime = 1; // global interrupt flag (not memory mapped) handled by DI and EI instructions
     // 1 is true, 0 is false. if ime > 1, then after every clock() function, the CPU will decrement ime
-    uint8_t ie = 0x00; // interrupts enabled flags
-    uint8_t if_ = 0x00; // interrupts requested flags
+    uint8_t ie = 0xff ; // interrupts enabled flags
+    uint8_t if_ = 0xff ; // interrupts requested flags
 
     void updateRegisters16() { // this function must be called whenever the uint8_t register vars are affected
         this->af = (this->a << 8) | this->f;
@@ -89,14 +98,6 @@ public:
         fh = 1 << 5,
         fc = 1 << 4,
     };
-
-    enum InterruptFlags {
-        Joypad = 1 << 4,
-        Serial = 1 << 3,
-        Timer = 1 << 2,
-        Stat = 1 << 1,
-        VBlank = 1 << 0,
-    };
      
 
     void setFlag(SM83Flags flag, bool value) {
@@ -119,6 +120,8 @@ public:
 
     void connectBus(Bus *n) { bus = n; }
 
+    // void boot();
+
     void clock();
 
 private:
@@ -129,6 +132,9 @@ private:
     uint16_t addr_abs = 0x0000; // if an operand is [a16] then i deal with it using this variable manually 
     //uint8_t *target_register = nullptr; // for LDR instruction
     uint8_t cycles = 0;
+    uint8_t opcode = 0;
+    std::vector<std::string> unprefixed_instructions_names;
+    std::string last_instruction = "NOP";
     uint16_t temp = 0x0000;
     uint8_t read(uint16_t addr);
     uint8_t* readPttr(uint16_t addr);

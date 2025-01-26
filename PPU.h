@@ -22,7 +22,7 @@ private:
     SDL_Renderer *renderer = nullptr;
 
     std::array<uint8_t, 160> oam;
-    std::array<uint8_t, 0x1fff> vram;
+    std::array<uint8_t, 0x2000> vram;
     
     // ordered in the way the STAT register expects the values to be.
     enum PPUMODE {
@@ -37,13 +37,13 @@ private:
     uint8_t page_addressing_mode = 0;
 
     uint8_t lcdc = 0x91;
-    uint8_t stat = 0x00;
+    uint8_t stat = 0x85;
     uint8_t scy = 0x00;
     uint8_t scx = 0x00;
     uint8_t ly = 0x00;
     uint8_t lyc = 0x00;
-    uint8_t dma = 0x00;
-    uint8_t bgp = 0x00;
+    uint8_t dma = 0xff;
+    uint8_t bgp = 0xfc;
     uint8_t obp0 = 0x00;
     uint8_t obp1 = 0x00;
     uint8_t wy = 0x00;

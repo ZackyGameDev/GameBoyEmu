@@ -410,3 +410,20 @@ with open("ROMS/mytestrom.gb", "wb") as f:
     f.write(bytecode)
 
 print("bytes written")
+
+# instructions names
+perline = 15
+c = perline
+for i in unpre:
+    l = [unpre[i]['mnemonic']]
+    for operand in unpre[i]['operands']:
+        l.append(operand['name'])
+    
+    if c == 0: 
+        print('"{}",'.format(" ".join(l)))
+        c = perline
+    else:
+        print('"{}",'.format(" ".join(l)), end=' ')
+        c -= 1
+
+
