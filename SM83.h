@@ -1,12 +1,13 @@
 #pragma once
+#include "definitions.h"
 #include <vector>
 #include <cstdint>
 #include <string>
 
-#define DEBUGMODE_
+// #define DEBUGMODE_
 
 #ifdef DEBUGMODE_
-#define SDL_MAIN_HANDLED
+// #define SDL_MAIN_HANDLED
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 #include <string>
@@ -38,16 +39,16 @@ public:
 public: 
 
     // CPU Registers
-    uint8_t   a  = 0x00;
+    uint8_t   a  = 0x01;
     uint8_t   f  = 0x00;
     uint8_t   b  = 0x00;
-    uint8_t   c  = 0x00;
+    uint8_t   c  = 0x13;
     uint8_t   d  = 0x00;
-    uint8_t   e  = 0x00;
-    uint8_t   h  = 0x00;
-    uint8_t   l  = 0x00;
-    uint16_t  sp = 0x0000;
-    uint16_t  pc = 0x0000;
+    uint8_t   e  = 0xD8;
+    uint8_t   h  = 0x01;
+    uint8_t   l  = 0x4D;
+    uint16_t  sp = 0xFFFE;
+    uint16_t  pc = 0x0100;
 
     // for debugging
     uint16_t last_executed_pc = 0x0000;
@@ -71,8 +72,8 @@ public:
 
     int8_t ime = 1; // global interrupt flag (not memory mapped) handled by DI and EI instructions
     // 1 is true, 0 is false. if ime > 1, then after every clock() function, the CPU will decrement ime
-    uint8_t ie = 0xff ; // interrupts enabled flags
-    uint8_t if_ = 0xff ; // interrupts requested flags
+    uint8_t ie = 0x00 ; // interrupts enabled flags
+    uint8_t if_ = 0xE1 ; // interrupts requested flags
 
     void updateRegisters16() { // this function must be called whenever the uint8_t register vars are affected
         this->af = (this->a << 8) | this->f;
@@ -91,7 +92,7 @@ public:
         this->h = this->hl >> 8;
         this->l = this->hl & 0x00FF;
     }
-
+    
     enum SM83Flags {
         fz = 1 << 7,
         fn = 1 << 6,

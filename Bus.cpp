@@ -3,7 +3,8 @@
 // 
 // "ROMS/Tetris (Japan) (En).gb"
 // "ROMS/mytestrom.gb"
-Bus::Bus() : cart("ROMS/Tetris (Japan) (En).gb") {
+// "ROMS/cpu_instrs.gb"
+Bus::Bus() : cart(ROM_PATH) {
     cpu.connectBus(this);
     joypad.connectBus(this);
     ppu.connectBus(this);

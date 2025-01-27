@@ -1,10 +1,10 @@
 #pragma once
+#include "definitions.h"
 #include <vector>
 #include <iostream>
 #include <cstdint>
 #include <array>
 #include <string>
-
 
 class Bus;
 
@@ -29,5 +29,11 @@ public:
     uint8_t read(uint16_t address);
     uint8_t* readPttr(uint16_t address);
     void write(uint16_t address, uint8_t data);
+
+    // debug functions
+    #ifdef DEBUGMODE_
+    std::vector<uint16_t> getValidInstructionAddresses();
+    std::vector<uint16_t> valid_instruction_addresses;
+    #endif
 
 };

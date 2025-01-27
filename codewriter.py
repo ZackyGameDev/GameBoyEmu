@@ -12,6 +12,17 @@ unpre = opcodes_dict['unprefixed']
 pre = opcodes_dict['cbprefixed']
 operands = set()
 
+
+def printitems(list_of_to_print, perline):
+    c = perline
+    for to_print in list_of_to_print:
+        if c <= 1: 
+            print(to_print)
+            c = perline
+        else:
+            print(to_print, end=' ')
+            c -= 1
+
 def insertbody(functiondefinition: str, bodytoinsert: str):
     return functiondefinition.replace("{ return 0; }", bodytoinsert)
 
@@ -426,4 +437,38 @@ for i in unpre:
         print('"{}",'.format(" ".join(l)), end=' ')
         c -= 1
 
+# all valid addresses of instructions in a rom
+romname = "ROMS/Tetris (Japan) (En).gb"
+with open(romname, "rb") as f:
+    rom: bytes = f.read()
+
+bytecode = rom.hex(":")
+addr = 0x150
+bytelist = bytecode.split(":")
+valid_address: list = []
+
+while addr < 0x8000:
+    opcode = '0x'+bytelist[addr].upper()
+    instructsize = unpre[opcode]['bytes']
+    if opcode == "0xCB":
+        instructsize = 2
+    valid_address.append(hex(addr).upper())
+    # this is for disassembly
+    # to_print = hex(addr).upper().rjust(4, '0') + ": " + unpre['0x'+bytelist[addr].upper()]['mnemonic'].upper().rjust(4, ' ') + " "
+    # list of all addresses
+    
+    addr += instructsize
+
+with open("ROMS/validaddr.out", "w") as f:
+    
+    perline = 1
+    c = perline
+    for i in valid_address:
+        i = int(i[2:], base=16)
+        if c <= 1:
+            f.write(str(i) + "\n")
+            c = perline
+        else:
+            f.write(str(i) + " ")
+            c -= 1
 

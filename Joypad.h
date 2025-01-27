@@ -1,4 +1,5 @@
 #pragma once
+#include "definitions.h"
 #include <cstdint>
 #include <windows.h>
 #include <vector>

@@ -1,7 +1,7 @@
 #pragma once
+#include "definitions.h"
 #include <cstdint>
 #include <array>
-#define SDL_MAIN_HANDLED
 #include <SDL2/SDL.h>
 
 class Bus;

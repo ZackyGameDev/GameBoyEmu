@@ -1,4 +1,5 @@
 #pragma once
+#include "definitions.h"
 #include "SM83.h"
 #include "Joypad.h"
 #include "PPU.h"

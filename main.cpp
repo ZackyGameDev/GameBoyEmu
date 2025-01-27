@@ -8,8 +8,7 @@
 #include "Bus.h"
 
 // const int CPU_CLOCK_SPEED = 4194304; // clock cycle speed
-const int CPU_CLOCK_SPEED = 4194304/4; // machine cycle speed
-// const int CPU_CLOCK_SPEED = 4; 
+long long int CPU_CLOCK_SPEED = EMULATION_CLOCK_SPEED; // machine cycle speed
 #ifdef DEBUGMODE_
 // const float DEBUG_UPDATE_SPEED = 0.1F;
 const int DEBUG_UPDATE_CYCLES = 500;
@@ -28,6 +27,7 @@ int main() {
     // bus.cpu.boot();
     bus.ppu.initLCD();
     #ifdef DEBUGMODE_
+    CPU_CLOCK_SPEED = DEBUG_CLOCK_SPEED;
     // bus.cpu.opDebug();
     #endif
     // Sleep(100);

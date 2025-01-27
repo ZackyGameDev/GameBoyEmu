@@ -3,8 +3,12 @@
 #include <iostream>
 #include <iomanip>
 
-SM83::SM83() {
+#ifdef DEBUGMODE_
+#include<algorithm>
+#endif
 
+SM83::SM83() {
+    updateRegisters16();
     using x = SM83;
 
     unprefixed_opcode_lookup = { 
@@ -155,30 +159,38 @@ SM83::~SM83() {
 
 #ifdef DEBUGMODE_
 void SM83::drawDebug() {
-    SDL_SetRenderDrawColor(registers_debug_renderer, 0xff, 0xff, 0xff, 255);
+    SDL_SetRenderDrawColor(registers_debug_renderer, 0x00, 0x00, 0x00, 255);
     SDL_RenderClear(registers_debug_renderer);
 
     // Render register values
     int y = 10;
-    renderText(registers_debug_renderer, sdl_ttf_font, "a  = " + formatHex(a,  2), 10, y, sdl_color_black); y += 12;
-    renderText(registers_debug_renderer, sdl_ttf_font, "f  = " + formatHex(f,  2), 10, y, sdl_color_black); y += 12;
-    renderText(registers_debug_renderer, sdl_ttf_font, "b  = " + formatHex(b,  2), 10, y, sdl_color_black); y += 12;
-    renderText(registers_debug_renderer, sdl_ttf_font, "c  = " + formatHex(c,  2), 10, y, sdl_color_black); y += 12;
-    renderText(registers_debug_renderer, sdl_ttf_font, "d  = " + formatHex(d,  2), 10, y, sdl_color_black); y += 12;
-    renderText(registers_debug_renderer, sdl_ttf_font, "e  = " + formatHex(e,  2), 10, y, sdl_color_black); y += 12;
-    renderText(registers_debug_renderer, sdl_ttf_font, "h  = " + formatHex(h,  2), 10, y, sdl_color_black); y += 12;
-    renderText(registers_debug_renderer, sdl_ttf_font, "l  = " + formatHex(l,  2), 10, y, sdl_color_black); y += 12;
-    renderText(registers_debug_renderer, sdl_ttf_font, "sp = " + formatHex(sp, 4), 10, y, sdl_color_black); y += 12;
-    renderText(registers_debug_renderer, sdl_ttf_font, "pc = " + formatHex(pc, 4), 10, y, sdl_color_black); y += 12;
-    renderText(registers_debug_renderer, sdl_ttf_font, "af = " + formatHex(af, 4), 10, y, sdl_color_black); y += 12;
-    renderText(registers_debug_renderer, sdl_ttf_font, "bc = " + formatHex(bc, 4), 10, y, sdl_color_black); y += 12;
-    renderText(registers_debug_renderer, sdl_ttf_font, "de = " + formatHex(de, 4), 10, y, sdl_color_black); y += 12;
-    renderText(registers_debug_renderer, sdl_ttf_font, "hl = " + formatHex(hl, 4), 10, y, sdl_color_black); y += 12;
-    renderText(registers_debug_renderer, sdl_ttf_font, "last pc = " + formatHex(last_executed_pc, 4), 10, y, sdl_color_black); y += 12;
-    renderText(registers_debug_renderer, sdl_ttf_font, last_instruction, 10, y, sdl_color_black); y += 12;
-    renderText(registers_debug_renderer, sdl_ttf_font, "opcode = " + formatHex(opcode, 4), 10, y, sdl_color_black); y += 12;
+    renderText(registers_debug_renderer, sdl_ttf_font, "a  = " + formatHex(a,  2), 10, y, sdl_color_white); y += 12;
+    renderText(registers_debug_renderer, sdl_ttf_font, "f  = " + formatHex(f,  2), 10, y, sdl_color_white); y += 12;
+    renderText(registers_debug_renderer, sdl_ttf_font, "b  = " + formatHex(b,  2), 10, y, sdl_color_white); y += 12;
+    renderText(registers_debug_renderer, sdl_ttf_font, "c  = " + formatHex(c,  2), 10, y, sdl_color_white); y += 12;
+    renderText(registers_debug_renderer, sdl_ttf_font, "d  = " + formatHex(d,  2), 10, y, sdl_color_white); y += 12;
+    renderText(registers_debug_renderer, sdl_ttf_font, "e  = " + formatHex(e,  2), 10, y, sdl_color_white); y += 12;
+    renderText(registers_debug_renderer, sdl_ttf_font, "h  = " + formatHex(h,  2), 10, y, sdl_color_white); y += 12;
+    renderText(registers_debug_renderer, sdl_ttf_font, "l  = " + formatHex(l,  2), 10, y, sdl_color_white); y += 12;
+    renderText(registers_debug_renderer, sdl_ttf_font, "sp = " + formatHex(sp, 4), 10, y, sdl_color_white); y += 12;
+    renderText(registers_debug_renderer, sdl_ttf_font, "pc = " + formatHex(pc, 4), 10, y, sdl_color_white); y += 12;
+    renderText(registers_debug_renderer, sdl_ttf_font, "af = " + formatHex(af, 4), 10, y, sdl_color_white); y += 12;
+    renderText(registers_debug_renderer, sdl_ttf_font, "bc = " + formatHex(bc, 4), 10, y, sdl_color_white); y += 12;
+    renderText(registers_debug_renderer, sdl_ttf_font, "de = " + formatHex(de, 4), 10, y, sdl_color_white); y += 12;
+    renderText(registers_debug_renderer, sdl_ttf_font, "hl = " + formatHex(hl, 4), 10, y, sdl_color_white); y += 12;
+    renderText(registers_debug_renderer, sdl_ttf_font, "last pc = " + formatHex(last_executed_pc, 4), 10, y, sdl_color_white); y += 12;
+    renderText(registers_debug_renderer, sdl_ttf_font, last_instruction, 10, y, sdl_color_white); y += 12;
+    renderText(registers_debug_renderer, sdl_ttf_font, "opcode = " + formatHex(opcode, 4), 10, y, sdl_color_white); y += 12;
 
     SDL_RenderPresent(registers_debug_renderer);
+    
+    // Handle events
+    SDL_Event event;
+    while (SDL_PollEvent(&event)) {
+        if (event.type == SDL_QUIT) {
+            std::cout << "quit sensed. ignoring." << std::endl;
+        }
+    }
 }
 #endif
 
@@ -267,6 +279,12 @@ void SM83::clock() {
 
         #ifdef DEBUGMODE_
 
+        if (std::find(bus->cart.valid_instruction_addresses.begin(), 
+                       bus->cart.valid_instruction_addresses.end(), 
+                            last_executed_pc) == bus->cart.valid_instruction_addresses.end()) 
+        {
+            std::cout << "INVALID INSTRUCITON! " << std::hex << last_executed_pc << std::dec << std::endl;
+        }
         this->drawDebug();
         // std::cout << "----------------------------" << std::endl << "----------------------------" << std::endl << "----------------------------" << std::endl;
         // std::cout << std::hex << std::setfill('0');
@@ -291,10 +309,13 @@ void SM83::clock() {
 
 
         if (opcode == 0xcb) {
-            last_executed_pc = pc;
+            // last_executed_pc = pc;
             opcode = read(pc++);
             additional_clock_cycles = (this->*prefixed_opcode_lookup[opcode].operate)();
             cycles = prefixed_opcode_lookup[opcode].cycles + additional_clock_cycles + prefixed_opcode_lookup[0xcb].cycles;
+            if (pc-last_executed_pc != 1)
+                std::cout << "[ERROR] some prefixed instruction disturbed pc too much!" << std::endl;
+                pc = last_executed_pc + 1; // manually setting the correct pc position just in case
         } else {
             additional_clock_cycles = (this->*unprefixed_opcode_lookup[opcode].operate)();
             cycles = unprefixed_opcode_lookup[opcode].cycles + additional_clock_cycles;

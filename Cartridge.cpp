@@ -36,6 +36,10 @@ Cartridge::Cartridge(const std::string filename) {
     std::cout << "[DEBUG] ROM LOADED! <-------\n";
     
     for (auto &i : sram) i = 0x00;
+
+    #ifdef DEBUGMODE_
+    valid_instruction_addresses = getValidInstructionAddresses();
+    #endif
 }
 
 Cartridge::~Cartridge() {
@@ -53,3 +57,21 @@ uint8_t* Cartridge::readPttr(uint16_t address) {
 void Cartridge::write(uint16_t address, uint8_t data) {
     throw std::runtime_error("Cannot write to ROM");
 }
+
+#ifdef DEBUGMODE_
+std::vector<uint16_t> Cartridge::getValidInstructionAddresses() {
+    std::ifstream file("ROMS/validaddr.out"); // open the file
+    std::vector<uint16_t> addresses;
+    std::string address;
+
+    // read each line in the file
+    while (std::getline(file, address)) {
+        // convert the line to an integer and add it to the vector
+        addresses.push_back(std::stoi(address));
+    }
+
+    file.close(); // close the file
+
+    return addresses;
+}
+#endif 
