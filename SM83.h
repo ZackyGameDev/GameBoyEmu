@@ -110,7 +110,13 @@ public:
     }
 
     uint8_t getFlag(SM83Flags flag) {
-        return (f & flag > 0) ? 1 : 0;
+        uint8_t result = f & flag;
+        if (result > 0) {
+            return true;
+        } else {
+            return false;
+        }
+        // return (f & flag > 0) ? 1 : 0;
     }
 
     void requestInterrupt(InterruptFlags flag) {
@@ -305,7 +311,12 @@ private:
     }
 
     int8_t toSigned(uint8_t b) {
-        return (b > 127) ? (b - 256) : b;
+        if (b > 127) {
+            return (b - 256);
+        } else {
+            return b;
+        }
+        // return (b > 127) ? (b - 256) : b;
     }
 
 

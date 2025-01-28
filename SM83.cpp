@@ -267,6 +267,7 @@ void SM83::clock() {
         // if boot rom finished, unload it.
         if (0x100 <= pc and pc <= 0x102) {
             bus->bootrom = bus->cart; // lazy fix
+            std::cout << "Boot rom unloaded" << std::endl;
         }
 
 
@@ -313,9 +314,9 @@ void SM83::clock() {
             opcode = read(pc++);
             additional_clock_cycles = (this->*prefixed_opcode_lookup[opcode].operate)();
             cycles = prefixed_opcode_lookup[opcode].cycles + additional_clock_cycles + prefixed_opcode_lookup[0xcb].cycles;
-            if (pc-last_executed_pc != 1)
+            if (pc-last_executed_pc != 2)
                 std::cout << "[ERROR] some prefixed instruction disturbed pc too much!" << std::endl;
-                pc = last_executed_pc + 1; // manually setting the correct pc position just in case
+                pc = last_executed_pc + 2; // manually setting the correct pc position just in case
         } else {
             additional_clock_cycles = (this->*unprefixed_opcode_lookup[opcode].operate)();
             cycles = unprefixed_opcode_lookup[opcode].cycles + additional_clock_cycles;
@@ -684,6 +685,8 @@ uint8_t SM83::PROCESS_ALU(Operand target, Operand source, ALUOperation operation
             setFlag(fz, (result && 0xff) == 0);
             // setFlag(fc, result & 0x0100);
             setFlag(fc, (*targetValue < *sourceValue));
+            
+            updateRegisters16();
             return 0;
         }
     }

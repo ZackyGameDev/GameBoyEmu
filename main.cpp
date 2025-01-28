@@ -19,7 +19,6 @@ const long double CYCLE_DURATION = 1.0 / CPU_CLOCK_SPEED;
 
 int main() {
     std::cout << "DID IT WORK <--------------\n";
-
     std::filesystem::path cwd = std::filesystem::current_path();
     std::cout << "Current working directory: " << cwd << std::endl;
 
@@ -31,6 +30,10 @@ int main() {
     // bus.cpu.opDebug();
     #endif
     // Sleep(100);
+    std::cout << "CPU_CLOCK_SPEED: " << CPU_CLOCK_SPEED << std::endl;
+
+    int test = 0;
+    
     while (true) {
         // Get the start time of the cycle
         auto start_cycle_time = std::chrono::high_resolution_clock::now();
@@ -42,7 +45,7 @@ int main() {
         // if (debug_cycles == 0) {
         //     bus.cpu.drawDebug();
         //     debug_cycles = DEBUG_UPDATE_CYCLES;
-        // } 
+        // }
         // debug_cycles--;
         // #endif
 
@@ -59,6 +62,8 @@ int main() {
         #endif
         if (sleep_time > 0) {
             std::this_thread::sleep_for(std::chrono::duration<double>(sleep_time));
+        } else {
+            std::cout << "Cycle took too long: " << elapsed_time.count() << " seconds" << std::endl;
         }
     }
 

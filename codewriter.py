@@ -472,3 +472,55 @@ with open("ROMS/validaddr.out", "w") as f:
             f.write(str(i) + " ")
             c -= 1
 
+romname = "ROMS/dmg_boot.bin"
+with open(romname, "rb") as f:
+    rom: bytes = f.read()
+
+bytecode = rom.hex(":")
+addr = 0x00
+bytelist = bytecode.split(":")
+asm_lines: list = []
+
+while addr < 0xff:
+    opcode = '0x'+bytelist[addr].upper()
+    instructsize = unpre[opcode]['bytes']
+    ins_memo = unpre[opcode]['mnemonic']
+    
+
+    if opcode == "0xCB":
+        preopcode = '0x' + bytelist[addr+1].upper()
+        ins_memo = ins_memo + ' ' + pre[preopcode]['mnemonic']
+        for operand in pre[preopcode]['operands']:
+            if operand['immediate']:
+                ins_memo = ins_memo + " " + operand['name']
+            else:
+                ins_memo = ins_memo + " a" + operand['name']
+        instructsize = 2
+    else:
+        for operand in unpre[opcode]['operands']:
+            if operand['immediate']:
+                ins_memo = ins_memo + " " + operand['name']
+            else:
+                ins_memo = ins_memo + " a" + operand['name']
+        if instructsize == 3:
+            ins_memo = ins_memo + ' ' + bytelist[addr+2].upper() + bytelist[addr+1].upper()
+        if instructsize == 2:
+            ins_memo = ins_memo + ' ' + bytelist[addr+1].upper()
+    asm_lines.append(hex(addr).upper() + ': ' + ins_memo)
+    # this is for disassembly
+    # to_print = hex(addr).upper().rjust(4, '0') + ": " + unpre['0x'+bytelist[addr].upper()]['mnemonic'].upper().rjust(4, ' ') + " "
+    # list of all addresses
+    
+    addr += instructsize
+
+with open("ROMS/dmg_boot.txt", "w") as f:
+
+    perline = 1
+    c = perline
+    for i in asm_lines:
+        if c <= 1:
+            f.write(i + "\n")
+            c = perline
+        else:
+            f.write(i + " ")
+            c -= 1

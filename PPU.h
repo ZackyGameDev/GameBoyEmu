@@ -23,6 +23,9 @@ private:
 
     std::array<uint8_t, 160> oam;
     std::array<uint8_t, 0x2000> vram;
+    std::array<SDL_Texture*, 0x180> tileset; 
+    SDL_Texture* background_layer;
+    SDL_Texture* window_layer;
     
     // ordered in the way the STAT register expects the values to be.
     enum PPUMODE {
@@ -76,6 +79,7 @@ private:
 private:
     void VBlankInterrupt();
     void LYCInterrupt();
+    
 
 public:
     Bus *bus = nullptr;
@@ -89,5 +93,8 @@ public:
 public:
     void initLCD();
     void clock();
-
+    SDL_Texture* getTile(uint16_t addr);
+    void updateTileset();
+    void updateBackgroundLayer();
+    void drawBackground();
 };
