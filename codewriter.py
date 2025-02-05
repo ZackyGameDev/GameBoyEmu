@@ -324,9 +324,9 @@ for i in pre:
         else:
             args = args + ", false"
         if len(mnemonic) == 3:
-            args = args + ", true"
-        else:
             args = args + ", false"
+        else:
+            args = args + ", true"
 
         function_definition = makedefinition(function_name, '{ return ROTATELEFT(' + args + '); }')
 

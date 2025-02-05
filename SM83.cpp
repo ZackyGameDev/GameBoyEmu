@@ -339,7 +339,6 @@ void SM83::clock() {
     cycles--;
     // std::cout << "CPU CLOCKED" << std::endl;
 
-
 }
 
 
@@ -1289,38 +1288,38 @@ uint8_t SM83::RST_38() { return RST(0x38); }
 
 
 // CB PREFIXED
-uint8_t SM83::RLC_B() { return ROTATELEFT({B, true}, false, true); }
-uint8_t SM83::RLC_C() { return ROTATELEFT({C, true}, false, true); }
-uint8_t SM83::RLC_D() { return ROTATELEFT({D, true}, false, true); }
-uint8_t SM83::RLC_E() { return ROTATELEFT({E, true}, false, true); }
-uint8_t SM83::RLC_H() { return ROTATELEFT({H, true}, false, true); }
-uint8_t SM83::RLC_L() { return ROTATELEFT({L, true}, false, true); }
-uint8_t SM83::RLC_aHL() { return ROTATELEFT({HL, false}, false, true); }
-uint8_t SM83::RLC_A() { return ROTATELEFT({A, true}, false, true); }
-uint8_t SM83::RRC_B() { return ROTATELEFT({B, true}, true, true); }
-uint8_t SM83::RRC_C() { return ROTATELEFT({C, true}, true, true); }
-uint8_t SM83::RRC_D() { return ROTATELEFT({D, true}, true, true); }
-uint8_t SM83::RRC_E() { return ROTATELEFT({E, true}, true, true); }
-uint8_t SM83::RRC_H() { return ROTATELEFT({H, true}, true, true); }
-uint8_t SM83::RRC_L() { return ROTATELEFT({L, true}, true, true); }
-uint8_t SM83::RRC_aHL() { return ROTATELEFT({HL, false}, true, true); }
-uint8_t SM83::RRC_A() { return ROTATELEFT({A, true}, true, true); }
-uint8_t SM83::RL_B() { return ROTATELEFT({B, true}, false, false); }
-uint8_t SM83::RL_C() { return ROTATELEFT({C, true}, false, false); }
-uint8_t SM83::RL_D() { return ROTATELEFT({D, true}, false, false); }
-uint8_t SM83::RL_E() { return ROTATELEFT({E, true}, false, false); }
-uint8_t SM83::RL_H() { return ROTATELEFT({H, true}, false, false); }
-uint8_t SM83::RL_L() { return ROTATELEFT({L, true}, false, false); }
-uint8_t SM83::RL_aHL() { return ROTATELEFT({HL, false}, false, false); }
-uint8_t SM83::RL_A() { return ROTATELEFT({A, true}, false, false); }
-uint8_t SM83::RR_B() { return ROTATELEFT({B, true}, true, false); }
-uint8_t SM83::RR_C() { return ROTATELEFT({C, true}, true, false); }
-uint8_t SM83::RR_D() { return ROTATELEFT({D, true}, true, false); }
-uint8_t SM83::RR_E() { return ROTATELEFT({E, true}, true, false); }
-uint8_t SM83::RR_H() { return ROTATELEFT({H, true}, true, false); }
-uint8_t SM83::RR_L() { return ROTATELEFT({L, true}, true, false); }
-uint8_t SM83::RR_aHL() { return ROTATELEFT({HL, false}, true, false); }
-uint8_t SM83::RR_A() { return ROTATELEFT({A, true}, true, false); }
+uint8_t SM83::RLC_B() { return ROTATELEFT({B, true}, false, false); }
+uint8_t SM83::RLC_C() { return ROTATELEFT({C, true}, false, false); }
+uint8_t SM83::RLC_D() { return ROTATELEFT({D, true}, false, false); }
+uint8_t SM83::RLC_E() { return ROTATELEFT({E, true}, false, false); }
+uint8_t SM83::RLC_H() { return ROTATELEFT({H, true}, false, false); }
+uint8_t SM83::RLC_L() { return ROTATELEFT({L, true}, false, false); }
+uint8_t SM83::RLC_aHL() { return ROTATELEFT({HL, false}, false, false); }
+uint8_t SM83::RLC_A() { return ROTATELEFT({A, true}, false, false); }
+uint8_t SM83::RRC_B() { return ROTATELEFT({B, true}, true, false); }
+uint8_t SM83::RRC_C() { return ROTATELEFT({C, true}, true, false); }
+uint8_t SM83::RRC_D() { return ROTATELEFT({D, true}, true, false); }
+uint8_t SM83::RRC_E() { return ROTATELEFT({E, true}, true, false); }
+uint8_t SM83::RRC_H() { return ROTATELEFT({H, true}, true, false); }
+uint8_t SM83::RRC_L() { return ROTATELEFT({L, true}, true, false); }
+uint8_t SM83::RRC_aHL() { return ROTATELEFT({HL, false}, true, false); }
+uint8_t SM83::RRC_A() { return ROTATELEFT({A, true}, true, false); }
+uint8_t SM83::RL_B() { return ROTATELEFT({B, true}, false, true); }
+uint8_t SM83::RL_C() { return ROTATELEFT({C, true}, false, true); }
+uint8_t SM83::RL_D() { return ROTATELEFT({D, true}, false, true); }
+uint8_t SM83::RL_E() { return ROTATELEFT({E, true}, false, true); }
+uint8_t SM83::RL_H() { return ROTATELEFT({H, true}, false, true); }
+uint8_t SM83::RL_L() { return ROTATELEFT({L, true}, false, true); }
+uint8_t SM83::RL_aHL() { return ROTATELEFT({HL, false}, false, true); }
+uint8_t SM83::RL_A() { return ROTATELEFT({A, true}, false, true); }
+uint8_t SM83::RR_B() { return ROTATELEFT({B, true}, true, true); }
+uint8_t SM83::RR_C() { return ROTATELEFT({C, true}, true, true); }
+uint8_t SM83::RR_D() { return ROTATELEFT({D, true}, true, true); }
+uint8_t SM83::RR_E() { return ROTATELEFT({E, true}, true, true); }
+uint8_t SM83::RR_H() { return ROTATELEFT({H, true}, true, true); }
+uint8_t SM83::RR_L() { return ROTATELEFT({L, true}, true, true); }
+uint8_t SM83::RR_aHL() { return ROTATELEFT({HL, false}, true, true); }
+uint8_t SM83::RR_A() { return ROTATELEFT({A, true}, true, true); }
 uint8_t SM83::SLA_B() { return SHIFTLEFT({B, true}, false, false); }
 uint8_t SM83::SLA_C() { return SHIFTLEFT({C, true}, false, false); }
 uint8_t SM83::SLA_D() { return SHIFTLEFT({D, true}, false, false); }
