@@ -69,7 +69,7 @@ uint8_t* Bus::cpuReadPttr(uint16_t addr) {
             or (0xff40 <= addr and addr <= 0xff4b)) { // PPU REG
         data = ppu.cpuReadPttr(addr);
     } else if (0xa000 <= addr and addr <= 0xbfff) {
-        data = &cart.sram[addr - 0xa000];
+        data = cart.readPttr(addr);
     } else if (0xc000 <=  addr and addr <= 0xdfff) {
         data = &wram[addr-0xc000];
     } else if (addr == 0xff00) {

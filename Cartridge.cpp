@@ -47,15 +47,26 @@ Cartridge::~Cartridge() {
 }
 
 uint8_t Cartridge::read(uint16_t address) {
-    return rom[address];
+    if (address < 0x8000) {
+        return rom[address];
+    } 
+    return sram[address - 0xa000];
 }
 
 uint8_t* Cartridge::readPttr(uint16_t address) {
-    return &rom[address];
+    
+    if (address < 0x8000) {
+        return &rom[address];
+    }
+    return &sram[address - 0xa000];
 }
 
 void Cartridge::write(uint16_t address, uint8_t data) {
-    throw std::runtime_error("Cannot write to ROM");
+    if (address < 0x8000) {
+        throw std::runtime_error("Attempted to write to ROM");
+    } else if (0xa000 <= address and address <= 0xbfff) {
+        sram[address - 0xa000] = data;
+    } 
 }
 
 #ifdef DEBUGMODE_

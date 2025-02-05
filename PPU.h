@@ -21,6 +21,16 @@ private:
     SDL_Window *window = nullptr;
     SDL_Renderer *renderer = nullptr;
 
+    #ifdef TILESET_WINDOW
+    SDL_Window *tileset_window = nullptr;
+    SDL_Renderer *tileset_renderer = nullptr;
+    #endif
+
+    #ifdef BG_WINDOW
+    SDL_Window *bg_window = nullptr;
+    SDL_Renderer *bg_renderer = nullptr;
+    #endif
+
     std::array<uint8_t, 160> oam;
     std::array<uint8_t, 0x2000> vram;
     std::array<SDL_Texture*, 0x180> tileset; 
@@ -97,4 +107,11 @@ public:
     void updateTileset();
     void updateBackgroundLayer();
     void drawBackground();
+
+    #ifdef TILESET_WINDOW
+    void drawTilesetWindow();
+    #endif
+    #ifdef BG_WINDOW
+    void drawBGWindow();
+    #endif
 };

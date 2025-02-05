@@ -63,7 +63,7 @@ int main() {
         if (sleep_time > 0) {
             std::this_thread::sleep_for(std::chrono::duration<double>(sleep_time));
         } else {
-            std::cout << "Cycle took too long: " << elapsed_time.count() << " seconds" << std::endl;
+            // std::cout << "Cycle took too long: " << elapsed_time.count() << " seconds" << std::endl;
         }
     }
 

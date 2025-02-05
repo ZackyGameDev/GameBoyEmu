@@ -151,6 +151,12 @@ SM83::SM83() {
     SDL_RenderPresent(registers_debug_renderer);
 
     #endif
+
+    #ifdef LOG_PC
+    // clearing log file
+    std::ofstream outfile("codewriteroutput/pc.log");
+    if (outfile.is_open()) outfile.close();
+    #endif
 }
 
 SM83::~SM83() {
@@ -324,11 +330,15 @@ void SM83::clock() {
             bus->joypad.update();
         }
 
+        #ifdef LOG_PC
+        logLastPC();
+        #endif
         handleInterrupts();
     }
 
     cycles--;
     // std::cout << "CPU CLOCKED" << std::endl;
+
 
 }
 

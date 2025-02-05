@@ -15,7 +15,7 @@ PPU::PPU() {
 
     #ifdef LOADMEMDUMP
 
-    std::ifstream file("ROMS/mem.dump", std::ios::binary); // open the file
+    std::ifstream file("ROMS/tet.mem.dump", std::ios::binary); // open the file
     std::vector<uint8_t> fileBytes((std::istreambuf_iterator<char>(file)),
                                     std::istreambuf_iterator<char>());
     file.close(); // close the file
@@ -115,7 +115,7 @@ uint8_t* PPU::cpuReadPttr(uint16_t addr) {
 
 
 void PPU::initLCD() {
-
+    
     SDL_Init(SDL_INIT_VIDEO);
     SDL_CreateWindowAndRenderer(160*4, 144*4, 0, &window, &renderer);
     SDL_RenderSetScale(renderer, 4, 4);
@@ -128,9 +128,40 @@ void PPU::initLCD() {
 
     SDL_RenderPresent(renderer);
 
+    SDL_Texture* background_layer = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB24, SDL_TEXTUREACCESS_STATIC, 256, 256);
+
+    if (!background_layer) {
+        std::cerr << "Failed to create background texture: " << SDL_GetError() << std::endl;
+        return;
+    }
+    
     #ifdef LOADMEMDUMP
     updateTileset();
     updateBackgroundLayer();
+    drawBackground();
+    #endif
+
+    #ifdef TILESET_WINDOW
+    SDL_CreateWindowAndRenderer(16*8, 24*8, 0, &tileset_window, &tileset_renderer);
+    SDL_RenderSetScale(tileset_renderer, 1, 1);
+
+    SDL_SetRenderDrawColor(tileset_renderer, 0, 0, 0, 255);
+    SDL_RenderClear(tileset_renderer);
+
+    drawTilesetWindow();
+    SDL_RenderPresent(tileset_renderer);
+    #endif
+
+    
+    #ifdef BG_WINDOW
+    SDL_CreateWindowAndRenderer(32*8, 32*8, 0, &bg_window, &bg_renderer);
+    SDL_RenderSetScale(bg_renderer, 1, 1);
+
+    SDL_SetRenderDrawColor(bg_renderer, 0, 0, 0, 255);
+    SDL_RenderClear(bg_renderer);
+
+    drawBGWindow();
+    SDL_RenderPresent(bg_renderer);
     #endif
 }
 
@@ -236,6 +267,12 @@ void PPU::clock() {
             updateBackgroundLayer();
             drawBackground();
 
+            #ifdef TILESET_WINDOW
+            drawTilesetWindow();
+            #endif
+            #ifdef BG_WINDOW
+            drawBGWindow();
+            #endif
 
             VBlankInterrupt();
             // SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
@@ -338,11 +375,6 @@ void PPU::updateTileset() {
 }
 
 void PPU::updateBackgroundLayer() {
-    SDL_Texture* background_layer = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB24, SDL_TEXTUREACCESS_STATIC, 256, 256);
-    if (!background_layer) {
-        std::cerr << "Failed to create background texture: " << SDL_GetError() << std::endl;
-        return;
-    }
 
     uint16_t bg_base_address;
     int tileset_index_offset = 0;
@@ -377,7 +409,7 @@ void PPU::updateBackgroundLayer() {
         tile_rect.y = (background_tile_index / 32) * 8;
         tile_rect.w = 8;
         tile_rect.h = 8;
-        std::cout<<tile_rect.x<<std::endl;
+        // std::cout<<tile_rect.x<<std::endl;
         SDL_RenderCopy(renderer, tile, nullptr, &tile_rect);
     }
     SDL_SetRenderTarget(renderer, nullptr);
@@ -385,11 +417,43 @@ void PPU::updateBackgroundLayer() {
 
 void PPU::drawBackground() {
     SDL_Rect viewport;
-    viewport.x = scx;
-    viewport.y = scy;
+    viewport.x = 0;
+    viewport.y = 0;
+    // viewport.x = scx;
+    // viewport.y = scy;
     viewport.w = 160;
     viewport.h = 144;
 
     SDL_RenderCopy(renderer, background_layer, &viewport, nullptr);
     SDL_RenderPresent(renderer);
 }
+
+#ifdef TILESET_WINDOW
+void PPU::drawTilesetWindow() {
+    uint16_t tileindex;
+    for (tileindex = 0; tileindex < 0x180; tileindex++) {
+
+        SDL_Texture* tile = tileset[tileindex];
+
+        SDL_Rect tile_rect;
+        tile_rect.x = (tileindex % 16) * 8;
+        tile_rect.y = (tileindex / 16) * 8;
+        tile_rect.w = 8;
+        tile_rect.h = 8;
+        SDL_RenderCopy(tileset_renderer, tile, nullptr, &tile_rect);
+    }
+    SDL_RenderPresent(tileset_renderer);
+}
+#endif
+
+#ifdef BG_WINDOW
+void PPU::drawBGWindow() {
+    SDL_Rect rect;
+    rect.x = 0;
+    rect.y = 0;
+    rect.w = 32*8;
+    rect.h = 32*8;
+    SDL_RenderCopy(bg_renderer, background_layer, nullptr, &rect);
+    SDL_RenderPresent(bg_renderer);
+}
+#endif

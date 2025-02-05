@@ -15,6 +15,11 @@
 #include <iomanip>
 #endif 
 
+#ifdef LOG_PC
+#include <fstream>
+#include <iomanip>
+#endif
+
 class Bus;
 
 class SM83 {
@@ -48,7 +53,7 @@ public:
     uint8_t   h  = 0x01;
     uint8_t   l  = 0x4D;
     uint16_t  sp = 0xFFFE;
-    uint16_t  pc = 0x0100;
+    uint16_t  pc = 0x0000;
 
     // for debugging
     uint16_t last_executed_pc = 0x0000;
@@ -345,5 +350,19 @@ private:
     }
 
     #endif
+
+    #ifdef LOG_PC
+
+    void logLastPC() {
+        std::ofstream outfile("codewriteroutput/pc.log", std::ios_base::app);
+        if (outfile.is_open()) {
+            outfile << std::hex << std::setfill('0') << std::setw(4) << last_executed_pc << std::endl;
+            outfile.close();
+        } else {
+            throw std::runtime_error("Unable to open pc.log for writing");
+        }
+    }
+
+    #endif 
 
 };
