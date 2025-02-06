@@ -265,6 +265,7 @@ void SM83::handleInterrupts() {
 
 // }
 
+#pragma region CLOCK
 void SM83::clock() {
 
     if (cycles == 0) {
@@ -313,7 +314,9 @@ void SM83::clock() {
 
         #endif
 
-
+        if (last_executed_pc == 0x0039) {
+            std::cout << "Breakpoint!\n";
+        }
 
         if (opcode == 0xcb) {
             // last_executed_pc = pc;
@@ -340,7 +343,7 @@ void SM83::clock() {
     // std::cout << "CPU CLOCKED" << std::endl;
 
 }
-
+#pragma endregion
 
 #ifdef DEBUGMODE_
 
@@ -355,6 +358,7 @@ void SM83::opDebug() {
 
 #endif
 
+#pragma region COMMS
 uint8_t SM83::read(uint16_t addr) {
     return bus->cpuRead(addr);
 }
@@ -484,9 +488,11 @@ uint16_t *SM83::process_operand16(Operand operand) {
     return value;
 }
 
+#pragma endregion
+
 
 ////// PRIMARY OPERATION CORE FUNCTIONS 
-
+#pragma region CORE
 // LOAD INSTRUCTIONS
 uint8_t SM83::LD(Operand target, Operand source) {
     uint8_t *targetValue = process_operand(target);
@@ -1025,9 +1031,10 @@ uint8_t SM83::SUB8(uint8_t *targetValue, uint8_t *sourceValue, bool isSBC) {
     return 0;
 }
 
+#pragma endregion
 
 //// WRAPPER FUNCTIONS
-
+#pragma region WRAPPERS
 uint8_t SM83::NOP() { return 0; }
 uint8_t SM83::LD_BC_n16() { return LD16({BC, true}, {N16, true}); }
 uint8_t SM83::LD_aBC_A() { return LD({BC, false}, {A, true}); }
@@ -1544,3 +1551,4 @@ uint8_t SM83::SET_7_H() { return SET(7, {H, true}); }
 uint8_t SM83::SET_7_L() { return SET(7, {L, true}); }
 uint8_t SM83::SET_7_aHL() { return SET(7, {HL, false}); }
 uint8_t SM83::SET_7_A() { return SET(7, {A, true}); }
+#pragma endregion

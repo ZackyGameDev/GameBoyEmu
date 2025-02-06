@@ -60,7 +60,7 @@ uint8_t Bus::cpuRead(uint16_t addr) {
 uint8_t* Bus::cpuReadPttr(uint16_t addr) {
     uint8_t *data = nullptr;
     
-    if (0x0000 <= addr and addr <= 0x0099) {
+    if (0x0000 <= addr and addr <= 0x00ff) {
         data = bootrom.readPttr(addr);
     } else if (0x0000 <= addr and addr <= 0x7fff) {
         data = cart.readPttr(addr);

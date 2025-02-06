@@ -9,13 +9,15 @@ PPU::PPU() {
     for (auto &i : oam) {
         i = 0;
     } 
+    // i comment this part out sometimes to 
+    // see what would happen (curiosity)
     for (auto &i : vram) {
-        i = 02;
+        i = 0b00000000;
     }
 
     #ifdef LOADMEMDUMP
 
-    std::ifstream file("ROMS/tet.mem.dump", std::ios::binary); // open the file
+    std::ifstream file("ROMS/mem.dump", std::ios::binary); // open the file
     std::vector<uint8_t> fileBytes((std::istreambuf_iterator<char>(file)),
                                     std::istreambuf_iterator<char>());
     file.close(); // close the file
