@@ -167,7 +167,8 @@ void PPU::initLCD() {
 
 void PPU::clock() {
 
-    if (cycles <= 0) switch (mode) {
+    if (cycles <= 0) 
+    switch (mode) {
     case PPUMODE::OAMREAD:
 
         // next mode...
@@ -320,7 +321,7 @@ void PPU::clock() {
     cycles--;
     // setting the STAT register flags.
     stat &= 0xf8;
-    stat |= ly==lyc << 2;
+    stat |= (ly==lyc) << 2;
     stat |= mode;
 }
 
@@ -417,10 +418,10 @@ void PPU::updateBackgroundLayer() {
 
 void PPU::drawBackground() {
     SDL_Rect viewport;
-    viewport.x = 0;
-    viewport.y = 0;
-    // viewport.x = scx;
-    // viewport.y = scy;
+    // viewport.x = 0;
+    // viewport.y = 0;
+    viewport.x = scx;
+    viewport.y = scy;
     viewport.w = 160;
     viewport.h = 144;
 

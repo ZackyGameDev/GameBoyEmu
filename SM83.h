@@ -356,7 +356,8 @@ private:
     void logLastPC() {
         std::ofstream outfile("codewriteroutput/pc.log", std::ios_base::app);
         if (outfile.is_open()) {
-            outfile << std::hex << std::setfill('0') << std::setw(4) << last_executed_pc << std::endl;
+            outfile << std::hex << std::setfill('0') << std::setw(4) << last_executed_pc;
+            outfile << std::dec << ' ' << std::setw(0) << last_instruction << std::endl;
             outfile.close();
         } else {
             throw std::runtime_error("Unable to open pc.log for writing");

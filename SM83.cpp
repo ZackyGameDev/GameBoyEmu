@@ -537,7 +537,7 @@ uint8_t SM83::LDH(Operand target, Operand source) {
         sourceValue = read(0xff00 | c);
     } else if (source.name == A8) {
         sourceValue = read(0xff00 | read(pc++));
-    } else if (source.name = A) {
+    } else if (source.name == A) {
         sourceValue = a;
     }
 
@@ -894,10 +894,10 @@ uint8_t SM83::ROTATELEFT(Operand operand, bool reversed, bool through_carry) {
 
     if (reversed) {
         uint8_t new_carry = *targetValue & 0x01;
-        *targetValue = (*targetValue >> 1) | (through_carry ? getFlag(fc) : new_carry);
+        *targetValue = (*targetValue >> 1) | ((through_carry ? getFlag(fc) : new_carry) << 7);
         setFlag(fc, new_carry);
     } else {
-        uint8_t new_carry = *targetValue & 0x80;
+        uint8_t new_carry = (*targetValue & 0x80) >> 7;
         *targetValue = (*targetValue << 1) | (through_carry ? getFlag(fc) : new_carry);
         setFlag(fc, new_carry);
     }
