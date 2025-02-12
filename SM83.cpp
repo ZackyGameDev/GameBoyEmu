@@ -314,7 +314,13 @@ void SM83::clock() {
 
         #endif
 
-        if (last_executed_pc == 0x0039) {
+        // if (last_executed_pc == 0x0040) {
+        //     std::cout << "Breakpoint!\n";
+        // }
+        // if (last_executed_pc == 0x0064 && read(0xff44) == 0x0090) {
+        //     std::cout << "Breakpoint!\n";
+        // }
+        if (last_executed_pc == 0x00F9) { // scroll end
             std::cout << "Breakpoint!\n";
         }
 
@@ -334,6 +340,7 @@ void SM83::clock() {
         }
 
         #ifdef LOG_PC
+        if (last_executed_pc >= 0xF1)
         logLastPC();
         #endif
         handleInterrupts();
@@ -706,7 +713,9 @@ uint8_t SM83::PROCESS_ALU(Operand target, Operand source, ALUOperation operation
         }
     }
 
-    setFlag(fz, *targetValue & 0xff == 0);
+    // uint8_t tatakae = *targetValue & 0xff;
+    
+    setFlag(fz, (*targetValue & 0xff) == 0);
 
     updateRegisters16();
     return 0;

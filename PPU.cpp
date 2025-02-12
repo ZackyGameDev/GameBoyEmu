@@ -130,7 +130,7 @@ void PPU::initLCD() {
 
     SDL_RenderPresent(renderer);
 
-    SDL_Texture* background_layer = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB24, SDL_TEXTUREACCESS_STATIC, 256, 256);
+    background_layer = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB24, SDL_TEXTUREACCESS_TARGET, 256, 256);
 
     if (!background_layer) {
         std::cerr << "Failed to create background texture: " << SDL_GetError() << std::endl;
@@ -267,7 +267,9 @@ void PPU::clock() {
             //     SDL_RenderPresent(renderer);
             // }
             updateTileset();
+            SDL_RenderPresent(renderer);
             updateBackgroundLayer();
+            SDL_RenderPresent(renderer);
             drawBackground();
 
             #ifdef TILESET_WINDOW
@@ -419,15 +421,10 @@ void PPU::updateBackgroundLayer() {
 }
 
 void PPU::drawBackground() {
-    SDL_Rect viewport;
-    // viewport.x = 0;
-    // viewport.y = 0;
-    viewport.x = scx;
-    viewport.y = scy;
-    viewport.w = 160;
-    viewport.h = 144;
-
-    SDL_RenderCopy(renderer, background_layer, &viewport, nullptr);
+    SDL_Rect viewport = {scx, scy, 160, 144};
+    SDL_Rect display = {0, 0, 160, 144};
+    SDL_RenderCopy(renderer, background_layer, &viewport, &display);
+    // SDL_RenderCopy(renderer, background_layer, nullptr, nullptr);
     SDL_RenderPresent(renderer);
 }
 

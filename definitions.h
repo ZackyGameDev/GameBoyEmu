@@ -9,3 +9,4 @@
 // #define TILESET_WINDOW // these dont work and i'm not 
 // #define BG_WINDOW      // very interested in making them
 #define LOG_PC
+#define NO_LOGS
