@@ -103,7 +103,9 @@ public:
 public:
     void initLCD();
     void clock();
-    SDL_Texture* getTile(uint16_t addr);
+    // SDL_Texture* getTile(uint16_t addr);
+    void getTile(uint16_t addr, SDL_Texture* &texture);
+    void createTileset();
     void updateTileset();
     void updateBackgroundLayer();
     void drawBackground();

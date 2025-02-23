@@ -320,7 +320,24 @@ void SM83::clock() {
         // if (last_executed_pc == 0x0064 && read(0xff44) == 0x0090) {
         //     std::cout << "Breakpoint!\n";
         // }
-        if (last_executed_pc == 0x00F9) { // scroll end
+
+        uint16_t breakpoint = 0x065C;
+
+        #ifdef BREAKPOINT_PC_FILE
+        std::ifstream infile("ROMS/breakpoint.pc");
+        std::string hexStr;
+        
+        if (infile.is_open()) {
+            // Read the hexadecimal number from the file
+            infile >> hexStr;
+            infile.close();
+
+            // Convert the string to a uint16_t
+            breakpoint = static_cast<uint16_t>(std::stoul(hexStr, nullptr, 16));
+        }
+        #endif
+
+        if (last_executed_pc == breakpoint) {
             std::cout << "Breakpoint!\n";
         }
 
@@ -817,8 +834,10 @@ uint8_t SM83::JUMPTO(OperandName condition, Operand address) {
 
     if (not conditiontrue) {
         // skip ahead to the next instruction byte;    
-        if (address.name == N16) pc += 2; 
-        else if (address.name == E8) pc += 1;
+        // if (address.name == N16) pc += 2; 
+        // else if (address.name == A16) pc += 2; 
+        if (address.name == E8) pc += 1;
+        else pc += 2; 
         return 0;
     }   
 

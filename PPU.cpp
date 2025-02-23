@@ -137,6 +137,8 @@ void PPU::initLCD() {
         return;
     }
     
+    createTileset();
+
     #ifdef LOADMEMDUMP
     updateTileset();
     updateBackgroundLayer();
@@ -337,26 +339,26 @@ void PPU::LYCInterrupt() {
     this->bus->cpu.requestInterrupt(SM83::InterruptFlags::Stat);
 }
 
-SDL_Texture* PPU::getTile(uint16_t addr) {
+void PPU::getTile(uint16_t addr, SDL_Texture* &texture) {
     uint16_t vram_addr = addr - 0x8000;
     
-    SDL_Texture* texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB24, SDL_TEXTUREACCESS_STATIC, 8, 8);
-    if (!texture) {
-        std::cerr << "Failed to create tile texture: " << SDL_GetError() << std::endl;
-        return nullptr;
-    }
-
+    // SDL_Texture* texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB24, SDL_TEXTUREACCESS_STATIC, 8, 8);
+    // if (!texture) {
+    //     std::cerr << "Failed to create tile texture: " << SDL_GetError() << std::endl;
+    //     return nullptr;
+    // }
+    
     std::vector<uint8_t> rgbValues;
-
+    
     for (int row = 0; row < 8; row++) {
         uint8_t lower_dot_row_data = vram[vram_addr + row*2];
         uint8_t upper_dot_row_data = vram[vram_addr + row*2 + 1];
-
+        
         for (int pixel = 0; pixel < 8; pixel++) {
             uint8_t lower_dot_data = (lower_dot_row_data >> (7-pixel)) & 0x1;
             uint8_t upper_dot_data = (upper_dot_row_data >> (7-pixel)) & 0x1;
             uint8_t color_id = (upper_dot_data << 1) | lower_dot_data;
-
+            
             uint8_t color = 255*(1 - (color_id/(float)3));
             
             rgbValues.push_back(color);
@@ -364,9 +366,19 @@ SDL_Texture* PPU::getTile(uint16_t addr) {
             rgbValues.push_back(color);
         }
     }
-
+    
     SDL_UpdateTexture(texture, nullptr, rgbValues.data(), 8 * 3);
-    return texture;
+    // return texture;
+}
+
+void PPU::createTileset() {
+    for (int tileindex = 0; tileindex < 0x180; tileindex++){
+        SDL_Texture* texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB24, SDL_TEXTUREACCESS_STATIC, 8, 8);
+        if (!texture) {
+            std::cerr << "Failed to create tile texture: " << SDL_GetError() << std::endl;
+        }
+        tileset[tileindex] = texture;
+    }
 }
 
 void PPU::updateTileset() {
@@ -375,7 +387,7 @@ void PPU::updateTileset() {
     uint16_t tileindex;
     for (tileindex = 0; tileindex < 0x180; tileindex++) {
         addr = 0x8000 + (tileindex)*0x10;
-        tileset[tileindex] = getTile(addr);
+        getTile(addr, tileset[tileindex]);
     }
 }
 
@@ -423,8 +435,12 @@ void PPU::updateBackgroundLayer() {
 void PPU::drawBackground() {
     SDL_Rect viewport = {scx, scy, 160, 144};
     SDL_Rect display = {0, 0, 160, 144};
+    #ifndef FULL_VIEWPORT
     SDL_RenderCopy(renderer, background_layer, &viewport, &display);
-    // SDL_RenderCopy(renderer, background_layer, nullptr, nullptr);
+    #endif
+    #ifdef FULL_VIEWPORT
+    SDL_RenderCopy(renderer, background_layer, nullptr, nullptr);
+    #endif
     SDL_RenderPresent(renderer);
 }
 

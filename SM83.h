@@ -45,7 +45,7 @@ public:
 
     // CPU Registers
     uint8_t   a  = 0x01;
-    uint8_t   f  = 0x00;
+    uint8_t   f  = 0xB0;
     uint8_t   b  = 0x00;
     uint8_t   c  = 0x13;
     uint8_t   d  = 0x00;
@@ -53,7 +53,7 @@ public:
     uint8_t   h  = 0x01;
     uint8_t   l  = 0x4D;
     uint16_t  sp = 0xFFFE;
-    uint16_t  pc = 0x0000;
+    uint16_t  pc = 0x0100;
 
     // for debugging
     uint16_t last_executed_pc = 0x0000;
