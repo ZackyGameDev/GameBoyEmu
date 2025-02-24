@@ -359,11 +359,27 @@ void PPU::getTile(uint16_t addr, SDL_Texture* &texture) {
             uint8_t upper_dot_data = (upper_dot_row_data >> (7-pixel)) & 0x1;
             uint8_t color_id = (upper_dot_data << 1) | lower_dot_data;
             
-            uint8_t color = 255*(1 - (color_id/(float)3));
+            uint8_t r;
+            uint8_t g;
+            uint8_t b;
+            switch (color_id) {
+                case 0: 
+                    r = 155; g = 188; b = 15;
+                break;
+                case 1: 
+                    r = 139; g = 172; b = 15;
+                break;
+                case 2: 
+                    r = 48; g = 98; b = 48;
+                break;
+                case 3: 
+                    r = 15; g = 56; b = 15;
+                break;
+            }
             
-            rgbValues.push_back(color);
-            rgbValues.push_back(color);
-            rgbValues.push_back(color);
+            rgbValues.push_back(r);
+            rgbValues.push_back(g);
+            rgbValues.push_back(b);
         }
     }
     
@@ -433,9 +449,9 @@ void PPU::updateBackgroundLayer() {
 }
 
 void PPU::drawBackground() {
+    #ifndef FULL_VIEWPORT
     SDL_Rect viewport = {scx, scy, 160, 144};
     SDL_Rect display = {0, 0, 160, 144};
-    #ifndef FULL_VIEWPORT
     SDL_RenderCopy(renderer, background_layer, &viewport, &display);
     #endif
     #ifdef FULL_VIEWPORT

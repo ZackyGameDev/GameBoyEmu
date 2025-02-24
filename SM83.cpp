@@ -200,6 +200,8 @@ void SM83::drawDebug() {
 }
 #endif
 
+#pragma region INTERRUPTS
+
 void SM83::handleInterrupts() {
         
     for (int interrupt_bit = 0; interrupt_bit < 5; interrupt_bit++) {
@@ -265,6 +267,36 @@ void SM83::handleInterrupts() {
 
 // }
 
+#pragma region TIMER
+void SM83::clockTimer() {
+    timer_clock += 0x0001;
+    div = (timer_clock >> 6) & 0xFF;
+
+    uint8_t clock_select = tac & 0x3;
+    uint8_t enabled = (tac >> 2) & 0x1;
+    uint8_t div_factor;
+    if (!enabled) 
+        return;
+    
+    switch (clock_select) {
+        case 0: div_factor = 256-1; break;
+        case 1: div_factor = 4-1; break;
+        case 2: div_factor = 16-1; break;
+        case 3: div_factor = 64-1; break;
+    }
+
+    if ((timer_clock & div_factor) == 0) {
+        ++tima;
+    }
+
+    if (tima == 0x00) { // if overflowed
+        requestInterrupt(SM83::InterruptFlags::Timer);
+        tima = tma;
+    }
+    
+}
+
+
 #pragma region CLOCK
 void SM83::clock() {
 
@@ -321,7 +353,7 @@ void SM83::clock() {
         //     std::cout << "Breakpoint!\n";
         // }
 
-        uint16_t breakpoint = 0x065C;
+        uint16_t breakpoint = 0xc31d;
 
         #ifdef BREAKPOINT_PC_FILE
         std::ifstream infile("ROMS/breakpoint.pc");
@@ -363,6 +395,7 @@ void SM83::clock() {
         handleInterrupts();
     }
 
+    clockTimer();
     cycles--;
     // std::cout << "CPU CLOCKED" << std::endl;
 
@@ -606,9 +639,13 @@ uint8_t SM83::PUSH(Operand target) {
     uint16_t *target_register = process_operand16(target);
 
     write(--sp, *target_register >> 8);
-    write(--sp, *target_register & 0xff);
 
-    updateRegisters8();
+    if (target.name == AF)
+        write(--sp, *target_register & 0xf0);
+    else
+        write(--sp, *target_register & 0xff);
+
+    // updateRegisters8();
     return 0;
 }
 
@@ -721,7 +758,7 @@ uint8_t SM83::PROCESS_ALU(Operand target, Operand source, ALUOperation operation
             setFlag(fn, 1);
             // setFlag(fh, (*targetValue & 0x0F) + (*sourceValue & 0x0F) & 0x10);
             setFlag(fh, ((*targetValue & 0x0F) < (*sourceValue & 0x0F)));
-            setFlag(fz, (result && 0xff) == 0);
+            setFlag(fz, (result & 0xff) == 0);
             // setFlag(fc, result & 0x0100);
             setFlag(fc, (*targetValue < *sourceValue));
             
@@ -837,7 +874,9 @@ uint8_t SM83::JUMPTO(OperandName condition, Operand address) {
         // if (address.name == N16) pc += 2; 
         // else if (address.name == A16) pc += 2; 
         if (address.name == E8) pc += 1;
-        else pc += 2; 
+        else if (address.name == N16) pc += 2;
+        else if (address.name == A16) pc += 2;
+        else throw std::runtime_error("invalid operand for JUMPTO");
         return 0;
     }   
 

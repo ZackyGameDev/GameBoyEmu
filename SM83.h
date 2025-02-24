@@ -20,6 +20,10 @@
 #include <iomanip>
 #endif
 
+#ifdef BREAKPOINT_PC_FILE
+#include <fstream>
+#endif
+
 class Bus;
 
 class SM83 {
@@ -75,10 +79,18 @@ public:
         VBlank = 1 << 0,
     };
 
-    int8_t ime = 1; // global interrupt flag (not memory mapped) handled by DI and EI instructions
+    int8_t ime   = 1; // global interrupt flag (not memory mapped) handled by DI and EI instructions
     // 1 is true, 0 is false. if ime > 1, then after every clock() function, the CPU will decrement ime
-    uint8_t ie = 0x00 ; // interrupts enabled flags
-    uint8_t if_ = 0xE1 ; // interrupts requested flags
+    uint8_t ie   = 0x00 ; // interrupts enabled flags
+    uint8_t if_  = 0xE1 ; // interrupts requested flags
+
+    // timer registers
+    uint8_t div     = 0x00;
+    uint8_t tima    = 0x00;
+    uint8_t tma     = 0x00;
+    uint8_t tac     = 0xF8;
+    uint32_t timer_clock = 0x00000000;
+
 
     void updateRegisters16() { // this function must be called whenever the uint8_t register vars are affected
         this->af = (this->a << 8) | this->f;
@@ -129,6 +141,8 @@ public:
     }
 
     void handleInterrupts();
+
+    void clockTimer();
 
     void connectBus(Bus *n) { bus = n; }
 
@@ -356,9 +370,14 @@ private:
     void logLastPC() {
         std::ofstream outfile("codewriteroutput/pc.log", std::ios_base::app);
         if (outfile.is_open()) {
+            // PC : INST : LY
             outfile << std::hex << std::setfill('0') << std::setw(4) << last_executed_pc;
             outfile << std::dec << ' ' << std::setw(0) << last_instruction;
             outfile << " LY:" << std::hex << std::setfill('0') << std::setw(4) << (int)this->read(0xFF44) << std::dec << std::endl;
+            
+            // ONLY INSTRUCTION 
+            // outfile << std::dec << std::setw(0) << last_instruction << std::endl;
+
             outfile.close();
         } else {
             throw std::runtime_error("Unable to open pc.log for writing");
