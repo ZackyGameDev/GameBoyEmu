@@ -300,7 +300,13 @@ void SM83::clockTimer() {
 #pragma region CLOCK
 void SM83::clock() {
 
-    if (cycles == 0) {
+    if (halted) {
+        if (ie & if_) { // if interrupt pending
+            halted = false;
+        }
+    }
+
+    if (cycles == 0 && !halted) {
         if (ime > 1) ime--; // this is part of IE instruction implementation. because it acts one instruction after the IE instruct.
 
         // if boot rom finished, unload it.
@@ -384,19 +390,19 @@ void SM83::clock() {
         } else {
             additional_clock_cycles = (this->*unprefixed_opcode_lookup[opcode].operate)();
             cycles = unprefixed_opcode_lookup[opcode].cycles + additional_clock_cycles;
-
-            bus->joypad.update();
         }
-
+        
         #ifdef LOG_PC
         if (last_executed_pc >= 0xF1)
         logLastPC();
         #endif
         handleInterrupts();
     }
-
+    
+    bus->joypad.update();
     clockTimer();
-    cycles--;
+    if (!halted) 
+        --cycles;
     // std::cout << "CPU CLOCKED" << std::endl;
 
 }
@@ -580,15 +586,18 @@ uint8_t SM83::LD16(Operand target, Operand source) {
 
 uint8_t SM83::LD_HL_SPDD() {
 
-    int8_t e8 = toSigned(read(pc++));
-    hl = sp + e8;
-
+    int e8 = toSigned(read(pc++));
+    // int16_t e8 = toSigned16(read(pc++));
+    
     // flags
     setFlag(fz, 0);
     setFlag(fn, 0);
     setFlag( fh, ((sp & 0x0F) + (e8 & 0x0F)) & 0x10 );
     setFlag( fc, ((sp & 0xFF) + (e8 & 0xFF)) & 0x100 );
+    updateRegisters16(); // for f -> af update
 
+    hl = sp + e8;
+    
     updateRegisters8();
     return 0;
 }
@@ -801,7 +810,7 @@ uint8_t SM83::PROCESS_ALU16(Operand target, Operand source, ALUOperation operati
     uint16_t *targetValue = process_operand16(target);
 
     uint16_t storage = 0;
-    int8_t signed_storage = 0;
+    int signed_storage = 0;
     uint16_t *sourceValue = &storage;
 
     if (source.name == E8) { 
@@ -811,6 +820,9 @@ uint8_t SM83::PROCESS_ALU16(Operand target, Operand source, ALUOperation operati
         // actually test it out.
     
         signed_storage = (toSigned(read(pc++)));// if it is e8 this value will be non zero
+        if (signed_storage != 1) {
+            std::cout << "breakpoint!\n";
+        }
     } else {
         sourceValue = process_operand16(source); // else this will be non zero
     }
@@ -831,6 +843,8 @@ uint8_t SM83::PROCESS_ALU16(Operand target, Operand source, ALUOperation operati
             setFlag(fc, ((*targetValue & 0xFF) + (signed_storage & 0xFF)) & 0x100);
         }
         
+        updateRegisters16(); // for the flags 
+
         *targetValue = result & 0xFFFF;
         break;
 
@@ -908,7 +922,7 @@ uint8_t SM83::CALL(OperandName condition, Operand address) {
     }
 
     if (not conditiontrue) {
-        // skip ahead to the next instruction byte;    
+        // skip ahead to the next instruction byte;
         pc += 2; 
         return 0;
     }  
@@ -922,7 +936,7 @@ uint8_t SM83::RST(uint8_t address_lo) {
     PUSH({PC, true});
     pc = 0x0000 + address_lo;
 
-    updateRegisters8();
+    updateRegisters8(); // \todo remove redundant register updates
     return 0;
 
 }
@@ -961,6 +975,21 @@ uint8_t SM83::DISABLEINTERRUPTS() {
     return 0;
 }
 
+uint8_t SM83::HANDLE_HALT() {
+    if (ime == 1) {
+        handleInterrupts();
+    } else {
+        if (ie & if_) { // some interrupt is pending
+            // halt bug will happen.
+            // \todo HALT BUG
+        } else {
+            // halt bug will not happen.
+            // halt mode will be entered.
+            halted = true;
+        }
+    }
+    return 0;
+}
 
 uint8_t SM83::ROTATELEFT(Operand operand, bool reversed, bool through_carry) {
     uint8_t *targetValue = process_operand(operand);
@@ -1220,7 +1249,7 @@ uint8_t SM83::LD_aHL_D() { return LD({HL, false}, {D, true}); }
 uint8_t SM83::LD_aHL_E() { return LD({HL, false}, {E, true}); }
 uint8_t SM83::LD_aHL_H() { return LD({HL, false}, {H, true}); }
 uint8_t SM83::LD_aHL_L() { return LD({HL, false}, {L, true}); }
-uint8_t SM83::HALT() { std::cout << "SYSTEM HALT REQUESTED!"; return 0; }
+uint8_t SM83::HALT() { return HANDLE_HALT(); return 0; }
 uint8_t SM83::LD_aHL_A() { return LD({HL, false}, {A, true}); }
 uint8_t SM83::LD_A_B() { return LD({A, true}, {B, true}); }
 uint8_t SM83::LD_A_C() { return LD({A, true}, {C, true}); }

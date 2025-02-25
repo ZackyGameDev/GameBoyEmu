@@ -79,6 +79,10 @@ public:
         VBlank = 1 << 0,
     };
 
+    // some flags
+    bool halted = false;
+    bool stopped = false;
+
     int8_t ime   = 1; // global interrupt flag (not memory mapped) handled by DI and EI instructions
     // 1 is true, 0 is false. if ime > 1, then after every clock() function, the CPU will decrement ime
     uint8_t ie   = 0x00 ; // interrupts enabled flags
@@ -314,6 +318,8 @@ private:
     uint8_t RES(uint8_t bit, Operand operand);
     uint8_t SET(uint8_t bit, Operand operand);
 
+    uint8_t HANDLE_HALT();
+
 private:
     // these are technically core functions, but they are called by wrapping core functions 
     uint8_t ADD8(uint8_t *targetValue, uint8_t *sourceValue, bool isADC=false);
@@ -329,7 +335,7 @@ private:
         lo = result & 0xff;
     }
 
-    int8_t toSigned(uint8_t b) {
+    int toSigned(uint8_t b) {
         if (b > 127) {
             return (b - 256);
         } else {
@@ -337,6 +343,15 @@ private:
         }
         // return (b > 127) ? (b - 256) : b;
     }
+
+    // uint16_t toSigned16(uint8_t b) {
+    //     if (b > 127) {
+    //         return (b - 256) | 0xFF00;
+    //     } else {
+    //         return (b | 0x0000);
+    //     }
+    //     // return (b > 127) ? (b - 256) : b;
+    // }
 
 
     #ifdef DEBUGMODE_
