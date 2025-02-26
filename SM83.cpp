@@ -375,9 +375,9 @@ void SM83::clock() {
         }
         #endif
 
-        if (last_executed_pc == breakpoint) {
-            std::cout << "Breakpoint!\n";
-        }
+        // if (last_executed_pc == breakpoint) {
+            // std::cout << "Breakpoint!\n";
+        // }
 
         if (opcode == 0xcb) {
             // last_executed_pc = pc;
@@ -397,6 +397,7 @@ void SM83::clock() {
         logLastPC();
         #endif
         handleInterrupts();
+        bus->cart.rectifyPttrWrites();
     }
     
     bus->joypad.update();
@@ -820,9 +821,9 @@ uint8_t SM83::PROCESS_ALU16(Operand target, Operand source, ALUOperation operati
         // actually test it out.
     
         signed_storage = (toSigned(read(pc++)));// if it is e8 this value will be non zero
-        if (signed_storage != 1) {
-            std::cout << "breakpoint!\n";
-        }
+        // if (signed_storage != 1) {
+            // std::cout << "breakpoint!\n";
+        // }
     } else {
         sourceValue = process_operand16(source); // else this will be non zero
     }
@@ -949,10 +950,10 @@ uint8_t SM83::RETURNFROMFUNCTION() {
 
 uint8_t SM83::RETURNFROMFUNCTION(OperandName condition) {
     switch (condition) {
-        case C: if (not getFlag(fc)) return 0;
-        case NC: if (not !getFlag(fc)); return 0;
-        case Z: if (not getFlag(fz)); return 0;
-        case NZ: if (not !getFlag(fz)); return 0;
+        case C: if (not getFlag(fc)) return 0; break;
+        case NC: if (not !getFlag(fc)) return 0; break;
+        case Z: if (not getFlag(fz)) return 0; break;
+        case NZ: if (not !getFlag(fz)) return 0; break;
     }
 
     POP({PC, true});

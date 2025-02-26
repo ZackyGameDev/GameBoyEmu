@@ -33,6 +33,8 @@ int main() {
     std::cout << "CPU_CLOCK_SPEED: " << CPU_CLOCK_SPEED << std::endl;
 
     int test = 0;
+
+    std::this_thread::sleep_for(std::chrono::duration<double>(3));
     
     while (true) {
         // Get the start time of the cycle

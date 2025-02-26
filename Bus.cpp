@@ -105,10 +105,12 @@ uint8_t* Bus::cpuReadPttr(uint16_t addr) {
 
 
 void Bus::cpuWrite(uint16_t addr, uint8_t data) {
-    if (0xc000 <= addr and addr <= 0xdfff) {    
+    if (0x0000 <= addr and addr <= 0x7FFF) {
+        cart.write(addr, data);
+    } else if (0xc000 <= addr and addr <= 0xdfff) {
         wram[addr-0xc000] = data;
     } else if (0xa000 <= addr and addr <= 0xbfff) {
-        cart.sram[addr - 0xa000] = data;
+        cart.write(addr, data);
     } else if ((0x8000 <= addr and addr <= 0x9fff) // VRAM
             or (0xfe00 <= addr and addr <= 0xfe9f) // OAM
             or (0xff40 <= addr and addr <= 0xff4b)) { // PPU REG
