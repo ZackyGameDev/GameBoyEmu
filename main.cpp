@@ -8,15 +8,15 @@
 #include "Bus.h"
 
 // const int CPU_CLOCK_SPEED = 4194304; // clock cycle speed
-// long long int CPU_CLOCK_SPEED = EMULATION_CLOCK_SPEED; // machine cycle speed 
+long long int CPU_CLOCK_SPEED = EMULATION_CLOCK_SPEED; // machine cycle speed 
 #ifdef DEBUGMODE_
 // const float DEBUG_UPDATE_SPEED = 0.1F;
 const int DEBUG_UPDATE_CYCLES = 500;
 int debug_cycles = 0;
 #endif
 // const int CPU_CLOCK_SPEED = 300;
-// const long double CYCLE_DURATION = 1.0 / CPU_CLOCK_SPEED;
-auto CYCLE_DURATION = std::chrono::nanoseconds(EMULATION_CLOCK_SPEED);
+const long double CYCLE_DURATION = 1.0 / CPU_CLOCK_SPEED;
+// auto CYCLE_DURATION = std::chrono::nanoseconds(EMULATION_CLOCK_SPEED);
 
 int main() {
     std::cout << "DID IT WORK <--------------\n";
@@ -55,19 +55,20 @@ int main() {
         // #endif
 
         // Get the end time of the cycle
+        
+        // Get the end time of the cycle
         auto end_cycle_time = std::chrono::high_resolution_clock::now();
 
         // Calculate the elapsed time for the cycle
-        // std::chrono::duration<double> elapsed_time = std::chrono::duration_cast<std::chrono::nanoseconds>(end_cycle_time - start_cycle_time);
-        auto elapsed_time = std::chrono::duration_cast<std::chrono::nanoseconds>(end_cycle_time - start_cycle_time);
+        std::chrono::duration<double> elapsed_time = end_cycle_time - start_cycle_time;
 
         // Calculate the time to sleep to match the cycle duration
-        // double sleep_time = CYCLE_DURATION - elapsed_time;
+        double sleep_time = CYCLE_DURATION - elapsed_time.count();
         #ifdef DEBUGMODE_
         std::cout << "sleep_time: " << sleep_time << std::endl;
         #endif
-        if (elapsed_time < CYCLE_DURATION) {
-            std::this_thread::sleep_for(CYCLE_DURATION - elapsed_time);
+        if (sleep_time > 0) {
+            std::this_thread::sleep_for(std::chrono::duration<double>(sleep_time));
         } else {
             // std::cout << "Cycle took too long: " << elapsed_time.count() << " seconds" << std::endl;
         }
