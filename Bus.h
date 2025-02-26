@@ -23,9 +23,12 @@ public:
     std::array<uint8_t, 128> hram;
     uint8_t zero = 0x00;
 
+    bool running = true;
+
 public:
     void cpuWrite(uint16_t addr, uint8_t data);
     uint8_t cpuRead(uint16_t addr);
     uint8_t* cpuReadPttr(uint16_t addr);
+    void shutdown() { running = false; }
 
 };

@@ -1,7 +1,6 @@
 #include "Joypad.h"
 #include "Bus.h"
 #include "SM83.h"
-// #include <bitset>
 
 
 Joypad::Joypad() {
@@ -37,6 +36,4 @@ void Joypad::update() {
         }
     }
 
-    // printing the value of register in binary for checkcing
-    // std::cout << std::bitset<8>(p1register) << std::endl;
 }

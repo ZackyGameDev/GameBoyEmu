@@ -299,7 +299,8 @@ void PPU::clock() {
             SDL_Event event;
             while (SDL_PollEvent(&event)) {
                 if (event.type == SDL_QUIT) {
-                    std::cout << "quit sensed. ignoring." << std::endl;
+                    std::cout << "quit sensed. attempting shutdown..." << std::endl;
+                    bus->shutdown();
                 }
             }
 

@@ -71,16 +71,20 @@ int main() {
         } else {
             // std::cout << "Cycle took too long: " << elapsed_time.count() << " seconds" << std::endl;
         }
+
+        if (bus.running == false) 
+            break;
+        
     }
 
-    while(true) {
-        bus.cpu.clock();
+    // while(true) {
+    //     bus.cpu.clock();
 
-        uint8_t keyin = bus.cpuRead(0xff00);
-        std::cout << std::bitset<8>(keyin) << std::endl;
+    //     uint8_t keyin = bus.cpuRead(0xff00);
+    //     std::cout << std::bitset<8>(keyin) << std::endl;
 
-        Sleep(1);
-    }
+    //     Sleep(1);
+    // }
 
 }
 
