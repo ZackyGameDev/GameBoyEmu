@@ -27,6 +27,9 @@ PPU::PPU() {
     }
 
     #endif 
+
+    last_pttr_addr = 0x8000;
+    last_pttr_value = 0x00;
     
     std::cout << "[DEBUG] Graphics Chip Created." << std::endl;
 }
@@ -40,8 +43,10 @@ void PPU::cpuWrite(uint16_t addr, uint8_t data) {
     
     if (0x8000 <= addr and addr <= 0x9fff) {
         vram[addr-0x8000] = data;
+        vram_accessed = true;
     } else if (0xfe00 <= addr and addr <= 0xfe9f) {    
         oam[addr-0xfe00] = data;
+        oam_accessed = true;
     } else switch(addr) {
         case 0xff40: lcdc = data; break;
         case 0xff41: stat = data; break;
@@ -90,10 +95,16 @@ uint8_t PPU::cpuRead(uint16_t addr) {
 uint8_t* PPU::cpuReadPttr(uint16_t addr) {
     uint8_t* data = nullptr;
 
-    if (0x8000 <= addr and addr <= 0x9fff) {
+    if (0x8000 <= addr && addr <= 0x9fff) {
         data = &vram[addr-0x8000];
-    } else if (0xfe00 <= addr and addr <= 0xfe9f) {    
+        last_pttr_addr = addr;
+        last_pttr_value = *data;
+        vram_accessed = true;
+    } else if (0xfe00 <= addr && addr <= 0xfe9f) {
         data = &oam[addr-0xfe00];
+        last_pttr_addr = addr;
+        last_pttr_value = *data;
+        oam_accessed = true;
     } else {
         switch (addr) {
             case 0xff40: data = &lcdc; break;
@@ -170,6 +181,7 @@ void PPU::initLCD() {
 }
 
 void PPU::clock() {
+    // updateTextures();
 
     if (cycles <= 0) 
     switch (mode) {
@@ -257,6 +269,15 @@ void PPU::clock() {
             mode = PPUMODE::VBLANK;
             cycles = 114;
 
+            
+            if (dma != dma_prev) {
+                uint16_t dma_addr = dma << 8;
+                for (int i = 0; i < 0xa0; i++) {
+                    oam[i] = this->bus->cpuRead(dma_addr+i);
+                }
+                dma_prev = dma;
+            }
+
             // JUST ENTERED VBLANK MODE
             // std::cout << "[DEBUG] VBLANK" << std::endl;
             // for (int i = 0; i < 0x180; i++) {
@@ -268,19 +289,22 @@ void PPU::clock() {
             //     SDL_RenderCopy(renderer, tileset[i], nullptr, &tilerect);
             //     SDL_RenderPresent(renderer);
             // }
-            updateTileset();
-            SDL_RenderPresent(renderer);
-            updateBackgroundLayer();
-            SDL_RenderPresent(renderer);
+            if (vram_accessed or oam_accessed) {
+                updateTileset();
+                updateBackgroundLayer();
+                vram_accessed = false;
+                oam_accessed = false;
+            }
             drawBackground();
-
+            
             #ifdef TILESET_WINDOW
             drawTilesetWindow();
             #endif
             #ifdef BG_WINDOW
             drawBGWindow();
             #endif
-
+            
+            SDL_RenderPresent(renderer);
             VBlankInterrupt();
             // SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
             // SDL_RenderDrawPoint(renderer, debug_x, debug_y);
@@ -295,6 +319,34 @@ void PPU::clock() {
         // next mode
         if (ly >= 153) {
             
+            // drawing sprites.
+            uint8_t oc = 0;
+            for (int i = 0; i < 40; i++) {
+                uint8_t sprite_y = oam[oc++];
+                uint8_t sprite_x = oam[oc++];
+                uint8_t sprite_tile_index = oam[oc++];
+                uint8_t sprite_flags = oam[oc++];
+
+                uint8_t sprite_height = getLCDCFlag(LCDCFLAGS::OBJSize) ? 16 : 8;
+
+                if (ly >= sprite_y && ly < sprite_y + sprite_height) {
+                    uint8_t tile_row_index = (ly-sprite_y)*2;
+                    uint16_t tile_address = 0x8000 + sprite_tile_index*16 + tile_row_index;
+                    uint8_t tile_row_lsb = cpuRead(tile_address);
+                    uint8_t tile_row_hsb = cpuRead(tile_address+1);
+
+                    for (int j = 0; j < 8; j++) {
+                        uint8_t pixel_color_id = (tile_row_lsb >> (7-j) & 1) | ((tile_row_hsb >> (7-j) & 1) << 1);
+                        if (pixel_color_id == 0) continue;
+
+                        uint8_t pixel_color = 255*(1-(pixel_color_id/3));
+                        SDL_SetRenderDrawColor(renderer, pixel_color, pixel_color, pixel_color, 255);
+
+                        SDL_RenderDrawPoint(renderer, sprite_x+j, ly);
+                    }
+                }
+            }
+
             // Handle events
             SDL_Event event;
             while (SDL_PollEvent(&event)) {
@@ -304,13 +356,15 @@ void PPU::clock() {
                 }
             }
 
+            #ifdef DUMP_VRAM
             std::ofstream vramwritefile("ROMS/vram.bin", std::ios::binary);
             vramwritefile.write(reinterpret_cast<char*>(vram.data()), vram.size());
 
             // Close the file
             vramwritefile.close();
+            #endif
 
-            SDL_RenderPresent(renderer);
+            // SDL_RenderPresent(renderer);
             
             mode = PPUMODE::OAMREAD;
             cycles = 20;
@@ -363,20 +417,10 @@ void PPU::getTile(uint16_t addr, SDL_Texture* &texture) {
             uint8_t r;
             uint8_t g;
             uint8_t b;
-            switch (color_id) {
-                case 0: 
-                    r = 155; g = 188; b = 15;
-                break;
-                case 1: 
-                    r = 0x6d; g = 0x91; b = 0x16;
-                break;
-                case 2: 
-                    r = 48; g = 98; b = 48;
-                break;
-                case 3: 
-                    r = 15; g = 56; b = 15;
-                break;
-            }
+
+            r = (color_palette[color_id] >> 16) & 0xff;
+            g = (color_palette[color_id] >> 8)  & 0xff;
+            b = (color_palette[color_id])       & 0xff;
             
             rgbValues.push_back(r);
             rgbValues.push_back(g);
@@ -460,6 +504,21 @@ void PPU::drawBackground() {
     #endif
     SDL_RenderPresent(renderer);
 }
+
+
+void PPU::updateTextures() {
+    // if the last getpttr was for writing to vram or oam,
+    if (cpuRead(last_pttr_addr) != last_pttr_value) {
+        if (0x8000 <= last_pttr_addr && last_pttr_addr <= 0x97FF) {
+            updateTileset();
+        }
+        if (last_pttr_addr <= 0x9FFF)
+            updateBackgroundLayer();
+        last_pttr_value = cpuRead(last_pttr_addr);
+    }
+}
+
+
 
 #ifdef TILESET_WINDOW
 void PPU::drawTilesetWindow() {

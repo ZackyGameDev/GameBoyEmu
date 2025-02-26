@@ -15,7 +15,7 @@ const int DEBUG_UPDATE_CYCLES = 500;
 int debug_cycles = 0;
 #endif
 // const int CPU_CLOCK_SPEED = 300;
-const long double CYCLE_DURATION = 1.0 / CPU_CLOCK_SPEED;
+const long double CYCLE_DURATION = 1.0 / (long double)CPU_CLOCK_SPEED;
 // auto CYCLE_DURATION = std::chrono::nanoseconds(EMULATION_CLOCK_SPEED);
 
 int main() {
@@ -25,7 +25,7 @@ int main() {
 
     Bus bus;
     // bus.cpu.boot();
-    std::this_thread::sleep_for(std::chrono::duration<double>(3));
+    // std::this_thread::sleep_for(std::chrono::duration<double>(3));
     bus.ppu.initLCD();
     #ifdef DEBUGMODE_
     CPU_CLOCK_SPEED *= DEBUG_CLOCK_SPEED;
@@ -42,9 +42,9 @@ int main() {
         auto start_cycle_time = std::chrono::high_resolution_clock::now();
 
         #ifndef NO_CPU
-        bus.ppu.clock();
-        #endif
         bus.cpu.clock();
+        #endif
+        bus.ppu.clock();
 
         // #ifdef DEBUGMODE_
         // if (debug_cycles == 0) {
