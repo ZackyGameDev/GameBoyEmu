@@ -17,7 +17,7 @@ PPU::PPU() {
 
     #ifdef LOADMEMDUMP
 
-    std::ifstream file("ROMS/mem.dump", std::ios::binary); // open the file
+    std::ifstream file(MEM_DUMP_PATH, std::ios::binary); // open the file
     std::vector<uint8_t> fileBytes((std::istreambuf_iterator<char>(file)),
                                     std::istreambuf_iterator<char>());
     file.close(); // close the file
@@ -367,7 +367,7 @@ void PPU::getTile(uint16_t addr, SDL_Texture* &texture) {
                     r = 155; g = 188; b = 15;
                 break;
                 case 1: 
-                    r = 139; g = 172; b = 15;
+                    r = 0x6d; g = 0x91; b = 0x16;
                 break;
                 case 2: 
                     r = 48; g = 98; b = 48;

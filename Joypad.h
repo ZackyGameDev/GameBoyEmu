@@ -14,13 +14,13 @@ public:
     ~Joypad();
 
 private:
-    uint8_t p1register = 0xcf;
-    uint8_t p1registerprevious = 0xcf;
+    uint8_t p1register = 0xdf;
+    uint8_t p1registerprevious = 0xdf;
 
     void JoypadInterrupt();
 
-    // select start b a down up left right
-    std::vector<int> keyboardmapping = {16, 13, 90, 88, 40, 38, 37, 39};
+    // start select b a down up left right
+    std::vector<int> keyboardmapping = {13, 16, 90, 88, 40, 38, 37, 39};
 
     Bus *bus = nullptr;
 

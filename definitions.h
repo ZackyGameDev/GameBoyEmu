@@ -1,15 +1,19 @@
 #pragma once
 #define SDL_MAIN_HANDLED
 // #define DEBUGMODE_
-#define EMULATION_CLOCK_SPEED (1048576)
+// #define EMULATION_CLOCK_SPEED 1048576
+#define EMULATION_CLOCK_SPEED 953 // in nanoseconds per machine clock
 #define DEBUG_CLOCK_SPEED 1
-// #define ROM_PATH "ROMS/Tetris (Japan) (En).gb"
-#define ROM_PATH "ROMS/cpu_instrs.gb"
-// #define ROM_PATH "ROMS/test7.gb"
+#define ROM_PATH "ROMS/Tetris (Japan) (En).gb"
+// #define ROM_PATH "ROMS/cpu_instrs.gb"
+// #define ROM_PATH "ROMS/test9.gb"
 #define LOADMEMDUMP
+#define MEM_DUMP_PATH "ROMS/mem.dump"
+// #define MEM_DUMP_PATH "ROMS/tet.mem.dump"
 // #define TILESET_WINDOW // these dont work and i'm not 
 // #define BG_WINDOW      // very interested in making them
 // #define LOG_PC
 // #define NO_LOGS
-#define FULL_VIEWPORT
+// #define FULL_VIEWPORT
 // #define BREAKPOINT_PC_FILE
+// #define NO_CPU

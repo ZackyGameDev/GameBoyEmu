@@ -99,6 +99,7 @@ uint8_t* Bus::cpuReadPttr(uint16_t addr) {
         data = &cpu.ie;
     } else {
         std::cout << "[WARNING] " << std::hex << addr << std::dec << " INVALID READPTTR ADDRESS <-------" << std::endl;
+        data = &zero;
     }
     return data;
 }

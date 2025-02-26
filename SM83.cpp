@@ -707,9 +707,9 @@ uint8_t SM83::PROCESS_ALU(Operand target, ALUOperation operation) {
     switch (operation) {
     
     case INC:
-        *targetValue += 1;
-        setFlag(fh, *targetValue & 0x10);
+        setFlag(fh, ((*targetValue & 0x0f) + 0x01) & 0x10);
         setFlag(fn, 0);
+        *targetValue += 1;
         break;
     case DEC:
         *targetValue -= 1;
