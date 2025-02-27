@@ -68,7 +68,15 @@ void MBC1::cpuWrite(uint16_t addr, uint8_t data) {
         ram_bank_number = data & 0x03; 
     else if (0x6000 <= addr && addr <= 0x7FFF)
         banking_mode = data & 0x01; 
-    else
+    else if (0xA000 <= addr && addr <= 0xBFFF) {
+        if (sram_enabled & 0xa) { // if sram is enabled
+            uint8_t bank = ram_bank_number;
+            if (banking_mode == 1) {
+                bank = 0;
+            }
+            cart->sram[addr-0xA000 + (bank-1)*0x4000] = data;
+        }
+    } else
         throw std::runtime_error("Invalid address range for MBC1 write.");
 }
 
@@ -87,11 +95,15 @@ uint8_t MBC1::cpuRead(uint16_t addr) {
         bank = bank & cart->rom_bank_bits;
         data = cart->cart_data[addr + (bank-1)*0x4000];
     } else if (0xA000 <= addr && addr <= 0xBFFF) {
-        bank = ram_bank_number;
-        if (banking_mode == 1) {
-            bank = 0;
+        if (sram_enabled & 0xa == 0) {
+            data = no_data;
+        } else {
+            bank = ram_bank_number;
+            if (banking_mode == 1) {
+                bank = 0;
+            }
+            data = cart->sram[addr-0xA000 + (bank-1)*0x4000];
         }
-        data = cart->sram[addr-0xA000 + (bank-1)*0x4000];
     } else
         throw std::runtime_error("That is not an address implemented for MBC1.");
 
@@ -113,11 +125,15 @@ uint8_t *MBC1::cpuReadPttr(uint16_t addr) {
         bank = bank & ~(0xff << cart->rom_bank_bits);
         data = &cart->cart_data[addr + (bank-1)*0x4000];
     } else if (0xA000 <= addr && addr <= 0xBFFF) {
-        bank = ram_bank_number;
-        if (banking_mode == 1) {
-            bank = 0;
+        if (sram_enabled & 0xa == 0) {
+            data = &no_data;
+        } else {
+            bank = ram_bank_number;
+            if (banking_mode == 1) {
+                bank = 0;
+            }
+            data = &cart->sram[addr-0xA000 + (bank-1)*0x4000];
         }
-        data = &cart->sram[addr-0xA000 + (bank-1)*0x4000];
     } else
         throw std::runtime_error("That is not an address implemented for MBC1.");
     

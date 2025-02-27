@@ -14,7 +14,7 @@ public:
     Cartridge(const std::string filename);
     ~Cartridge();
 
-    std::array<uint8_t, 0x2000> sram;
+    std::array<uint8_t, 0x20000> sram;
 private:
     struct RomHeader {
         char title[16];

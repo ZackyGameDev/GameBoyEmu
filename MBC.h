@@ -19,6 +19,7 @@ public:
     virtual uint8_t cpuRead(uint16_t addr);
     virtual uint8_t* cpuReadPttr(uint16_t addr);
 
+    uint8_t no_data = 0xff;
 };
 
 class MBC1 : public MBC {

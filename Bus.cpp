@@ -13,7 +13,9 @@ Bus::Bus() : cart(ROM_PATH) {
     for (auto &i : wram) i = 0x00;
     for (auto &i : hram) i = 0x00;
     
+    #ifndef NO_LOGS
     std::cout << "[DEBUG] BUS CREATED <-------" << std::endl;
+    #endif
 
 }
 
@@ -50,14 +52,18 @@ uint8_t Bus::cpuRead(uint16_t addr) {
         case 0xff0f: data = cpu.if_; break;
         default:
             data = 0x00; // default for port mode registers
+            #ifndef NO_LOGS
             std::cout << "[WARNING] " << std::hex << addr << std::dec << " PORT NOT IMPLEMENTED <--" << std::endl;
+            #endif
         }
     } else if (0xff80 <= addr and addr <= 0xfffe) {
         data = hram[addr - 0xff80];
     } else if (addr == 0xffff) {
         data = cpu.ie;
     } else {
-        std::cout << "[WARNING] " << std::hex << addr << std::dec << " INVALID READ ADDRESS <------" << std::endl;
+            #ifndef NO_LOGS
+            std::cout << "[WARNING] " << std::hex << addr << std::dec << " INVALID READ ADDRESS <------" << std::endl;
+            #endif
     }
 
     return data;
@@ -91,15 +97,19 @@ uint8_t* Bus::cpuReadPttr(uint16_t addr) {
         case 0xff0f: data = &cpu.if_; break;
         default:
             data = &zero; // default for port mode registers
+            #ifndef NO_LOGS
             std::cout << "[WARNING] " << std::hex << addr << std::dec << " PORT NOT IMPLEMENTED <--" << std::endl;
+            #endif
         }
     } else if (0xff80 <= addr and addr <= 0xfffe) {
         data = &hram[addr - 0xff80];
     } else if (addr == 0xffff) {
         data = &cpu.ie;
     } else {
-        std::cout << "[WARNING] " << std::hex << addr << std::dec << " INVALID READPTTR ADDRESS <-------" << std::endl;
-        data = &zero;
+            #ifndef NO_LOGS
+            std::cout << "[WARNING] " << std::hex << addr << std::dec << " INVALID READPTTR ADDRESS <-------" << std::endl;
+            #endif
+            data = &zero;
     }
     return data;
 }
@@ -126,14 +136,18 @@ void Bus::cpuWrite(uint16_t addr, uint8_t data) {
         case 0xff0f: cpu.if_  = data; break;
         default:
             data = 0x00; // default for port mode registers
+            #ifndef NO_LOGS
             std::cout << "[WARNING] " << std::hex << addr << std::dec << " PORT NOT IMPLEMENTED <--" << std::endl;
+            #endif
         }  
     } else if (0xff80 <= addr and addr <= 0xfffe) {
         hram[addr - 0xff80] = data;
     } else if (addr == 0xffff) {
         cpu.ie = data;
     } else {
-        std::cout << "[WARNING] " << std::hex << addr << std::dec << " INVALID WRITE ADDRESS <-------" << std::endl;
+            #ifndef NO_LOGS
+            std::cout << "[WARNING] " << std::hex << addr << std::dec << " INVALID WRITE ADDRESS <-------" << std::endl;
+            #endif
     }
 }
 

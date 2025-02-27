@@ -112,8 +112,10 @@ uint8_t Cartridge::read(uint16_t address) {
 uint8_t* Cartridge::readPttr(uint16_t address) {
     uint8_t *data;
     data = mbc->cpuReadPttr(address);
-    last_pttr_addr = address;
-    last_pttr_value = *data;
+    if (address <= 0x7FFF) {
+        last_pttr_addr = address;
+        last_pttr_value = *data;
+    }
     return data;
 }
 
@@ -123,6 +125,7 @@ void Cartridge::write(uint16_t address, uint8_t data) {
 
 void Cartridge::rectifyPttrWrites() {
     // check if the last readPttr was used to write data
+    if (last_pttr_addr <= 0x7FFF)
     if (mbc->cpuRead(last_pttr_addr) != last_pttr_value) {
         uint8_t* last_pttr = mbc->cpuReadPttr(last_pttr_addr); // get the new modified value
         write(last_pttr_addr, *last_pttr);   // write said value to the correct place

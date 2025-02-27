@@ -52,7 +52,7 @@ void PPU::cpuWrite(uint16_t addr, uint8_t data) {
         case 0xff41: stat = data; break;
         case 0xff42: scy = data; break;
         case 0xff43: scx = data; break;
-        // case 0xff44: ly = data; // this is read only
+        case 0xff44: break; //ly = data; // this is read only
         case 0xff45: lyc = data; break;
         case 0xff46: dma = data; dma_written = true; break;
         case 0xff47: bgp = data; break;
