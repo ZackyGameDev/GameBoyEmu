@@ -36,47 +36,67 @@ int main() {
 
     int test = 0;
 
-    
-    while (true) {
-        // Get the start time of the cycle
-        auto start_cycle_time = std::chrono::high_resolution_clock::now();
 
-        #ifndef NO_CPU
-        bus.cpu.clock();
-        #endif
-        bus.ppu.clock();
+    constexpr double CLOCK_SPEED = EMULATION_CLOCK_SPEED; // 4.194304 MHz
 
-        // #ifdef DEBUGMODE_
-        // if (debug_cycles == 0) {
-        //     bus.cpu.drawDebug();
-        //     debug_cycles = DEBUG_UPDATE_CYCLES;
-        // }
-        // debug_cycles--;
-        // #endif
+    // using namespace std::chrono;
+    auto last_time = std::chrono::high_resolution_clock::now();
+    double ns_per_cycle = 1'000'000'000.0 / CLOCK_SPEED;
 
-        // Get the end time of the cycle
-        
-        // Get the end time of the cycle
-        auto end_cycle_time = std::chrono::high_resolution_clock::now();
+    while (bus.running) {
+        auto now = std::chrono::high_resolution_clock::now();
+        auto elapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(now - last_time).count();
 
-        // Calculate the elapsed time for the cycle
-        std::chrono::duration<double> elapsed_time = end_cycle_time - start_cycle_time;
-
-        // Calculate the time to sleep to match the cycle duration
-        double sleep_time = CYCLE_DURATION - elapsed_time.count();
-        #ifdef DEBUGMODE_
-        std::cout << "sleep_time: " << sleep_time << std::endl;
-        #endif
-        if (sleep_time > 0) {
-            std::this_thread::sleep_for(std::chrono::duration<double>(sleep_time));
+        if (elapsed >= ns_per_cycle) {
+            bus.cpu.clock();  // Execute one clock cycle
+            bus.ppu.clock();
+            last_time = now;
         } else {
-            // std::cout << "Cycle took too long: " << elapsed_time.count() << " seconds" << std::endl;
+            std::this_thread::sleep_for(std::chrono::nanoseconds(static_cast<int>(ns_per_cycle - elapsed)));
         }
-
-        if (bus.running == false) 
-            break;
-        
     }
+
+    
+    // while (true) {
+    //     // Get the start time of the cycle
+    //     auto start_cycle_time = std::chrono::high_resolution_clock::now();
+
+    //     #ifndef NO_CPU
+    //     bus.cpu.clock();
+    //     #endif
+    //     bus.ppu.clock();
+
+    //     // #ifdef DEBUGMODE_
+    //     // if (debug_cycles == 0) {
+    //     //     bus.cpu.drawDebug();
+    //     //     debug_cycles = DEBUG_UPDATE_CYCLES;
+    //     // }
+    //     // debug_cycles--;
+    //     // #endif
+
+    //     // Get the end time of the cycle
+        
+    //     // Get the end time of the cycle
+    //     auto end_cycle_time = std::chrono::high_resolution_clock::now();
+
+    //     // Calculate the elapsed time for the cycle
+    //     std::chrono::duration<double> elapsed_time = end_cycle_time - start_cycle_time;
+
+    //     // Calculate the time to sleep to match the cycle duration
+    //     double sleep_time = CYCLE_DURATION - elapsed_time.count();
+    //     #ifdef DEBUGMODE_
+    //     std::cout << "sleep_time: " << sleep_time << std::endl;
+    //     #endif
+    //     if (sleep_time > 0) {
+    //         std::this_thread::sleep_for(std::chrono::duration<double>(sleep_time));
+    //     } else {
+    //         // std::cout << "Cycle took too long: " << elapsed_time.count() << " seconds" << std::endl;
+    //     }
+
+    //     if (bus.running == false) 
+    //         break;
+        
+    // }
 
     // while(true) {
     //     bus.cpu.clock();

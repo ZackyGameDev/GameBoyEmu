@@ -1,7 +1,7 @@
 #pragma once
 #define SDL_MAIN_HANDLED
 // #define DEBUGMODE_
-#define EMULATION_CLOCK_SPEED 1048576 // in m clocks per second
+#define EMULATION_CLOCK_SPEED 1048576.0 // in m clocks per second
 // #define EMULATION_CLOCK_/SPEED 953 // in nanoseconds per machine clock
 #define DEBUG_CLOCK_SPEED 1
 #define ROM_PATH "ROMS/Tetris (Japan) (En).gb"

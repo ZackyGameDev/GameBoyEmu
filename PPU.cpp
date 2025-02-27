@@ -54,7 +54,7 @@ void PPU::cpuWrite(uint16_t addr, uint8_t data) {
         case 0xff43: scx = data; break;
         // case 0xff44: ly = data; // this is read only
         case 0xff45: lyc = data; break;
-        case 0xff46: dma = data; break;
+        case 0xff46: dma = data; dma_written = true; break;
         case 0xff47: bgp = data; break;
         case 0xff48: obp0 = data; break;
         case 0xff49: obp1 = data; break;
@@ -113,7 +113,7 @@ uint8_t* PPU::cpuReadPttr(uint16_t addr) {
             case 0xff43: data = &scx; break;
             case 0xff44: data = &ly; break;
             case 0xff45: data = &lyc; break;
-            case 0xff46: data = &dma; break;
+            case 0xff46: data = &dma; dma_written = true; break;
             case 0xff47: data = &bgp; break;
             case 0xff48: data = &obp0; break;
             case 0xff49: data = &obp1; break;
@@ -270,7 +270,9 @@ void PPU::clock() {
             cycles = 114;
 
             
-            if (dma != dma_prev) {
+            // if (dma != dma_prev) {
+            if (dma_written) {
+                dma_written = false;
                 uint16_t dma_addr = dma << 8;
                 for (int i = 0; i < 0xa0; i++) {
                     oam[i] = this->bus->cpuRead(dma_addr+i);
@@ -304,6 +306,25 @@ void PPU::clock() {
             drawBGWindow();
             #endif
             
+            // drawing sprites.
+            uint8_t oc = 0;
+            for (int i = 0; i < 40; i++) {
+                uint8_t sprite_y = oam[oc++] - 16;
+                uint8_t sprite_x = oam[oc++] - 8;
+                uint8_t sprite_tile_index = oam[oc++];
+                uint8_t sprite_flags = oam[oc++];
+        
+                SDL_Texture* tile = tileset[sprite_tile_index];
+        
+                SDL_Rect tile_rect;
+                tile_rect.x = sprite_x;
+                tile_rect.y = sprite_y;
+                tile_rect.w = 8;
+                tile_rect.h = 8;
+                // std::cout<<tile_rect.x<<std::endl;
+                SDL_RenderCopy(renderer, tile, nullptr, &tile_rect);
+            }
+            
             SDL_RenderPresent(renderer);
             VBlankInterrupt();
             // SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
@@ -318,34 +339,6 @@ void PPU::clock() {
 
         // next mode
         if (ly >= 153) {
-            
-            // drawing sprites.
-            uint8_t oc = 0;
-            for (int i = 0; i < 40; i++) {
-                uint8_t sprite_y = oam[oc++];
-                uint8_t sprite_x = oam[oc++];
-                uint8_t sprite_tile_index = oam[oc++];
-                uint8_t sprite_flags = oam[oc++];
-
-                uint8_t sprite_height = getLCDCFlag(LCDCFLAGS::OBJSize) ? 16 : 8;
-
-                if (ly >= sprite_y && ly < sprite_y + sprite_height) {
-                    uint8_t tile_row_index = (ly-sprite_y)*2;
-                    uint16_t tile_address = 0x8000 + sprite_tile_index*16 + tile_row_index;
-                    uint8_t tile_row_lsb = cpuRead(tile_address);
-                    uint8_t tile_row_hsb = cpuRead(tile_address+1);
-
-                    for (int j = 0; j < 8; j++) {
-                        uint8_t pixel_color_id = (tile_row_lsb >> (7-j) & 1) | ((tile_row_hsb >> (7-j) & 1) << 1);
-                        if (pixel_color_id == 0) continue;
-
-                        uint8_t pixel_color = 255*(1-(pixel_color_id/3));
-                        SDL_SetRenderDrawColor(renderer, pixel_color, pixel_color, pixel_color, 255);
-
-                        SDL_RenderDrawPoint(renderer, sprite_x+j, ly);
-                    }
-                }
-            }
 
             // Handle events
             SDL_Event event;

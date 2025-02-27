@@ -63,6 +63,7 @@ private:
     uint8_t wx = 0x00;
 
     uint8_t dma_prev = dma; // to detect changes we compare old to new
+    bool dma_written = false;
 
     std::vector<int> color_palette = {
         // 0xe6f8da, 0xb4e1fd, 0xaa9e62, 0x212121
