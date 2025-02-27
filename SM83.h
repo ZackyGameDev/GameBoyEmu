@@ -57,7 +57,7 @@ public:
     uint8_t   h  = 0x01;
     uint8_t   l  = 0x4D;
     uint16_t  sp = 0xFFFE;
-    uint16_t  pc = 0x0100;
+    uint16_t  pc = 0x0000;
 
     // for debugging
     uint16_t last_executed_pc = 0x0000;
