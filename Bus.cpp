@@ -25,6 +25,27 @@ Bus::~Bus() {
 }
 
 
+void Bus::clockSerialTransfer() {
+    // if ((sc >> 7) & 0x1) {
+    if (sc == 0x81) {
+        if (sclock == 8) { // i.e. 8 bits have been transfered.
+            #ifndef NO_SERIAL_OUT
+            std::cout << "[SERIAL] " << (char)sb << " : " << (int)sb << '\n';
+            #endif
+            sclock = 0;
+            sc = 0x01;
+            sb = 0xFF;
+            cpu.requestInterrupt(SM83::InterruptFlags::Serial);
+        } else {
+            if (sclock == 0)
+                serialoutbyte = sb;
+            ++sclock;
+            sb = (serialoutbyte << (sclock)) | ((1 << sclock) - 1);
+        }
+    }
+}
+
+
 uint8_t Bus::cpuRead(uint16_t addr) {
     uint8_t data = 0x00;
 
@@ -40,16 +61,21 @@ uint8_t Bus::cpuRead(uint16_t addr) {
         data = cart.sram[addr - 0xa000];
     } else if (0xc000 <= addr and addr <= 0xdfff) {
         data = wram[addr-0xc000];
+    } else if (0xe000 <= addr and addr <= 0xfdff) {
+        data = wram[addr-0xe000]; // echo ram.
     } else if (0xff00 <= addr and addr <= 0xff7f) {
         switch (addr) {
         case 0xff00: data = joypad.read(); break;
-        // case 0xff01: data = sb; break;
-        // case 0xff02: data = sc; break;
+        case 0xff01: data = sb; break;
+        case 0xff02: data = sc; break;
         case 0xff04: data = cpu.div; break;
         case 0xff05: data = cpu.tima; break;
         case 0xff06: data = cpu.tma; break;
         case 0xff07: data = cpu.tac; break;
         case 0xff0f: data = cpu.if_; break;
+        case 0xff10 ... 0xff26: break; //data = apu.readPttr(addr);
+        case 0xff30 ... 0xff3f: break; //data = apu.readPttr(addr);
+        case 0xff50: data = bootromreg; break;
         default:
             data = 0x00; // default for port mode registers
             #ifndef NO_LOGS
@@ -85,16 +111,21 @@ uint8_t* Bus::cpuReadPttr(uint16_t addr) {
         data = cart.readPttr(addr);
     } else if (0xc000 <=  addr and addr <= 0xdfff) {
         data = &wram[addr-0xc000];
+    } else if (0xe000 <=  addr and addr <= 0xfdff) {
+        data = &wram[addr-0xe000];
     } else if (0xff00 <= addr and addr <= 0xff7f){
         switch (addr) {
         case 0xff00: data = joypad.readPttr(); break;
-        // case 0xff01: data = sb; break;
-        // case 0xff02: data = sc; break;
+        case 0xff01: data = &sb; break;
+        case 0xff02: data = &sc; break;
         case 0xff04: data = &cpu.div; break;
         case 0xff05: data = &cpu.tima; break;
         case 0xff06: data = &cpu.tma; break;
         case 0xff07: data = &cpu.tac; break;
         case 0xff0f: data = &cpu.if_; break;
+        case 0xff10 ... 0xff26: data = &zero; break; //data = apu.readPttr(addr);
+        case 0xff30 ... 0xff3f: data = &zero; break; //data = apu.readPttr(addr);
+        case 0xff50: data = &bootromreg; break;
         default:
             data = &zero; // default for port mode registers
             #ifndef NO_LOGS
@@ -120,6 +151,8 @@ void Bus::cpuWrite(uint16_t addr, uint8_t data) {
         cart.write(addr, data);
     } else if (0xc000 <= addr and addr <= 0xdfff) {
         wram[addr-0xc000] = data;
+    } else if (0xe000 <= addr and addr <= 0xfdff) {
+        wram[addr-0xe000] = data;
     } else if (0xa000 <= addr and addr <= 0xbfff) {
         cart.write(addr, data);
     } else if ((0x8000 <= addr and addr <= 0x9fff) // VRAM
@@ -129,11 +162,16 @@ void Bus::cpuWrite(uint16_t addr, uint8_t data) {
     } else if (0xff00 <= addr and addr <= 0xff7f) {
         switch (addr) {
         case 0xff00: joypad.write(data);
+        case 0xff01: sb = data; break;
+        case 0xff02: sc = data; break;
         case 0xff04: cpu.div  = data; break;
         case 0xff05: cpu.tima = data; break;
         case 0xff06: cpu.tma  = data; break;
         case 0xff07: cpu.tac  = data; break;
         case 0xff0f: cpu.if_  = data; break;
+        case 0xff10 ... 0xff26: break; //data = apu.readPttr(addr);
+        case 0xff30 ... 0xff3f: break; //data = apu.readPttr(addr);
+        case 0xff50: bootromreg = data; break;
         default:
             data = 0x00; // default for port mode registers
             #ifndef NO_LOGS

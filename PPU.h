@@ -38,11 +38,11 @@ private:
     SDL_Texture* window_layer;
     
     // ordered in the way the STAT register expects the values to be.
-    enum PPUMODE {
-        HBLANK,
-        VBLANK,
-        OAMREAD,
-        PIXELTRANSFER,
+    enum PPUMODE : uint8_t {
+        HBLANK = 0,
+        VBLANK = 1,
+        OAMREAD = 2,
+        PIXELTRANSFER = 3,
     };
 
     PPUMODE mode = OAMREAD;
@@ -61,6 +61,8 @@ private:
     uint8_t obp1 = 0x00;
     uint8_t wy = 0x00;
     uint8_t wx = 0x00;
+
+    uint8_t stat_readonly_part = ((lyc==ly) << 2) | (mode);
 
     uint8_t dma_prev = dma; // to detect changes we compare old to new
     bool dma_written = false;
@@ -105,7 +107,7 @@ private:
 
 private:
     void VBlankInterrupt();
-    void LYCInterrupt();
+    void handleSTAT();
     
     uint16_t last_pttr_addr; 
     uint8_t  last_pttr_value;

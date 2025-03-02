@@ -25,10 +25,20 @@ public:
 
     bool running = true;
 
+    uint8_t bootromreg = 0x00;
+    uint8_t sclock = 0x0000;
+    uint8_t sb = 0x00;
+    uint8_t serialoutbyte = sb;
+    uint8_t sc = 0x00;
+
 public:
     void cpuWrite(uint16_t addr, uint8_t data);
     uint8_t cpuRead(uint16_t addr);
     uint8_t* cpuReadPttr(uint16_t addr);
     void shutdown() { running = false; }
+    
+    void clockSerialTransfer();
+
 
 };
+

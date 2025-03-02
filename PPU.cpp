@@ -182,6 +182,7 @@ void PPU::initLCD() {
 
 void PPU::clock() {
     // updateTextures();
+    handleSTAT();
 
     if (cycles <= 0) 
     switch (mode) {
@@ -246,12 +247,12 @@ void PPU::clock() {
         // JUST ENTERED HBLANK MODE
         // std::cout << "[DEBUG] HBLANK" << std::endl;
 
-        if (ly == lyc) {
-            stat |= 1 << 2;
-            if (stat & 1 << 6) {
-                LYCInterrupt();
-            }
-        }
+        // if (ly == lyc) {
+        //     stat |= 1 << 2;
+        //     if (stat & 1 << 6) {
+        //         LYCInterrupt();
+        //     }
+        // }
     }
     break;
 
@@ -270,15 +271,6 @@ void PPU::clock() {
             cycles = 114;
 
             
-            // if (dma != dma_prev) {
-            if (dma_written) {
-                dma_written = false;
-                uint16_t dma_addr = dma << 8;
-                for (int i = 0; i < 0xa0; i++) {
-                    oam[i] = this->bus->cpuRead(dma_addr+i);
-                }
-                dma_prev = dma;
-            }
 
             // JUST ENTERED VBLANK MODE
             // std::cout << "[DEBUG] VBLANK" << std::endl;
@@ -306,6 +298,7 @@ void PPU::clock() {
             drawBGWindow();
             #endif
             
+            #ifndef HIDE_SPRITES
             // drawing sprites.
             uint8_t oc = 0;
             for (int i = 0; i < 40; i++) {
@@ -324,9 +317,21 @@ void PPU::clock() {
                 // std::cout<<tile_rect.x<<std::endl;
                 SDL_RenderCopy(renderer, tile, nullptr, &tile_rect);
             }
+            #endif
             
             SDL_RenderPresent(renderer);
             VBlankInterrupt();
+            
+            // Handle DMA transfer
+            // if (dma != dma_prev) {
+            if (dma_written) {
+                dma_written = false;
+                uint16_t dma_addr = dma << 8;
+                for (int i = 0; i < 0xa0; i++) {
+                    oam[i] = this->bus->cpuRead(dma_addr+i);
+                }
+                dma_prev = dma;
+            }
             // SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
             // SDL_RenderDrawPoint(renderer, debug_x, debug_y);
             // debug_x++; debug_y++;
@@ -383,8 +388,22 @@ void PPU::VBlankInterrupt() {
     this->bus->cpu.requestInterrupt(SM83::InterruptFlags::VBlank);
 }
 
-void PPU::LYCInterrupt() {
-    this->bus->cpu.requestInterrupt(SM83::InterruptFlags::Stat);
+void PPU::handleSTAT() {
+    // mode changed in this clock cycle
+    if ((stat_readonly_part & 0x3) != mode)
+    if ((stat >> (mode+3)) & 0x01) {
+        this->bus->cpu.requestInterrupt(SM83::InterruptFlags::Stat);
+    }
+
+    stat_readonly_part = ((lyc==ly) << 2) | (mode);
+
+    if (lyc==ly && ((stat >> 6) & 0x01)) {
+        this->bus->cpu.requestInterrupt(SM83::InterruptFlags::Stat);
+    }
+
+    stat &= 0xf8;
+    stat |= stat_readonly_part;
+
 }
 
 void PPU::getTile(uint16_t addr, SDL_Texture* &texture) {

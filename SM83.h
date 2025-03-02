@@ -57,7 +57,12 @@ public:
     uint8_t   h  = 0x01;
     uint8_t   l  = 0x4D;
     uint16_t  sp = 0xFFFE;
-    uint16_t  pc = 0x0100;
+    #ifndef SKIP_BOOTROM
+    uint16_t  pc = 0x0000; // from boot
+    #endif
+    #ifdef SKIP_BOOTROM
+    uint16_t  pc = 0x0100; // skip boot
+    #endif
 
     // for debugging
     uint16_t last_executed_pc = 0x0000;
@@ -162,6 +167,7 @@ private:
     uint16_t addr_abs = 0x0000; // if an operand is [a16] then i deal with it using this variable manually 
     //uint8_t *target_register = nullptr; // for LDR instruction
     uint8_t cycles = 0;
+    uint64_t debug_cycles_count = 0;
     uint8_t opcode = 0;
     std::vector<std::string> unprefixed_instructions_names;
     std::string last_instruction = "NOP";

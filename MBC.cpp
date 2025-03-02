@@ -1,4 +1,5 @@
 #include "MBC.h"
+#include <iostream>
 #include "Cartridge.h"
 
 
@@ -16,7 +17,8 @@ void MBC::cpuWrite(uint16_t addr, uint8_t data) {
     if (0xA000 <= addr && addr <= 0xBFFF)
         cart->sram[addr-0xA000] = data;
     else 
-        throw std::runtime_error("Invalid address range for MBC write.");
+        printf("That is not an address implemented for MBCBASE.\n");
+        // throw std::runtime_error("Invalid address range for MBC write.");
 }
 
 uint8_t MBC::cpuRead(uint16_t addr) {
@@ -74,7 +76,7 @@ void MBC1::cpuWrite(uint16_t addr, uint8_t data) {
             if (banking_mode == 1) {
                 bank = 0;
             }
-            cart->sram[addr-0xA000 + (bank-1)*0x4000] = data;
+            cart->sram[addr-0xA000 + (bank)*0x4000] = data;
         }
     } else
         throw std::runtime_error("Invalid address range for MBC1 write.");
@@ -102,7 +104,7 @@ uint8_t MBC1::cpuRead(uint16_t addr) {
             if (banking_mode == 1) {
                 bank = 0;
             }
-            data = cart->sram[addr-0xA000 + (bank-1)*0x4000];
+            data = cart->sram[addr-0xA000 + (bank)*0x4000];
         }
     } else
         throw std::runtime_error("That is not an address implemented for MBC1.");
@@ -132,7 +134,7 @@ uint8_t *MBC1::cpuReadPttr(uint16_t addr) {
             if (banking_mode == 1) {
                 bank = 0;
             }
-            data = &cart->sram[addr-0xA000 + (bank-1)*0x4000];
+            data = &cart->sram[addr-0xA000 + (bank)*0x4000];
         }
     } else
         throw std::runtime_error("That is not an address implemented for MBC1.");

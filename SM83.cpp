@@ -63,7 +63,7 @@ SM83::SM83() {
         {"LDH", &x::LDH_A_aa8, 3}, {"POP", &x::POP_AF, 3}, {"LDH", &x::LDH_A_aC, 2}, {"DI", &x::DI, 1}, {"ILLEGAL_F4", &x::ILLEGAL_F4, 1},
         {"PUSH", &x::PUSH_AF, 4}, {"OR", &x::OR_A_n8, 2}, {"RST", &x::RST_30, 4}, {"LD", &x::LD_HL_SPI_e8, 3}, {"LD", &x::LD_SP_HL, 2},
         {"LD", &x::LD_A_aa16, 4}, {"EI", &x::EI, 1}, {"ILLEGAL_FC", &x::ILLEGAL_FC, 1}, {"ILLEGAL_FD", &x::ILLEGAL_FD, 1}, {"CP", &x::CP_A_n8, 2},
-        {"RST", &x::RST_38, 4}, 
+        {"RST", &x::RST_38, 4}
     };
 
     prefixed_opcode_lookup = {
@@ -109,7 +109,7 @@ SM83::SM83() {
         {"SET", &x::SET_5_D, 2}, {"SET", &x::SET_5_E, 2}, {"SET", &x::SET_5_H, 2}, {"SET", &x::SET_5_L, 2}, {"SET", &x::SET_5_aHL, 4}, {"SET", &x::SET_5_A, 2},
         {"SET", &x::SET_6_B, 2}, {"SET", &x::SET_6_C, 2}, {"SET", &x::SET_6_D, 2}, {"SET", &x::SET_6_E, 2}, {"SET", &x::SET_6_H, 2}, {"SET", &x::SET_6_L, 2},  
         {"SET", &x::SET_6_aHL, 4}, {"SET", &x::SET_6_A, 2}, {"SET", &x::SET_7_B, 2}, {"SET", &x::SET_7_C, 2}, {"SET", &x::SET_7_D, 2}, {"SET", &x::SET_7_E, 2},
-        {"SET", &x::SET_7_H, 2}, {"SET", &x::SET_7_L, 2}, {"SET", &x::SET_7_aHL, 4}, {"SET", &x::SET_7_A, 2},
+        {"SET", &x::SET_7_H, 2}, {"SET", &x::SET_7_L, 2}, {"SET", &x::SET_7_aHL, 4}, {"SET", &x::SET_7_A, 2}
     };
 
     std::cout << "[DEBUG] opcodes loaded into the lookup tables <-----\n";
@@ -129,7 +129,7 @@ SM83::SM83() {
         "RET NZ", "POP BC", "JP NZ a16", "JP a16", "CALL NZ a16", "PUSH BC", "ADD A n8", "RST $00", "RET Z", "RET", "JP Z a16", "PREFIX", "CALL Z a16", "CALL a16", "ADC A n8", "RST $08",
         "RET NC", "POP DE", "JP NC a16", "ILLEGAL_D3", "CALL NC a16", "PUSH DE", "SUB A n8", "RST $10", "RET C", "RETI", "JP C a16", "ILLEGAL_DB", "CALL C a16", "ILLEGAL_DD", "SBC A n8", "RST $18",
         "LDH a8 A", "POP HL", "LDH C A", "ILLEGAL_E3", "ILLEGAL_E4", "PUSH HL", "AND A n8", "RST $20", "ADD SP e8", "JP HL", "LD a16 A", "ILLEGAL_EB", "ILLEGAL_EC", "ILLEGAL_ED", "XOR A n8", "RST $28",
-        "LDH A a8", "POP AF", "LDH A C", "DI", "ILLEGAL_F4", "PUSH AF", "OR A n8", "RST $30", "LD HL SP e8", "LD SP HL", "LD A a16", "EI", "ILLEGAL_FC", "ILLEGAL_FD", "CP A n8", "RST $38",
+        "LDH A a8", "POP AF", "LDH A C", "DI", "ILLEGAL_F4", "PUSH AF", "OR A n8", "RST $30", "LD HL SP e8", "LD SP HL", "LD A a16", "EI", "ILLEGAL_FC", "ILLEGAL_FD", "CP A n8", "RST $38"
     };
 
     #ifdef DEBUGMODE_ 
@@ -300,6 +300,7 @@ void SM83::clockTimer() {
 #pragma region CLOCK
 void SM83::clock() {
 
+
     if (halted) {
         if (ie & if_) { // if interrupt pending
             halted = false;
@@ -307,12 +308,16 @@ void SM83::clock() {
     }
 
     if (cycles == 0 && !halted) {
+        
+        ++debug_cycles_count;
+        
         if (ime > 1) ime--; // this is part of IE instruction implementation. because it acts one instruction after the IE instruct.
 
         // if boot rom finished, unload it.
         if (0x100 <= pc and pc <= 0x102) {
             bus->bootrom = bus->cart; // lazy fix
             std::cout << "Boot rom unloaded" << std::endl;
+            write(0xff50, 0x01);
         }
 
 
@@ -388,6 +393,8 @@ void SM83::clock() {
                 std::cout << "[ERROR] some prefixed instruction disturbed pc too much!" << std::endl;
                 pc = last_executed_pc + 2; // manually setting the correct pc position just in case
         } else {
+            if (debug_cycles_count == 65037) 
+                std::cout << "BREAKPOINT" << std::endl;
             additional_clock_cycles = (this->*unprefixed_opcode_lookup[opcode].operate)();
             cycles = unprefixed_opcode_lookup[opcode].cycles + additional_clock_cycles;
         }
@@ -396,10 +403,13 @@ void SM83::clock() {
         if (last_executed_pc >= 0xF1)
         logLastPC();
         #endif
+        
         handleInterrupts();
         bus->cart.rectifyPttrWrites();
     }
     
+    if ((timer_clock & (128-1)) == 0)
+        bus->clockSerialTransfer();
     bus->joypad.update();
     clockTimer();
     if (!halted) 
@@ -904,6 +914,11 @@ uint8_t SM83::JUMPTO(OperandName condition, Operand address) {
 uint8_t SM83::CALL(Operand address) {
     uint16_t *target_address = process_operand16(address);
     PUSH({PC, true}); // save the pre-call PC to stack for RET to retreive later
+
+    // save the pc of the next instruction for ret to retreive later
+    // write(--sp, (pc+3) >> 8);
+    // write(--sp, (pc+3) & 0xff);
+
     pc = *target_address;
 
     updateRegisters8();
@@ -934,10 +949,13 @@ uint8_t SM83::CALL(OperandName condition, Operand address) {
 
 uint8_t SM83::RST(uint8_t address_lo) {
     
-    PUSH({PC, true});
-    pc = 0x0000 + address_lo;
+    // PUSH({PC, true});
+    write(--sp, (pc) >> 8);
+    write(--sp, (pc) & 0xff);
 
-    updateRegisters8(); // \todo remove redundant register updates
+    pc = address_lo;
+
+    // updateRegisters8(); // \todo remove redundant register updates
     return 0;
 
 }

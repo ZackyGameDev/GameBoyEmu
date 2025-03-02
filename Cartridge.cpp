@@ -74,7 +74,7 @@ Cartridge::Cartridge(const std::string filename) {
         std::cout 
         << "---------\nLOADED ROM\n--------\n" 
         << header.title << '\n'
-        << "cart_type: " << std::hex << header.cart_type << std::dec << '\n';
+        << "cart_type: " << (int)header.cart_type << '\n';
         
     } else {
         header.cart_type = 0x00;
@@ -85,6 +85,7 @@ Cartridge::Cartridge(const std::string filename) {
     switch (header.cart_type) {
         case 0x00:
             mbc = new MBC();
+        break;
         case 0x01 ... 0x03:
             mbc = new MBC1();
         break;

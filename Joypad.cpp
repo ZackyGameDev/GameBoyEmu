@@ -4,7 +4,11 @@
 
 
 Joypad::Joypad() {
-    std::cout << "[DEBUG] Joypad created <-----\n" << std::endl;
+    std::cout << "[DEBUG] Joypad created <-----" << std::endl;
+    std::cout << "keyboard maps: \n";
+    for (int i : keyboardmapping) std::cout << i << " "; 
+    std::cout << std::endl;
+    
 }
 
 Joypad::~Joypad() {
@@ -19,11 +23,13 @@ void Joypad::update() {
     p1registerprevious = p1register;
     if (~p1register & 0x30) for (int i = 0; i < 4; i++) {
         bool dpad = p1register & 0x20;
+        // for (int i : keyboardmapping) std::cout << i << " "; 
         if (GetAsyncKeyState(keyboardmapping[i + (4*dpad)]) & 0x8000) {
             p1register &= ~(1 << (3-i));
         } else {
             p1register |= (1 << (3-i));
         }
+        // std::cout << "GETIT\n";
     }
 
     // for JOYPAD interrupt

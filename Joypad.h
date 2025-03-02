@@ -2,7 +2,7 @@
 #include "definitions.h"
 #include <cstdint>
 #include <windows.h>
-#include <vector>
+#include <array>
 #include <iostream>
 
 class Bus;
@@ -20,7 +20,7 @@ private:
     void JoypadInterrupt();
 
     // start select b a down up left right
-    std::vector<int> keyboardmapping = {13, 16, 90, 88, 40, 38, 37, 39};
+    std::array<int, 8> keyboardmapping = {13, 16, 90, 88, 40, 38, 37, 39};
 
     Bus *bus = nullptr;
 
