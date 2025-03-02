@@ -42,11 +42,15 @@ PPU::~PPU() {
 void PPU::cpuWrite(uint16_t addr, uint8_t data) {
     
     if (0x8000 <= addr and addr <= 0x9fff) {
-        vram[addr-0x8000] = data;
-        vram_accessed = true;
+        // if (mode != PPUMODE::PIXELTRANSFER) {
+            vram[addr-0x8000] = data;
+            vram_accessed = true;
+        // }
     } else if (0xfe00 <= addr and addr <= 0xfe9f) {    
-        oam[addr-0xfe00] = data;
-        oam_accessed = true;
+        // if (mode != PPUMODE::OAMREAD and mode != PPUMODE::PIXELTRANSFER) {
+            oam[addr-0xfe00] = data;
+            oam_accessed = true;
+        // }
     } else switch(addr) {
         case 0xff40: lcdc = data; break;
         case 0xff41: stat = data; break;
@@ -69,9 +73,17 @@ uint8_t PPU::cpuRead(uint16_t addr) {
     uint8_t data = 0;
 
     if (0x8000 <= addr and addr <= 0x9fff) {
-        data = vram[addr-0x8000];
+        // if (mode != PPUMODE::PIXELTRANSFER) {
+            data = vram[addr-0x8000];
+        // } else {
+        //     data = garbage_byte;
+        // }
     } else if (0xfe00 <= addr and addr <= 0xfe9f) {    
-        data = oam[addr-0xfe00];
+        // if (mode != PPUMODE::OAMREAD and mode != PPUMODE::PIXELTRANSFER) {
+            data = oam[addr-0xfe00];
+        // } else {
+            // data = garbage_byte;
+        // }
     } else switch (addr) {
         case 0xff40: data = lcdc; break;
         case 0xff41: data = stat; break;
@@ -96,15 +108,23 @@ uint8_t* PPU::cpuReadPttr(uint16_t addr) {
     uint8_t* data = nullptr;
 
     if (0x8000 <= addr && addr <= 0x9fff) {
-        data = &vram[addr-0x8000];
-        last_pttr_addr = addr;
-        last_pttr_value = *data;
-        vram_accessed = true;
+        // if (mode != PPUMODE::PIXELTRANSFER) {
+            data = &vram[addr-0x8000];
+            last_pttr_addr = addr;
+            last_pttr_value = *data;
+            vram_accessed = true;
+        // } else {
+            // data = &garbage_byte;
+        // }
     } else if (0xfe00 <= addr && addr <= 0xfe9f) {
-        data = &oam[addr-0xfe00];
-        last_pttr_addr = addr;
-        last_pttr_value = *data;
-        oam_accessed = true;
+        // if (mode != PPUMODE::OAMREAD && mode != PPUMODE::PIXELTRANSFER) {
+            data = &oam[addr-0xfe00];
+            last_pttr_addr = addr;
+            last_pttr_value = *data;
+            oam_accessed = true;
+        // } else {
+        //     data = &garbage_byte;
+        // }
     } else {
         switch (addr) {
             case 0xff40: data = &lcdc; break;
@@ -270,7 +290,17 @@ void PPU::clock() {
             mode = PPUMODE::VBLANK;
             cycles = 114;
 
-            
+            // Handle DMA transfer
+            // if (dma != dma_prev) {
+            if (dma_written) {
+                dma_written = false;
+                uint16_t dma_addr = dma << 8;
+                for (int i = 0; i < 0xa0; i++) {
+                    oam[i] = this->bus->cpuRead(dma_addr+i);
+                }
+                dma_prev = dma;
+            }
+
 
             // JUST ENTERED VBLANK MODE
             // std::cout << "[DEBUG] VBLANK" << std::endl;
@@ -301,6 +331,8 @@ void PPU::clock() {
             #ifndef HIDE_SPRITES
             // drawing sprites.
             uint8_t oc = 0;
+            // if (oam[0] != 0x90)
+                // std::cout << "breakpoint";
             for (int i = 0; i < 40; i++) {
                 uint8_t sprite_y = oam[oc++] - 16;
                 uint8_t sprite_x = oam[oc++] - 8;
@@ -319,19 +351,9 @@ void PPU::clock() {
             }
             #endif
             
-            SDL_RenderPresent(renderer);
             VBlankInterrupt();
             
-            // Handle DMA transfer
-            // if (dma != dma_prev) {
-            if (dma_written) {
-                dma_written = false;
-                uint16_t dma_addr = dma << 8;
-                for (int i = 0; i < 0xa0; i++) {
-                    oam[i] = this->bus->cpuRead(dma_addr+i);
-                }
-                dma_prev = dma;
-            }
+            
             // SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
             // SDL_RenderDrawPoint(renderer, debug_x, debug_y);
             // debug_x++; debug_y++;
@@ -364,6 +386,8 @@ void PPU::clock() {
 
             // SDL_RenderPresent(renderer);
             
+            SDL_RenderPresent(renderer);
+
             mode = PPUMODE::OAMREAD;
             cycles = 20;
             ly = 0;
@@ -372,16 +396,18 @@ void PPU::clock() {
             // std::cout << "[DEBUG] OAMREAD" << std::endl;
         } else {
             cycles = 114;
-            ly++;
+            ++ly;
         }
     break;
     }
 
     cycles--;
+
+    // -- THIS IS DONE BY handleSTAT() now.
     // setting the STAT register flags.
-    stat &= 0xf8;
-    stat |= (ly==lyc) << 2;
-    stat |= mode;
+    // stat &= 0xf8;
+    // stat |= (ly==lyc) << 2;
+    // stat |= mode;
 }
 
 void PPU::VBlankInterrupt() {
@@ -514,7 +540,7 @@ void PPU::drawBackground() {
     #ifdef FULL_VIEWPORT
     SDL_RenderCopy(renderer, background_layer, nullptr, nullptr);
     #endif
-    SDL_RenderPresent(renderer);
+    // SDL_RenderPresent(renderer);
 }
 
 

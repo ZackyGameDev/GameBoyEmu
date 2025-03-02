@@ -45,7 +45,7 @@ private:
         PIXELTRANSFER = 3,
     };
 
-    PPUMODE mode = OAMREAD;
+    PPUMODE mode = VBLANK;
     uint16_t cycles = 0;    
     uint8_t page_addressing_mode = 0;
 
@@ -53,7 +53,7 @@ private:
     uint8_t stat = 0x85;
     uint8_t scy = 0x00;
     uint8_t scx = 0x00;
-    uint8_t ly = 0x00;
+    uint8_t ly = 153;
     uint8_t lyc = 0x00;
     uint8_t dma = 0xff;
     uint8_t bgp = 0xfc;
@@ -66,6 +66,7 @@ private:
 
     uint8_t dma_prev = dma; // to detect changes we compare old to new
     bool dma_written = false;
+    uint8_t garbage_byte = 0xFF;
 
     std::vector<int> color_palette = {
         // 0xe6f8da, 0xb4e1fd, 0xaa9e62, 0x212121

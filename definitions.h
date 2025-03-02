@@ -22,7 +22,7 @@
 // #define BG_WINDOW      // very interested in making them
 // #define LOG_PC
 #define NO_LOGS
-// #define NO_SERIAL_OUT
+#define NO_SERIAL_OUT
 // #define FULL_VIEWPORT
 // #define BREAKPOINT_PC_FILE
 // #define NO_CPU
