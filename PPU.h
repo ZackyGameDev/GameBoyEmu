@@ -69,6 +69,7 @@ private:
     uint8_t garbage_byte = 0xFF;
 
     std::vector<int> color_palette = {
+        0x9bbc0f, 0x8bac0f, 0x306230, 0x0f380f // original colors
         // 0xe6f8da, 0xb4e1fd, 0xaa9e62, 0x212121
         // 0xf4d8c6, 0xff9a8a, 0x364f4f, 0x332421 // first one with peach
         // 0xfdf0e7, 0xff9a8a, 0x364f4f, 0x332421 // first one with peach but lightvariation
@@ -79,7 +80,7 @@ private:
         // 0xfdf0e7, 0xbd2024, 0x36454f, 0x110511 // scarlet but no purple
         // 0x6a5acd, 0xbd2024, 0x36454f, 0x110511 // scarlet but switched 
         // 0xfdf0e7, 0xea7073, 0x36454f, 0x110511 // scarlet but switched no purple red lighter
-        0xf7e5da, 0xd89454, 0x9085c4, 0x36454f // aro ace but lighter peach
+        // 0xf7e5da, 0xd89454, 0x9085c4, 0x36454f // aro ace but lighter peach
     }; 
 
     enum LCDCFLAGS {
@@ -115,6 +116,9 @@ private:
     bool vram_accessed = false;
     bool oam_accessed = false;
     void updateTextures();
+    
+    uint8_t frameskip = 0;
+    uint8_t framecount = 0;
 
 public:
     Bus *bus = nullptr;
@@ -134,6 +138,8 @@ public:
     void updateTileset();
     void updateBackgroundLayer();
     void drawBackground();
+    void updateWindowLayer();
+    void drawWindow();
 
     #ifdef TILESET_WINDOW
     void drawTilesetWindow();

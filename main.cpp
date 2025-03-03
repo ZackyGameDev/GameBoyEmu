@@ -43,18 +43,81 @@ int main() {
     auto last_time = std::chrono::high_resolution_clock::now();
     double ns_per_cycle = 1'000'000'000.0 / CLOCK_SPEED;
 
-    while (bus.running) {
-        auto now = std::chrono::high_resolution_clock::now();
-        auto elapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(now - last_time).count();
+    using Clock = std::chrono::steady_clock;
+    constexpr auto NANOSECONDS_PER_SECOND = 1'000'000'000LL; // 1 second in nanoseconds
+    // const std::chrono::nanoseconds clock_period(NANOSECONDS_PER_SECOND / (long int)CLOCK_SPEED);
 
-        if (elapsed >= ns_per_cycle) {
-            bus.cpu.clock();  // Execute one clock cycle
-            bus.ppu.clock();
-            last_time = now;
-        } else {
-            std::this_thread::sleep_for(std::chrono::nanoseconds(static_cast<int>(ns_per_cycle - elapsed)));
-        }
+    auto next_time = Clock::now();
+
+    // Set timer resolution to 1ms for better sleep accuracy on Windows.
+    timeBeginPeriod(1);
+
+    using Clock = std::chrono::steady_clock;
+    // Calculate the period per clock tick based on CLOCK_SPEED.
+    const auto clock_period = std::chrono::nanoseconds(NANOSECONDS_PER_SECOND / (int)CLOCK_SPEED);
+
+    // Pin point: record the starting time and cycle count.
+    auto start_time = Clock::now();
+    uint64_t cycle_count = 0;
+
+    while (bus.running) {
+        // Execute one emulation cycle.
+        bus.cpu.clock();
+        bus.ppu.clock();
+        ++cycle_count;
+
+        // Compute the expected time for the current cycle.
+        auto expected_time = start_time + (clock_period * cycle_count);
+
+        // Sleep until the expected time is reached.
+        std::this_thread::sleep_until(expected_time);
     }
+
+    // Reset timer granularity before exit.
+    timeEndPeriod(1);
+
+    // while (bus.running) {
+    //     bus.cpu.clock(); // Call the clock function
+    //     bus.ppu.clock(); 
+
+    //     // Schedule next tick
+    //     next_time += clock_period;
+
+    //     // Sleep until the next tick
+    //     std::this_thread::sleep_until(next_time);
+    // }
+
+    // while (bus.running) {
+    //     bus.cpu.clock();  // Execute one clock cycle
+    //     bus.ppu.clock();
+    // }
+
+    // while (bus.running) {
+    //     auto start = std::chrono::high_resolution_clock::now();
+    //     bus.cpu.clock();  // Execute one clock cycle
+    //     bus.ppu.clock();
+    //     auto end = std::chrono::high_resolution_clock::now();
+        
+    //     auto elapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
+    //     if (elapsed > ns_per_cycle) {
+    //         // std::cout << "Cycle took too long: " << elapsed << " nanoseconds" << std::endl;
+    //     } else {
+    //         std::this_thread::sleep_for(std::chrono::nanoseconds(static_cast<int>(ns_per_cycle - elapsed)));
+    //     }
+    // }
+
+    // while (bus.running) {
+    //     auto now = std::chrono::high_resolution_clock::now();
+    //     auto elapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(now - last_time).count();
+
+    //     if (elapsed >= ns_per_cycle) {
+    //         bus.cpu.clock();  // Execute one clock cycle
+    //         bus.ppu.clock();
+    //         last_time = now;
+    //     } else {
+    //         std::this_thread::sleep_for(std::chrono::nanoseconds(static_cast<int>(ns_per_cycle - elapsed)));
+    //     }
+    // }
 
     
     // while (true) {

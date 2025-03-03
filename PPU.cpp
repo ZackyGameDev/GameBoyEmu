@@ -162,6 +162,7 @@ void PPU::initLCD() {
     SDL_RenderPresent(renderer);
 
     background_layer = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB24, SDL_TEXTUREACCESS_TARGET, 256, 256);
+    window_layer = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB24, SDL_TEXTUREACCESS_TARGET, 256, 256);
 
     if (!background_layer) {
         std::cerr << "Failed to create background texture: " << SDL_GetError() << std::endl;
@@ -313,44 +314,59 @@ void PPU::clock() {
             //     SDL_RenderCopy(renderer, tileset[i], nullptr, &tilerect);
             //     SDL_RenderPresent(renderer);
             // }
-            if (vram_accessed or oam_accessed) {
-                updateTileset();
-                updateBackgroundLayer();
-                vram_accessed = false;
-                oam_accessed = false;
+            if (framecount <= 0) {
+                if (vram_accessed or oam_accessed) {
+                    updateTileset();
+                    updateBackgroundLayer();
+                    updateWindowLayer();
+                    vram_accessed = false;
+                    oam_accessed = false;
+                }
+                drawBackground();
+                
+                #ifdef TILESET_WINDOW
+                drawTilesetWindow();
+                #endif
+                #ifdef BG_WINDOW
+                drawBGWindow();
+                #endif
+                
+                #ifndef HIDE_SPRITES
+                // drawing sprites.
+                uint8_t oc = 0;
+                // if (oam[0] != 0x90)
+                    // std::cout << "breakpoint";
+                for (int i = 0; i < 40; i++) {
+                    uint8_t sprite_y = oam[oc++] - 16;
+                    uint8_t sprite_x = oam[oc++] - 8;
+                    uint8_t sprite_tile_index = oam[oc++];
+                    uint8_t sprite_flags = oam[oc++];
+            
+                    SDL_Texture* tile = tileset[sprite_tile_index];
+            
+                    SDL_Rect tile_rect;
+                    tile_rect.x = sprite_x;
+                    tile_rect.y = sprite_y;
+                    tile_rect.w = 8;   // Set the width of the tile
+                    tile_rect.h = 8;   // Set the height of the tile
+                    
+                    // Determine the flip state based on sprite_flags
+                    SDL_RendererFlip flip = SDL_FLIP_NONE;
+                    if (sprite_flags & 0x20) {
+                        flip = (SDL_RendererFlip)(flip | SDL_FLIP_HORIZONTAL);
+                    }
+                    if (sprite_flags & 0x40) {
+                        flip = (SDL_RendererFlip)(flip | SDL_FLIP_VERTICAL);
+                    }
+                    
+                    // Render the texture with the appropriate flip state
+                    SDL_RenderCopyEx(renderer, tile, nullptr, &tile_rect, 0, nullptr, flip);
+                }
+                #endif
+                
+                drawWindow();
             }
-            drawBackground();
-            
-            #ifdef TILESET_WINDOW
-            drawTilesetWindow();
-            #endif
-            #ifdef BG_WINDOW
-            drawBGWindow();
-            #endif
-            
-            #ifndef HIDE_SPRITES
-            // drawing sprites.
-            uint8_t oc = 0;
-            // if (oam[0] != 0x90)
-                // std::cout << "breakpoint";
-            for (int i = 0; i < 40; i++) {
-                uint8_t sprite_y = oam[oc++] - 16;
-                uint8_t sprite_x = oam[oc++] - 8;
-                uint8_t sprite_tile_index = oam[oc++];
-                uint8_t sprite_flags = oam[oc++];
-        
-                SDL_Texture* tile = tileset[sprite_tile_index];
-        
-                SDL_Rect tile_rect;
-                tile_rect.x = sprite_x;
-                tile_rect.y = sprite_y;
-                tile_rect.w = 8;
-                tile_rect.h = 8;
-                // std::cout<<tile_rect.x<<std::endl;
-                SDL_RenderCopy(renderer, tile, nullptr, &tile_rect);
-            }
-            #endif
-            
+
             VBlankInterrupt();
             
             
@@ -386,7 +402,12 @@ void PPU::clock() {
 
             // SDL_RenderPresent(renderer);
             
-            SDL_RenderPresent(renderer);
+            if (framecount <= 0) {
+                SDL_RenderPresent(renderer);
+                framecount = frameskip;
+            } else {
+                framecount--;
+            }
 
             mode = PPUMODE::OAMREAD;
             cycles = 20;
@@ -541,6 +562,62 @@ void PPU::drawBackground() {
     SDL_RenderCopy(renderer, background_layer, nullptr, nullptr);
     #endif
     // SDL_RenderPresent(renderer);
+}
+
+
+void PPU::updateWindowLayer() {
+
+    uint16_t win_base_address;
+    int tileset_index_offset = 0;
+    bool tile_addressing_mode = (lcdc & (1 << 4));
+    bool win_location_mode = (lcdc & (1 << 6));
+    if (win_location_mode) 
+        win_base_address = 0x9c00;
+    else 
+        win_base_address = 0x9800;
+
+    if (!tile_addressing_mode) 
+        tileset_index_offset = 256;
+    
+    uint16_t window_tile_index;
+    SDL_SetRenderTarget(renderer, window_layer);
+    for (window_tile_index = 0x00; window_tile_index < 0x400; window_tile_index++) {
+        uint8_t tile_id = vram[win_base_address+window_tile_index - 0x8000];
+        int tile_index = tile_id;
+
+        // for breakpoint
+        // if (background_tile_index == 0x104) {
+        //     std::cout << "here" << std::endl;
+        // }
+
+        if (!tile_addressing_mode && tile_index > 127)
+            tile_index -= 256;
+        
+        SDL_Texture* tile = tileset[tile_index+tileset_index_offset];
+
+        SDL_Rect tile_rect;
+        tile_rect.x = (window_tile_index % 32) * 8;
+        tile_rect.y = (window_tile_index / 32) * 8;
+        tile_rect.w = 8;
+        tile_rect.h = 8;
+        // std::cout<<tile_rect.x<<std::endl;
+        SDL_RenderCopy(renderer, tile, nullptr, &tile_rect);
+    }
+    SDL_SetRenderTarget(renderer, nullptr);
+}
+
+void PPU::drawWindow() {
+    if (((lcdc >> 5) & 1) && (lcdc & 1)) {
+        #ifndef FULL_VIEWPORT
+        SDL_Rect viewport = {0, 0, 256, 256};
+        SDL_Rect display = {wx-7, wy, 256, 256};
+        SDL_RenderCopy(renderer, window_layer, &viewport, &display);
+        #endif
+        #ifdef FULL_VIEWPORT
+        SDL_RenderCopy(renderer, background_layer, nullptr, nullptr);
+        #endif
+        // SDL_RenderPresent(renderer);
+    }
 }
 
 

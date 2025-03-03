@@ -1,14 +1,15 @@
 #pragma once
 #define SDL_MAIN_HANDLED
 // #define DEBUGMODE_
-#define EMULATION_CLOCK_SPEED 1048576.0 // in m clocks per second
+#define EMULATION_CLOCK_SPEED 1048576 // in m clocks per second
 // #define EMULATION_CLOCK_/SPEED 953 // in nanoseconds per machine clock
 #define DEBUG_CLOCK_SPEED 1
 
 // #define ROM_PATH "ROMS/Tetris (Japan) (En).gb"
 // #define ROM_PATH "ROMS/Castlevania - The Adventure (USA).gb"
-#define ROM_PATH "ROMS/Dr. Mario (JU) (V1.1).gb"
-// #define ROM_PATH "ROMS/Alleyway (World).gb"
+// #define ROM_PATH "ROMS/Dr. Mario (JU) (V1.1).gb"
+#define ROM_PATH "ROMS/Alleyway (World).gb"
+// #define ROM_PATH "ROMS/Tennis (JUE) [!].gb"
 // #define ROM_PATH "ROMS/dk.gb"
 // #define ROM_PATH "ROMS/Bomberman GB (U) [S][!].gb"
 // #define ROM_PATH "ROMS/Darkwing Duck (U) [!].gb"
