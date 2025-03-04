@@ -69,9 +69,9 @@ private:
     uint8_t garbage_byte = 0xFF;
 
     std::vector<int> color_palette = {
-        0x9bbc0f, 0x8bac0f, 0x306230, 0x0f380f // original colors
+        // 0x9bbc0f, 0x8bac0f, 0x306230, 0x0f380f // original colors
         // 0xe6f8da, 0xb4e1fd, 0xaa9e62, 0x212121
-        // 0xf4d8c6, 0xff9a8a, 0x364f4f, 0x332421 // first one with peach
+        0xf4d8c6, 0xff9a8a, 0x364f4f, 0x332421 // first one with peach
         // 0xfdf0e7, 0xff9a8a, 0x364f4f, 0x332421 // first one with peach but lightvariation
         // 0xb76e79, 0xf4d8c6, 0xb89454, 0x332424 // cake
         // 0xf4d8c6, 0xb76e79, 0xb89454, 0x332424 // cake but lighter 
