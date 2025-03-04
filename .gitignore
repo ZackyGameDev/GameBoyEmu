@@ -13,3 +13,6 @@ experiments/
 ROMS/
 build/
 codewriteroutput/pc.log
+
+# this is not ready to be pushed out yet.
+config.yaml
