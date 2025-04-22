@@ -3,12 +3,15 @@
 // #define DEBUGMODE_
 #define EMULATION_CLOCK_SPEED 1048576 // in m clocks per second
 // #define EMULATION_CLOCK_/SPEED 953 // in nanoseconds per machine clock
-#define DEBUG_CLOCK_SPEED 1
+#define DEBUG_CLOCK_SPEED 2
 
 // #define ROM_PATH "ROMS/Tetris (Japan) (En).gb"
-// #define ROM_PATH "ROMS/Castlevania - The Adventure (USA).gb"
+#define ROM_PATH "ROMS/Castlevania - The Adventure (USA).gb"   
+// #define ROM_PATH "ROMS/Legend of Zelda, The - Link's Awakening (USA, Europe).gb"
+// #define ROM_PATH "ROMS/Crystal Quest (USA).gb"
+// #define ROM_PATH "ROMS/Dropzone (Europe).gb"
 // #define ROM_PATH "ROMS/Dr. Mario (JU) (V1.1).gb"
-#define ROM_PATH "ROMS/Alleyway (World).gb"
+// #define ROM_PATH "ROMS/Alleyway (World).gb"
 // #define ROM_PATH "ROMS/Tennis (JUE) [!].gb"
 // #define ROM_PATH "ROMS/dk.gb"
 // #define ROM_PATH "ROMS/Bomberman GB (U) [S][!].gb"
@@ -27,5 +30,5 @@
 // #define FULL_VIEWPORT
 // #define BREAKPOINT_PC_FILE
 // #define NO_CPU
-#define SKIP_BOOTROM
+// #define SKIP_BOOTROM
 // #define HIDE_SPRITES

@@ -404,8 +404,8 @@ void SM83::clock() {
         logLastPC();
         #endif
         
-        handleInterrupts();
         bus->cart.rectifyPttrWrites();
+        handleInterrupts();
     }
     
     if ((timer_clock & (128-1)) == 0)

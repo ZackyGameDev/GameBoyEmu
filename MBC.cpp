@@ -67,7 +67,7 @@ void MBC1::cpuWrite(uint16_t addr, uint8_t data) {
         if (rom_bank_number == 0x00)
             rom_bank_number = 0x01; // the rectification feature
     } else if (0x4000 <= addr && addr <= 0x5FFF)
-        ram_bank_number = data & 0x03; 
+        ram_bank_number = data & 0b0000'0011; 
     else if (0x6000 <= addr && addr <= 0x7FFF)
         banking_mode = data & 0x01; 
     else if (0xA000 <= addr && addr <= 0xBFFF) {
