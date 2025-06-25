@@ -94,7 +94,8 @@ uint8_t MBC1::cpuRead(uint16_t addr) {
             bank = bank & 0x1f; // in this mode RAM bank number is not extension of rom register
         }
 
-        bank = bank & cart->rom_bank_bits;
+        // bank = bank & cart->rom_bank_bits; // im leaving this line here as hall of shame
+        bank = bank & ~((~0)<<cart->rom_bank_bits);
         data = cart->cart_data[addr + (bank-1)*0x4000];
     } else if (0xA000 <= addr && addr <= 0xBFFF) {
         if (sram_enabled & 0xa == 0) {
