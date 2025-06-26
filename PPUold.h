@@ -70,14 +70,15 @@ private:
 
     std::vector<int> color_palette = {
         // 0x9bbc0f, 0x8bac0f, 0x306230, 0x0f380f // original colors
-        // 0xe6f8da, 0xb4e1fd, 0xaa9e62, 0x212121
+        0xFFFFFF, 0xAAAAAA, 0x555555, 0x000000 // greyscale
+        // 0xe6f8da, 0xb4e1fd, 0xaa9e62, 0x212121 // idk which this is but its green but light???
         // 0xf4d8c6, 0xff9a8a, 0x364f4f, 0x332421 // first one with peach
         // 0xfdf0e7, 0xff9a8a, 0x364f4f, 0x332421 //  first one with peach but lightvariation
         // 0xb76e79, 0xf4d8c6, 0xb89454, 0x332424 // BAD cake
         // 0xf4d8c6, 0xb76e79, 0xb89454, 0x332424 // cake but lighter TRUE
         // 0xbd2024, 0x6a5acd, 0x36454f, 0x110511 // scarlet 
         // 0xbd2024, 0xfdf0e7, 0x36454f, 0x110511 // scarlet but no purple NOT SWITCHED
-        0xfdf0e7, 0xbd2024, 0x36454f, 0x110511 // scarlet but no purple TRUE BOLD
+        // 0xfdf0e7, 0xbd2024, 0x36454f, 0x110511 // scarlet but no purple TRUE BOLD // last used
         // 0x6a5acd, 0xbd2024, 0x36454f, 0x110511 // scarlet but switched
         // 0xfdf0e7, 0xea7073, 0x36454f, 0x110511 // scarlet but switched no purple red lighter
         // 0xf7e5da, 0xd89454, 0x9085c4, 0x36454f // aro ace but lighter peach
