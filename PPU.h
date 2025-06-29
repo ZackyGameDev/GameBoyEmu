@@ -20,9 +20,11 @@ private:
 
     std::array<uint8_t, 160> oam;
     std::array<uint8_t, 0x2000> vram;
-    SDL_Texture* tilemap; 
-    SDL_Texture* background_layer;
-    SDL_Texture* window_layer;
+    SDL_Texture* tileset; 
+    SDL_Texture* tilemap0_layer;
+    SDL_Texture* tilemap1_layer;
+    SDL_Texture* debug_texture;
+    uint16_t window_line_counter = 0;
     
     // ordered in the way the STAT register expects the values to be.
     enum PPUMODE : uint8_t {
@@ -50,14 +52,15 @@ private:
     uint8_t wx = 0x00;
 
     uint8_t stat_readonly_part = ((lyc==ly) << 2) | (mode);
+    bool stat_interrupt_line_value = 0;
 
     uint8_t dma_prev = dma; // to detect changes we compare old to new
     bool dma_written = false;
     uint8_t garbage_byte = 0xFF;
 
-    std::vector<int> color_palette = {
-        // 0x9bbc0f, 0x8bac0f, 0x306230, 0x0f380f // original colors
-        0xFFFFFF, 0xAAAAAA, 0x555555, 0x000000 // greyscale
+    std::vector<uint32_t> color_palette = { // 0xRRGGBBAA
+        // 0x9bbc0fFF, 0x8bac0fFF, 0x306230FF, 0x0f380fFF // original colors
+        0xFFFFFFff, 0xAAAAAAff, 0x555555ff, 0x000000ff // greyscale
         // 0xe6f8da, 0xb4e1fd, 0xaa9e62, 0x212121 // idk which this is but its green but light???
         // 0xf4d8c6, 0xff9a8a, 0x364f4f, 0x332421 // first one with peach
         // 0xfdf0e7, 0xff9a8a, 0x364f4f, 0x332421 //  first one with peach but lightvariation
@@ -127,18 +130,24 @@ public:
     void initLCD();
     void clock();
     // SDL_Texture* getTile(uint16_t addr);
-    void getTile(uint16_t addr, SDL_Texture* &texture);
-    void createTileset();
-    void updateTileset();
-    void updateBackgroundLayer();
-    void drawBackground();
-    void updateWindowLayer();
-    void drawWindow(); 
+    void createTileset(SDL_Texture* tileset);
+    void createTilemapLayer(SDL_Texture* layer, uint16_t tilemap_addr);
 
+    void drawScanLine();
     #ifdef TILESET_WINDOW
     void drawTilesetWindow();
     #endif
     #ifdef BG_WINDOW
     void drawBGWindow();
     #endif
+
+private:
+    int toSigned(uint8_t b) {
+        if (b > 127) {
+            return (b - 256);
+        } else {
+            return b;
+        }
+        // return (b > 127) ? (b - 256) : b;
+    }
 };
