@@ -88,9 +88,6 @@ void PPU::clock() {
         // drawScanLine();
         SDL_Rect viewport = {0, 0, 256, 256};
         SDL_Rect display = {0, 0, 160, 144};
-        createTileset(tileset);
-        createTilemapLayer(tilemap0_layer, 0x9800);
-        createTilemapLayer(tilemap1_layer, 0x9c00);
         drawScanLine();
         // SDL_RenderCopy(renderer, tilemap0_layer, &viewport, &display);
         // SDL_RenderPresent(renderer);
@@ -119,6 +116,14 @@ void PPU::clock() {
                     oam[i] = this->bus->cpuRead(dma_addr+i);
                 }
                 dma_prev = dma;
+            }
+
+            if (vram_accessed) {
+                createTileset(tileset);
+                createTilemapLayer(tilemap0_layer, 0x9800);
+                createTilemapLayer(tilemap1_layer, 0x9c00);
+                vram_accessed = false;
+                std::cout << "another one \n";
             }
             renderObjLayer();
             SDL_RenderPresent(renderer);
@@ -308,7 +313,7 @@ void PPU::drawScanLine() {
     bool test = getLCDCFlag(LCDCFLAGS::BGAndWindowTileDataArea);
     
     // background first
-    int row = scy + ly;
+    int row = (scy + ly) % 256;
 
     if ((int)scx + 160 > 256) { // wrap around condition
         // std::cout<< "warp around\n";
