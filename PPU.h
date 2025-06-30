@@ -134,6 +134,8 @@ public:
     void createTilemapLayer(SDL_Texture* layer, uint16_t tilemap_addr);
 
     void drawScanLine();
+    void drawObjectScanLine(uint8_t y, uint8_t x, uint8_t tile_index, uint8_t attributes);
+
     #ifdef TILESET_WINDOW
     void drawTilesetWindow();
     #endif

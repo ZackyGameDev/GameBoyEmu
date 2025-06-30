@@ -175,7 +175,7 @@ void PPU::handleSTAT() {
     stat &= 0xf8;
     stat |= stat_readonly_part;
 
-    if (stat_interrupt_line_value != old_stat_interrupt_line_value) {
+    if (stat_interrupt_line_value &&  !old_stat_interrupt_line_value ) {
         this->bus->cpu.requestInterrupt(SM83::InterruptFlags::Stat);
     }
 
@@ -358,7 +358,24 @@ void PPU::drawScanLine() {
    
 }
 
+/*
+    This function straight up draws the scanline. it does NOT check if the object
+    follows the 10 object limit, or if ly is currently on the objects visible area.
+    it. just. draws.
+*/
+void PPU::drawObjectScanLine(uint8_t y, uint8_t x, uint8_t tile_index, uint8_t attributes) {
+    
+    uint8_t row;
+    row = ly - (y-16);
+    
+    // basically if row to draw is beyond the object area
+    if (row > 15) return;
+    if (row > 7 && !getLCDCFlag(PPU::LCDCFLAGS::OBJSize)) return;
 
+
+
+
+}
 
 
 
