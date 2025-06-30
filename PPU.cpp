@@ -92,6 +92,13 @@ void PPU::clock() {
         // SDL_RenderCopy(renderer, tilemap0_layer, &viewport, &display);
         // SDL_RenderPresent(renderer);
 
+        if (vram_accessed) {
+            createTileset(tileset);
+            createTilemapLayer(tilemap0_layer, 0x9800);
+            createTilemapLayer(tilemap1_layer, 0x9c00);
+            vram_accessed = false;
+        }
+        
         // next mode...
         mode = PPUMODE::HBLANK;
         cycles = 51;
@@ -118,13 +125,6 @@ void PPU::clock() {
                 dma_prev = dma;
             }
 
-            if (vram_accessed) {
-                createTileset(tileset);
-                createTilemapLayer(tilemap0_layer, 0x9800);
-                createTilemapLayer(tilemap1_layer, 0x9c00);
-                vram_accessed = false;
-                std::cout << "another one \n";
-            }
             renderObjLayer();
             SDL_RenderPresent(renderer);
             VBlankInterrupt();
