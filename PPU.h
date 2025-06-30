@@ -2,6 +2,7 @@
 #include "definitions.h"
 #include <cstdint>
 #include <array>
+#include <queue>
 #include <SDL2/SDL.h>
 
 class Bus;
@@ -23,8 +24,10 @@ private:
     SDL_Texture* tileset; 
     SDL_Texture* tilemap0_layer;
     SDL_Texture* tilemap1_layer;
+    SDL_Texture* obj_layer;
     SDL_Texture* debug_texture;
     uint16_t window_line_counter = 0;
+    std::queue<std::array<uint8_t, 4>> oam_queue;
     
     // ordered in the way the STAT register expects the values to be.
     enum PPUMODE : uint8_t {
@@ -134,7 +137,10 @@ public:
     void createTilemapLayer(SDL_Texture* layer, uint16_t tilemap_addr);
 
     void drawScanLine();
+    void drawObjectToTexture(uint8_t y, uint8_t x, uint8_t tile_index, uint8_t attributes);
     void drawObjectScanLine(uint8_t y, uint8_t x, uint8_t tile_index, uint8_t attributes);
+    void drawObjects();
+    void renderObjLayer();
 
     #ifdef TILESET_WINDOW
     void drawTilesetWindow();

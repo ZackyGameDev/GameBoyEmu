@@ -54,8 +54,12 @@ void PPU::initLCD() {
 
     tilemap0_layer = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, 256, 256);
     tilemap1_layer = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, 256, 256);
+    obj_layer = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 256, 256);
     debug_texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 256, 256);
     tileset = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, 8*16, 8*24);
+    
+    SDL_SetTextureBlendMode(obj_layer, SDL_BLENDMODE_BLEND);
+
     createTileset(tileset);
     createTilemapLayer(tilemap0_layer, 0x9800);
     createTilemapLayer(tilemap1_layer, 0x9C00);
@@ -106,7 +110,18 @@ void PPU::clock() {
         } else {
             mode = PPUMODE::VBLANK;
             cycles = 114;
-        SDL_RenderPresent(renderer);
+            // Handle DMA transfer
+            // if (dma != dma_prev) {
+            if (dma_written) {
+                dma_written = false;
+                uint16_t dma_addr = dma << 8;
+                for (int i = 0; i < 0xa0; i++) {
+                    oam[i] = this->bus->cpuRead(dma_addr+i);
+                }
+                dma_prev = dma;
+            }
+            renderObjLayer();
+            SDL_RenderPresent(renderer);
             VBlankInterrupt();
         }
         ly++;
@@ -335,28 +350,130 @@ void PPU::drawScanLine() {
     // return;
 
     // now window layer
-    if (!(getLCDCFlag(LCDCFLAGS::WindowEnable) && ly >= wy))
-    return;
-    
-    if (wx < 7 || wx > 166 || wy > 143) return;
-    
-    if (getLCDCFlag(LCDCFLAGS::WindowEnable) && ly >= wy) {
+    if ((getLCDCFlag(LCDCFLAGS::WindowEnable) && ly >= wy) && !(wx < 7 || wx > 166 || wy > 143)) {
         if (ly == wy) {
             window_line_counter = 0;
         } else {
             window_line_counter++;
         }
+        row = window_line_counter;
+
+        if (row < 256) {
+            SDL_Rect src_row = {0, row, 160 - (wx - 7), 1};
+            SDL_Rect dst_row = {wx - 7, ly, 160 - (wx - 7), 1};
+            SDL_RenderCopy(renderer, *window_layer, &src_row, &dst_row);
+        } 
     }
     
-    row = window_line_counter;
-    if (row > 255) return; 
 
-    SDL_Rect src_row = {0, row, 160 - (wx - 7), 1};
-    SDL_Rect dst_row = {wx - 7, ly, 160 - (wx - 7), 1};
-    SDL_RenderCopy(renderer, *window_layer, &src_row, &dst_row);
 
-   
+    // not doing scanline basis object drawing right now
+    // // now for sprites
+    // int sprite_height = getLCDCFlag(PPU::LCDCFLAGS::OBJSize) ? 16 : 8;
+    // int drawn = 0;
+    // for (uint8_t i = 0; i < 40; i++) {
+    //     short j = i*4;
+        
+    //     if (ly >= oam[j]-16 && ly < oam[j]-16 + sprite_height) {
+    //         drawObjectScanLine(oam[j], oam[j+1], oam[j+2], oam[j+3]);
+    //         drawn++;
+    //     }
+    //     if (drawn == 10) break;
+    // }
+
+    // lazier approach (more efficient for effort)
+    int drawn = 0;
+    for (int i = 0; i < 40; i++) {
+        int j = i*4;
+        if ((oam[j]-16) == ly) {
+            drawObjectToTexture(oam[j], oam[j+1], oam[j+2], oam[j+3]);
+            drawn++;
+            if (drawn == 10) {
+                break;
+            }
+        } 
+    }
+
 }
+
+void PPU::renderObjLayer() {
+    SDL_Rect src_rect = {8, 16, 160, 144};
+    SDL_Rect dst_rect = {0, 0, 160, 144};
+
+    SDL_RenderCopy(renderer, obj_layer, &src_rect, &dst_rect);
+
+    SDL_SetRenderTarget(renderer, obj_layer);
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0); // transparent
+    SDL_RenderClear(renderer); // clear the layer
+    SDL_SetRenderTarget(renderer, NULL);
+
+}
+
+void PPU::drawObjectToTexture(uint8_t y, uint8_t x, uint8_t tile_index, uint8_t attributes) {
+
+    SDL_SetRenderTarget(renderer, obj_layer);
+
+    if (getLCDCFlag(LCDCFLAGS::OBJSize)) {
+
+        SDL_SetRenderTarget(renderer, debug_texture);
+
+        // drawing upper tile
+        tile_index -= tile_index % 2; // ignoring odd addresses or something.
+        uint16_t tile_x = (tile_index % 16) * 8;
+        uint16_t tile_y = (tile_index / 16) * 8;
+    
+        SDL_Rect src_rect = {tile_x, tile_y, 8, 8};
+        SDL_Rect dst_rect = {0, 0, 8, 8};
+        SDL_RenderCopy(renderer, tileset, &src_rect, &dst_rect);
+        
+        // drawing lower tile
+        tile_index++;
+        uint16_t tile_x2 = (tile_index % 16) * 8;
+        uint16_t tile_y2 = (tile_index / 16) * 8;
+    
+        SDL_Rect src_rect2 = {tile_x2, tile_y2, 8, 8};
+        SDL_Rect dst_rect2 = {0, 8, 8, 8};
+        SDL_RenderCopy(renderer, tileset, &src_rect2, &dst_rect2);
+
+        // now pasting them with correct flip to display buffer
+        SDL_SetRenderTarget(renderer, obj_layer);
+        SDL_Rect src_rect3 = {0, 0, 8, 16};
+        SDL_Rect dst_rect3 = {x, y, 8, 16};
+        
+        SDL_RendererFlip flip = SDL_FLIP_NONE;
+        if (attributes & 0x20) {
+            flip = (SDL_RendererFlip)(flip | SDL_FLIP_HORIZONTAL);
+        }
+        if (attributes & 0x40) {
+            flip = (SDL_RendererFlip)(flip | SDL_FLIP_VERTICAL);
+        }
+        
+        // Render the texture with the appropriate flip state
+        SDL_RenderCopyEx(renderer, debug_texture, &src_rect3, &dst_rect3, 0, nullptr, flip);
+
+    } else {
+        uint16_t tile_x = (tile_index % 16) * 8;
+        uint16_t tile_y = (tile_index / 16) * 8;
+    
+        SDL_Rect src_rect = {tile_x, tile_y, 8, 8};
+        SDL_Rect dst_rect = {x, y, 8, 8};
+        
+        // Determine the flip state based on sprite_flags
+        SDL_RendererFlip flip = SDL_FLIP_NONE;
+        if (attributes & 0x20) {
+            flip = (SDL_RendererFlip)(flip | SDL_FLIP_HORIZONTAL);
+        }
+        if (attributes & 0x40) {
+            flip = (SDL_RendererFlip)(flip | SDL_FLIP_VERTICAL);
+        }
+        
+        // Render the texture with the appropriate flip state
+        SDL_RenderCopyEx(renderer, tileset, &src_rect, &dst_rect, 0, nullptr, flip);
+    }
+
+    SDL_SetRenderTarget(renderer, NULL);
+}
+
 
 /*
     This function straight up draws the scanline. it does NOT check if the object
@@ -372,13 +489,48 @@ void PPU::drawObjectScanLine(uint8_t y, uint8_t x, uint8_t tile_index, uint8_t a
     if (row > 15) return;
     if (row > 7 && !getLCDCFlag(PPU::LCDCFLAGS::OBJSize)) return;
 
+    if (row > 7) row -= 8; tile_index++;
 
+    uint16_t tile_x = (tile_index % 16) * 8;
+    uint16_t tile_y = (tile_index / 16) * 8;
 
+    SDL_Rect src_row = {tile_x, tile_y+row, 8, 1};
+    SDL_Rect dst_row = {x-8, ly, 8, 1};
+    SDL_RenderCopy(renderer, tileset, &src_row, &dst_row);
 
 }
 
 
+void PPU::drawObjects() {
+    // drawing sprites.
+    uint8_t oc = 0;
+    // if (oam[0] != 0x90)
+        // std::cout << "breakpoint";
+    for (int i = 0; i < 40; i++) {
+        uint8_t sprite_y = oam[oc++] - 16;
+        uint8_t sprite_x = oam[oc++] - 8;
+        uint8_t sprite_tile_index = oam[oc++];
+        uint8_t sprite_flags = oam[oc++];
 
+        uint16_t tile_x = (sprite_tile_index % 16) * 8;
+        uint16_t tile_y = (sprite_tile_index / 16) * 8;
+
+        SDL_Rect src_rect = {tile_x, tile_y, 8, 8};
+        SDL_Rect dst_rect = {sprite_x, sprite_y, 8, 8};
+        
+        // Determine the flip state based on sprite_flags
+        SDL_RendererFlip flip = SDL_FLIP_NONE;
+        if (sprite_flags & 0x20) {
+            flip = (SDL_RendererFlip)(flip | SDL_FLIP_HORIZONTAL);
+        }
+        if (sprite_flags & 0x40) {
+            flip = (SDL_RendererFlip)(flip | SDL_FLIP_VERTICAL);
+        }
+        
+        // Render the texture with the appropriate flip state
+        SDL_RenderCopyEx(renderer, tileset, &src_rect, &dst_rect, 0, nullptr, flip);
+    }
+}
 
 
 
