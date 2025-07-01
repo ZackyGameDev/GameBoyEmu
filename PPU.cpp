@@ -390,7 +390,7 @@ void PPU::drawScanLine() {
     int drawn = 0;
     for (int i = 0; i < 40; i++) {
         int j = i*4;
-        if ((oam[j]-16) == ly) {
+        if (((oam[j]-16) == ly) || (oam[j]-16 < ly && ly == 0)) {
             drawObjectToTexture(oam[j], oam[j+1], oam[j+2], oam[j+3]);
             drawn++;
             if (drawn == 10) {
