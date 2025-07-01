@@ -63,7 +63,7 @@ private:
 
     std::vector<uint32_t> color_palette = { // 0xRRGGBBAA
         // 0x9bbc0fFF, 0x8bac0fFF, 0x306230FF, 0x0f380fFF // original colors
-        0xe0f8d0FF, 0x88c070FF, 0x346856FF, 0x081820FF // less ugly original colors
+        0xe0f8d000, 0x88c070FF, 0x346856FF, 0x081820FF // less ugly original colors
         // 0xFFFFFFff, 0xAAAAAAff, 0x555555ff, 0x000000ff // greyscale
         // 0xe6f8da, 0xb4e1fd, 0xaa9e62, 0x212121 // idk which this is but its green but light???
         // 0xf4d8c6, 0xff9a8a, 0x364f4f, 0x332421 // first one with peach

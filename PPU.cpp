@@ -58,7 +58,19 @@ void PPU::initLCD() {
     debug_texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 256, 256);
     tileset = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, 8*16, 8*24);
     
+    // so it seems i can't use shaders in sdl for transparent sprites and palettes.
+    // at least for transparent objects, i'm gonna do this hack. 
+    // i'm not gonna be able to get palette switching. so im just gonna focus on
+    // getting transparency in objects. which i'll do by making every source of 
+    // object texture have correct transparency. make the tileset texture also have
+    // transparent pixels where color 00 would be. for backgrounds and window layer,
+    // i'll just wash them full with color 00 before drawing tiles to avoid them having weird
+    // transparency bugs. 
+    // SDL_SetTextureBlendMode(tilemap0_layer, SDL_BLENDMODE_BLEND);
+    // SDL_SetTextureBlendMode(tilemap1_layer, SDL_BLENDMODE_BLEND);
     SDL_SetTextureBlendMode(obj_layer, SDL_BLENDMODE_BLEND);
+    SDL_SetTextureBlendMode(debug_texture, SDL_BLENDMODE_BLEND);
+    SDL_SetTextureBlendMode(tileset, SDL_BLENDMODE_BLEND);
 
     createTileset(tileset);
     createTilemapLayer(tilemap0_layer, 0x9800);
@@ -421,6 +433,8 @@ void PPU::drawObjectToTexture(uint8_t y, uint8_t x, uint8_t tile_index, uint8_t 
     if (getLCDCFlag(LCDCFLAGS::OBJSize)) {
 
         SDL_SetRenderTarget(renderer, debug_texture);
+        SDL_RenderClear(renderer); // clear the layer
+
 
         // drawing upper tile
         tile_index -= tile_index % 2; // ignoring odd addresses or something.
