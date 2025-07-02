@@ -97,19 +97,19 @@ void PPU::clock() {
         // finally, scanline emulation.
         // ly should have the current scanline number.
 
-        // drawScanLine();
-        SDL_Rect viewport = {0, 0, 256, 256};
-        SDL_Rect display = {0, 0, 160, 144};
-        drawScanLine();
-        // SDL_RenderCopy(renderer, tilemap0_layer, &viewport, &display);
-        // SDL_RenderPresent(renderer);
-
         if (vram_accessed) {
             createTileset(tileset);
             createTilemapLayer(tilemap0_layer, 0x9800);
             createTilemapLayer(tilemap1_layer, 0x9c00);
             vram_accessed = false;
         }
+
+        // drawScanLine();
+        SDL_Rect viewport = {0, 0, 256, 256};
+        SDL_Rect display = {0, 0, 160, 144};
+        drawScanLine();
+        // SDL_RenderCopy(renderer, tilemap0_layer, &viewport, &display);
+        // SDL_RenderPresent(renderer);
         
         // next mode...
         mode = PPUMODE::HBLANK;
@@ -309,106 +309,115 @@ void PPU::createTilemapLayer(SDL_Texture* layer, uint16_t tilemap_addr) {
 void PPU::drawScanLine() {
     
     // std::cout << "begining draw LY=" << (int)ly << '\n';
-    SDL_Texture** background_layer;
-    SDL_Texture** window_layer;
 
-    if (getLCDCFlag(LCDCFLAGS::BGTileMapArea))
-        background_layer = &tilemap1_layer;
-    else 
-        background_layer = &tilemap0_layer;
+    if (getLCDCFlag(LCDCFLAGS::BGWindowEnable)) {
 
-    if (getLCDCFlag(LCDCFLAGS::WindowTileMapArea))
-        window_layer = &tilemap1_layer;
-    else 
-        window_layer = &tilemap0_layer;
-
-    bool test = getLCDCFlag(LCDCFLAGS::BGAndWindowTileDataArea);
+        SDL_Texture** background_layer;
+        SDL_Texture** window_layer;
     
-    // background first
-    int row = (scy + ly) % 256;
-
-    if ((int)scx + 160 > 256) { // wrap around condition
-        // std::cout<< "warp around\n";
-        int w = 256 - (int)scx;
-        SDL_Rect src_row = {scx, row, w, 1};
-        SDL_Rect dst_row = {0, ly, w, 1};
-        
-        SDL_RenderCopy(renderer, *background_layer, &src_row, &dst_row);
-        
-        dst_row.x = w;
-        dst_row.w = 160 - dst_row.w;
-        src_row.x = 0;
-        src_row.w = dst_row.w;
-        
-        SDL_RenderCopy(renderer, *background_layer, &src_row, &dst_row);
-    } else {
-        // std::cout<< "NOT\n";
-        SDL_Rect src_row = {scx, row, 160, 1};
-        SDL_Rect dst_row = {0, ly, 160, 1};
-        SDL_RenderCopy(renderer, *background_layer, &src_row, &dst_row);
-    }
-
+        if (getLCDCFlag(LCDCFLAGS::BGTileMapArea))
+            background_layer = &tilemap1_layer;
+        else 
+            background_layer = &tilemap0_layer;
     
-    // SDL_SetRenderTarget(renderer, debug_texture);
-    // SDL_Rect viewport = {0, 0, 256, 256};
-    // SDL_Rect display = {0, 0, 160, 144};
-    // SDL_RenderCopy(renderer, *background_layer, &viewport, &viewport);
-    // SDL_Rect viewport2 = {scx, scy, 160, 144};
-    // SDL_SetRenderDrawColor(renderer, 0xff, 0, 0, 0xff);
-    // SDL_RenderDrawRect(renderer, &viewport2);
-    // SDL_RenderDrawPoint(renderer, scx, scy+ly);
-    // SDL_RenderDrawPoint(renderer, scx+1, scy+ly);
-    // SDL_RenderDrawPoint(renderer, scx+2, scy+ly);
-    // SDL_RenderDrawPoint(renderer, scx+3, scy+ly);
-    // SDL_SetRenderTarget(renderer, NULL);
-    // SDL_RenderCopy(renderer, debug_texture, &viewport, &display);
-    // SDL_RenderPresent(renderer);
-    // std::cout << "finish draw LY=" << (int)ly << '\n';
-    // return;
-
-    // now window layer
-    if ((getLCDCFlag(LCDCFLAGS::WindowEnable) && ly >= wy) && !(wx < 7 || wx > 166 || wy > 143)) {
-        if (ly == wy) {
-            window_line_counter = 0;
+        if (getLCDCFlag(LCDCFLAGS::WindowTileMapArea))
+            window_layer = &tilemap1_layer;
+        else 
+            window_layer = &tilemap0_layer;
+    
+        bool test = getLCDCFlag(LCDCFLAGS::BGAndWindowTileDataArea);
+        
+        // background first
+        int row = (scy + ly) % 256;
+    
+        if ((int)scx + 160 > 256) { // wrap around condition
+            // std::cout<< "warp around\n";
+            int w = 256 - (int)scx;
+            SDL_Rect src_row = {scx, row, w, 1};
+            SDL_Rect dst_row = {0, ly, w, 1};
+            
+            SDL_RenderCopy(renderer, *background_layer, &src_row, &dst_row);
+            
+            dst_row.x = w;
+            dst_row.w = 160 - dst_row.w;
+            src_row.x = 0;
+            src_row.w = dst_row.w;
+            
+            SDL_RenderCopy(renderer, *background_layer, &src_row, &dst_row);
         } else {
-            window_line_counter++;
+            // std::cout<< "NOT\n";
+            SDL_Rect src_row = {scx, row, 160, 1};
+            SDL_Rect dst_row = {0, ly, 160, 1};
+            SDL_RenderCopy(renderer, *background_layer, &src_row, &dst_row);
         }
-        row = window_line_counter;
-
-        if (row < 256) {
-            SDL_Rect src_row = {0, row, 160 - (wx - 7), 1};
-            SDL_Rect dst_row = {wx - 7, ly, 160 - (wx - 7), 1};
-            SDL_RenderCopy(renderer, *window_layer, &src_row, &dst_row);
-        } 
+    
+        
+        // SDL_SetRenderTarget(renderer, debug_texture);
+        // SDL_Rect viewport = {0, 0, 256, 256};
+        // SDL_Rect display = {0, 0, 160, 144};
+        // SDL_RenderCopy(renderer, *background_layer, &viewport, &viewport);
+        // SDL_Rect viewport2 = {scx, scy, 160, 144};
+        // SDL_SetRenderDrawColor(renderer, 0xff, 0, 0, 0xff);
+        // SDL_RenderDrawRect(renderer, &viewport2);
+        // SDL_RenderDrawPoint(renderer, scx, scy+ly);
+        // SDL_RenderDrawPoint(renderer, scx+1, scy+ly);
+        // SDL_RenderDrawPoint(renderer, scx+2, scy+ly);
+        // SDL_RenderDrawPoint(renderer, scx+3, scy+ly);
+        // SDL_SetRenderTarget(renderer, NULL);
+        // SDL_RenderCopy(renderer, debug_texture, &viewport, &display);
+        // SDL_RenderPresent(renderer);
+        // std::cout << "finish draw LY=" << (int)ly << '\n';
+        // return;
+    
+        // now window layer
+        if ((getLCDCFlag(LCDCFLAGS::WindowEnable) && ly >= wy) && !(wx < 7 || wx > 166 || wy > 143)) {
+            if (ly == wy) {
+                window_line_counter = 0;
+            } else {
+                window_line_counter++;
+            }
+            row = window_line_counter;
+    
+            if (row < 256) {
+                SDL_Rect src_row = {0, row, 160 - (wx - 7), 1};
+                SDL_Rect dst_row = {wx - 7, ly, 160 - (wx - 7), 1};
+                SDL_RenderCopy(renderer, *window_layer, &src_row, &dst_row);
+            } 
+        }
+    } else {
+        SDL_SetRenderDrawColor(renderer, (color_palette[0] >> 24) & 0xff, (color_palette[0] >> 16) & 0xff, (color_palette[0] >> 8) & 0xff, color_palette[0] & 0xff);
+        SDL_RenderDrawLine(renderer, 0, ly, 160, ly);
     }
     
 
+    if (getLCDCFlag(LCDCFLAGS::OBJEnable)) {
 
-    // not doing scanline basis object drawing right now
-    // // now for sprites
-    // int sprite_height = getLCDCFlag(PPU::LCDCFLAGS::OBJSize) ? 16 : 8;
-    // int drawn = 0;
-    // for (uint8_t i = 0; i < 40; i++) {
-    //     short j = i*4;
-        
-    //     if (ly >= oam[j]-16 && ly < oam[j]-16 + sprite_height) {
-    //         drawObjectScanLine(oam[j], oam[j+1], oam[j+2], oam[j+3]);
-    //         drawn++;
-    //     }
-    //     if (drawn == 10) break;
-    // }
-
-    // lazier approach (more efficient for effort)
-    int drawn = 0;
-    for (int i = 0; i < 40; i++) {
-        int j = i*4;
-        if (((oam[j]-16) == ly) || (oam[j]-16 < ly && ly == 0)) {
-            drawObjectToTexture(oam[j], oam[j+1], oam[j+2], oam[j+3]);
-            drawn++;
-            if (drawn == 10) {
-                break;
-            }
-        } 
+        // not doing scanline basis object drawing right now
+        // // now for sprites
+        // int sprite_height = getLCDCFlag(PPU::LCDCFLAGS::OBJSize) ? 16 : 8;
+        // int drawn = 0;
+        // for (uint8_t i = 0; i < 40; i++) {
+        //     short j = i*4;
+            
+        //     if (ly >= oam[j]-16 && ly < oam[j]-16 + sprite_height) {
+        //         drawObjectScanLine(oam[j], oam[j+1], oam[j+2], oam[j+3]);
+        //         drawn++;
+        //     }
+        //     if (drawn == 10) break;
+        // }
+    
+        // lazier approach (more efficient for effort)
+        int drawn = 0;
+        for (int i = 0; i < 40; i++) {
+            int j = i*4;
+            if (((oam[j]-16) == ly) || (oam[j]-16 < ly && ly == 0)) {
+                drawObjectToTexture(oam[j], oam[j+1], oam[j+2], oam[j+3]);
+                drawn++;
+                if (drawn == 10) {
+                    break;
+                }
+            } 
+        }
     }
 
 }
@@ -568,7 +577,7 @@ void PPU::cpuWrite(uint16_t addr, uint8_t data) {
             oam_accessed = true;
         // }
     } else switch(addr) {
-        case 0xff40: lcdc = data; break;
+        case 0xff40: lcdc = data; vram_accessed = true; break;
         case 0xff41: stat = data; break;
         case 0xff42: scy = data; break;
         case 0xff43: scx = data; break;
@@ -643,7 +652,7 @@ uint8_t* PPU::cpuReadPttr(uint16_t addr) {
         // }
     } else {
         switch (addr) {
-            case 0xff40: data = &lcdc; break;
+            case 0xff40: data = &lcdc; vram_accessed = true; break;
             case 0xff41: data = &stat; break;
             case 0xff42: data = &scy; break;
             case 0xff43: data = &scx; break;

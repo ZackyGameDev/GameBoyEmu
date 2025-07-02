@@ -45,6 +45,11 @@ int main() {
     double ns_per_cycle = 1'000'000'000.0 / CLOCK_SPEED;
     
     while (bus.running) {
+        #ifdef INFINITE_CLOCK_SPEED
+        bus.cpu.clock();
+        bus.ppu.clock();
+        continue;
+        #endif
         auto now = std::chrono::high_resolution_clock::now();
         auto elapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(now - last_time).count();
 

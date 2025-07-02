@@ -140,6 +140,11 @@ public:
 private:
     
     // to facilitate interaction with the bus
+    int e8 = 0;
+    uint8_t n8 = 0x00;
+    uint8_t n16 = 0x0000;
+    uint8_t a8 = 0x00;
+    uint8_t a16 = 0x0000;
     uint8_t fetched = 0x00;
     uint16_t fetched16 = 0x0000;
     uint16_t addr_abs = 0x0000; // if an operand is [a16] then i deal with it using this variable manually 
