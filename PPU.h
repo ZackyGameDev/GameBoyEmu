@@ -63,19 +63,19 @@ private:
 
     std::vector<uint32_t> color_palette = { // 0xRRGGBBAA
         // 0x9bbc0fFF, 0x8bac0fFF, 0x306230FF, 0x0f380fFF // original colors
-        0xe0f8d000, 0x88c070FF, 0x346856FF, 0x081820FF // less ugly original colors
+        // 0xe0f8d000, 0x88c070FF, 0x346856FF, 0x081820FF // less ugly original colors
         // 0xFFFFFFff, 0xAAAAAAff, 0x555555ff, 0x000000ff // greyscale
-        // 0xe6f8da, 0xb4e1fd, 0xaa9e62, 0x212121 // idk which this is but its green but light???
-        // 0xf4d8c6, 0xff9a8a, 0x364f4f, 0x332421 // first one with peach
-        // 0xfdf0e7, 0xff9a8a, 0x364f4f, 0x332421 //  first one with peach but lightvariation
-        // 0xb76e79, 0xf4d8c6, 0xb89454, 0x332424 // BAD cake
-        // 0xf4d8c6, 0xb76e79, 0xb89454, 0x332424 // cake but lighter TRUE
-        // 0xbd2024, 0x6a5acd, 0x36454f, 0x110511 // scarlet 
-        // 0xbd2024, 0xfdf0e7, 0x36454f, 0x110511 // scarlet but no purple NOT SWITCHED
-        // 0xfdf0e7ff, 0xbd2024ff, 0x36454fff, 0x110511ff // scarlet but no purple TRUE BOLD // last used
-        // 0x6a5acd, 0xbd2024, 0x36454f, 0x110511 // scarlet but switched
-        // 0xfdf0e7, 0xea7073, 0x36454f, 0x110511 // scarlet but switched no purple red lighter
-        // 0xf7e5da, 0xd89454, 0x9085c4, 0x36454f // aro ace but lighter peach
+        // 0xe6f8daFF, 0xb4e1fdFF, 0xaa9e62FF, 0x212121FF // idk which this is but its green but light???
+        // 0xf4d8c6ff, 0xff9a8aFF, 0x364f4fFF, 0x332421FF // first one with peach
+        // 0xfdf0e7FF, 0xff9a8aFF, 0x364f4fFF, 0x332421FF //  first one with peach but lightvariation
+        // 0xb76e79FF, 0xf4d8c6FF, 0xb89454FF, 0x332424FF // BAD cake
+        // 0xf4d8c6FF, 0xb76e79FF, 0xb89454FF, 0x332424FF // cake but lighter TRUE
+        // 0xbd2024FF, 0x6a5acdFF, 0x36454fFF, 0x110511FF // scarlet 
+        // 0xbd2024FF, 0xfdf0e7FF, 0x36454fFF, 0x110511FF // scarlet but no purple NOT SWITCHED
+        // 0xfdf0e700, 0xbd2024ff, 0x36454fff, 0x110511ff // scarlet but no purple TRUE BOLD // last used
+        // 0x6a5acdFF, 0xbd2024FF, 0x36454fFF, 0x110511FF // scarlet but switched
+        // 0xfdf0e7FF, 0xea7073FF, 0x36454fFF, 0x110511FF // scarlet but switched no purple red lighter
+        0xf7e5da00, 0xd89454FF, 0x9085c4FF, 0x36454fFF // aro ace but lighter peach
     }; 
 
     enum LCDCFLAGS {

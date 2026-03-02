@@ -341,7 +341,7 @@ for i in unpre:
     pc |= read(sp++) << 8;
     return 0;
 """
-        function_definition = makedefinition(function_name, '{'+cmd+'\n}\n\n') 
+        function_definition = makedefinition(function_name, '{'+cmd+'}\n\n') 
     
     
     # RST
@@ -356,7 +356,7 @@ for i in unpre:
     return 0;
 """.replace("address_lo", fargs[0])
 
-        function_definition = makedefinition(function_name, '{'+cmd+'\n}\n\n') 
+        function_definition = makedefinition(function_name, '{'+cmd+'}\n\n') 
 
     # STOP
     if function_name.startswith("STOP_"):
@@ -377,47 +377,351 @@ for i in unpre:
     if function_name.startswith("DI"):
         function_definition = makedefinition(function_name, '{ ime = 0; return 0; }\n\n')
 
-    #################################################################################################################
-    ifile.write(function_definition) 
-    #region PROGRESS ################################################################################################
-
     # ALU STUFF
     # INC
     if (function_name.startswith("INC_") or function_name.startswith("DEC_")):
         fargs = unpre[i]['operands'].copy()
-        fargs[0] = '{' + fargs[0]['name'].upper() + ', ' + str(fargs[0]['immediate']).lower() + '}'
-        if i[-1] == '3' or i[-1] == 'B': # 16 bit columns
-            function_definition = makedefinition(function_name, '{ return PROCESS_ALU16(' + fargs[0] + ', ' + function_name[:3] + '); }')
-        else: # 8 bit
-            function_definition = makedefinition(function_name, '{ return PROCESS_ALU(' + fargs[0] + ', ' + function_name[:3] + '); }')
+        imm = fargs[0]['immediate']
+        name = fargs[0]['name'].lower()
+        if imm:
+            if i[-1] == '3' or i[-1] == 'B': # 16 bit columns
+                if function_name.startswith("INC"):
+                    cmd = f"""
+    addToHiLo({name[0]}, {name[1]}, 1);
+    return 0;
+"""
+                else:
+                    cmd = f"""
+    addToHiLo({name[0]}, {name[1]}, -1);
+    return 0;
+"""
+            else: # 8 bit
+                if function_name.startswith("INC"):
+                    cmd = f"""
+    setFlag(fh, (({name} & 0x0f) + 0x01) & 0x10);
+    setFlag(fn, 0);
+    {name} += 1; 
+    setFlag(fz, {name} == 0);
+    return 0;
+"""
+                else:
+                    cmd = f"""
+    {name} -= 1;
+    setFlag(fn, 1);
+    setFlag(fh, ({name} & 0x0F) == 0x0F);
+    setFlag(fz, {name} == 0);
+    return 0;
+"""
+        else:
+            if function_name.startswith("INC"):
+                cmd = f"""
+    n8 = read((h << 8) | l);
+    setFlag(fh, ((n8 & 0x0f) + 0x01) & 0x10);
+    setFlag(fn, 0);
+    n8 += 1;
+    write((h << 8) | l, n8); 
+    setFlag(fz, n8 == 0);
+    return 0;
+"""
+            else:
+                cmd = f"""
+    n8 = read((h << 8) | l);
+    n8 -= 1;
+    write((h << 8) | l, n8);
+    setFlag(fn, 1);
+    setFlag(fh, (n8 & 0x0F) == 0x0F);
+    setFlag(fz, n8 == 0);
+    return 0;
+"""
+        if (name == "sp"):
+            if (function_name.startswith("INC")):
+                cmd = """
+    sp += 1;
+    return 0;
+"""
+            else:
+                cmd = """
+    sp -= 1;
+    return 0;
+"""
+        function_definition = makedefinition(function_name, '{'+cmd+'}\n\n') 
 
-
-    # all INC and DEC
-    if (function_name.startswith("INC_") or function_name.startswith("DEC_")):
-        fargs = unpre[i]['operands'].copy()
-        fargs[0] = '{' + fargs[0]['name'].upper() + ', ' + str(fargs[0]['immediate']).lower() + '}'
-        if i[-1] == '3' or i[-1] == 'B': # 16 bit columns
-            function_definition = makedefinition(function_name, '{ return PROCESS_ALU16(' + fargs[0] + ', ' + function_name[:3] + '); }')
-        else: # 8 bit
-            function_definition = makedefinition(function_name, '{ return PROCESS_ALU(' + fargs[0] + ', ' + function_name[:3] + '); }')
 
     # Remaining operand relying operations of ALU
-    if function_name[:3] in ("ADD", "ADC", "SUB", "SBC", "AND", "OR_", "XOR", "CP_", ):
+    if function_name.startswith("ADD"):
         args = unpre[i]['operands']
-        fargs = args.copy()
-        fargs[0] = '{' + args[0]['name'].upper() + ', ' + str(args[0]['immediate']).lower() + '}'
-        fargs[1] = '{' + args[1]['name'].upper() + ', ' + str(args[1]['immediate']).lower() + '}'
+        name1 = args[0]['name'].lower()
+        name2 = args[1]['name'].lower()
+        imm1 = args[0]['immediate']
+        imm2 = args[1]['immediate']
 
-        # 16 bit ADD
-        if i[-1] in ('8', '9') and function_name.startswith("ADD"):
-            function_definition = makedefinition(function_name, '{ return PROCESS_ALU16(' + fargs[0] + ', ' + fargs[1] + ', ADD); }' )
-
+        target = name1
+        source = name2
+        if (len(name1) == 1):
+            if (source == "hl"): source = "read((h << 8) | l)"
+            cmd = """
+    n32 = target + source;
+    setFlag(fn, 0);
+    setFlag(fh, ((target & 0x0F) + (source & 0x0F)) & 0x10);
+    setFlag(fc, n32 & 0x0100);
+    setFlag(fz, (target & 0xff) == 0);
+    target = n32 & 0xff;
+    return 0;
+""".replace("target", target).replace("source", source)
+            if (source == "n8"):
+                cmd = "\n    n8 = read(pc++);" + cmd
         else:
-            function_definition = makedefinition(function_name, '{ return PROCESS_ALU(' + fargs[0] + ', ' + fargs[1] + ', ' + function_name[:3].replace("_", "") + '); }' )
-            
-    # the four quirky ones
+            if (source == "e8"):
+                cmd = """
+    e8 = toSigned(read(pc++));
+    n32 = sp + e8;
+    setFlag(fz, 0);
+    setFlag(fn, 0);
+    setFlag(fh, ((sp & 0x0F) + (e8 & 0x0F)) & 0x10);
+    setFlag(fc, ((sp & 0xFF) + (e8 & 0xFF)) & 0x100);
+    sp = n32 & 0xFFFF;
+    return 0;
+"""
+            else:
+                hi = target[0]
+                lo = target[1]
+                target = f"(({hi} << 8) | {lo})"
+                if source != "sp": source = f"(({source[0]} << 8) | {source[1]})"
+                cmd = """
+    n32 = target + source;
+    setFlag(fh, ((target & 0xFFF) + (source & 0xFFF)) & 0x1000);
+    setFlag(fc, n32 > 0xFFFF);
+    setFlag(fn, 0);
+    n32 = n32 & 0xFFFF;
+    hi = (n32 >> 8) & 0xFF;
+    lo = n32 & 0xFF;
+""".replace("target", target).replace("source", source).replace("hi", hi).replace("lo", lo)
+
+        function_definition = makedefinition(function_name, '{'+cmd+'}\n\n') 
+
+    if function_name.startswith("ADC"):
+        args = unpre[i]['operands']
+        name1 = args[0]['name'].lower()
+        name2 = args[1]['name'].lower()
+        imm1 = args[0]['immediate']
+        imm2 = args[1]['immediate']
+
+        target = name1
+        source = name2
+        if (len(name1) == 1):
+            if (source == "hl"): source = "read((h << 8) | l)"
+            cmd = """
+    n32 = target + source + getFlag(fc);
+    setFlag(fn, 0);
+    setFlag(fh, ((target & 0x0F) + (source & 0x0F) + getFlag(fc)) & 0x10);
+    setFlag(fc, n32 & 0x0100);
+    setFlag(fz, (target & 0xff) == 0);
+    target = n32 & 0xff;
+    return 0;
+""".replace("target", target).replace("source", source)
+            if (source == "n8"):
+                cmd = "\n    n8 = read(pc++);" + cmd
+
+        function_definition = makedefinition(function_name, '{'+cmd+'}\n\n') 
+
+
+    if function_name.startswith("SUB"):
+        args = unpre[i]['operands']
+        name1 = args[0]['name'].lower()
+        name2 = args[1]['name'].lower()
+        imm1 = args[0]['immediate']
+        imm2 = args[1]['immediate']
+
+        target = name1
+        source = name2
+        if (len(name1) == 1):
+            if (source == "hl"): source = "read((h << 8) | l)"
+            cmd = """
+    n16 = target - source;
+    setFlag(fn, 1);
+    setFlag(fh, (target & 0x0F) < (source & 0x0F));
+    setFlag(fc, target < source);
+    setFlag(fz, (target & 0xff) == 0);
+    target = n16 & 0xff;
+    return 0;
+""".replace("target", target).replace("source", source)
+            if (source == "n8"):
+                cmd = "\n    n8 = read(pc++);" + cmd
+
+        function_definition = makedefinition(function_name, '{'+cmd+'}\n\n') 
+
+
+    if function_name.startswith("SBC"):
+        args = unpre[i]['operands']
+        name1 = args[0]['name'].lower()
+        name2 = args[1]['name'].lower()
+        imm1 = args[0]['immediate']
+        imm2 = args[1]['immediate']
+
+        target = name1
+        source = name2
+        if (len(name1) == 1):
+            if (source == "hl"): source = "read((h << 8) | l)"
+            cmd = """
+    n16 = target - source - borrow;
+    setFlag(fn, 1);
+    setFlag(fh, ((target & 0x0F) < ((source & 0x0F) + borrow)));
+    setFlag(fc, (target < (source + borrow)));
+    setFlag(fz, (target & 0xff) == 0);
+    target = n16 & 0xff;
+    return 0;
+""".replace("target", target).replace("source", source).replace("borrow", "getFlag(fc)")
+            if (source == "n8"):
+                cmd = "\n    n8 = read(pc++);" + cmd
+
+        function_definition = makedefinition(function_name, '{'+cmd+'}\n\n') 
+
+
+    if function_name.startswith("AND_"):
+        args = unpre[i]['operands']
+        name1 = args[0]['name'].lower()
+        name2 = args[1]['name'].lower()
+        imm1 = args[0]['immediate']
+        imm2 = args[1]['immediate']
+
+        target = name1
+        source = name2
+        if (len(name1) == 1):
+            if (source == "hl"): source = "read((h << 8) | l)"
+            cmd = """
+    target &= source;
+    setFlag(fz, target == 0);
+    setFlag(fn, 0);
+    setFlag(fh, 1);
+    setFlag(fc, 0);
+    return 0;
+""".replace("target", target).replace("source", source)
+            if (source == "n8"):
+                cmd = "\n    n8 = read(pc++);" + cmd
+
+        function_definition = makedefinition(function_name, '{'+cmd+'}\n\n') 
+
+
+    if function_name.startswith("XOR_"):
+        args = unpre[i]['operands']
+        name1 = args[0]['name'].lower()
+        name2 = args[1]['name'].lower()
+        imm1 = args[0]['immediate']
+        imm2 = args[1]['immediate']
+
+        target = name1
+        source = name2
+        if (len(name1) == 1):
+            if (source == "hl"): source = "read((h << 8) | l)"
+            cmd = """
+    target ^= source;
+    setFlag(fz, target == 0);
+    setFlag(fn, 0);
+    setFlag(fh, 0);
+    setFlag(fc, 0);
+    return 0;
+""".replace("target", target).replace("source", source)
+            if (source == "n8"):
+                cmd = "\n    n8 = read(pc++);" + cmd
+
+        function_definition = makedefinition(function_name, '{'+cmd+'}\n\n') 
+
+
+
+    if function_name.startswith("OR_"):
+        args = unpre[i]['operands']
+        name1 = args[0]['name'].lower()
+        name2 = args[1]['name'].lower()
+        imm1 = args[0]['immediate']
+        imm2 = args[1]['immediate']
+
+        target = name1
+        source = name2
+        if (len(name1) == 1):
+            if (source == "hl"): source = "read((h << 8) | l)"
+            cmd = """
+    target |= source;
+    setFlag(fz, target == 0);
+    setFlag(fn, 0);
+    setFlag(fh, 0);
+    setFlag(fc, 0);
+    return 0;
+""".replace("target", target).replace("source", source)
+            if (source == "n8"):
+                cmd = "\n    n8 = read(pc++);" + cmd
+
+        function_definition = makedefinition(function_name, '{'+cmd+'}\n\n') 
+
+
+    if function_name.startswith("CP_"):
+        args = unpre[i]['operands']
+        name1 = args[0]['name'].lower()
+        name2 = args[1]['name'].lower()
+        imm1 = args[0]['immediate']
+        imm2 = args[1]['immediate']
+
+        target = name1
+        source = name2
+        if (len(name1) == 1):
+            if (source == "hl"): source = "read((h << 8) | l)"
+            cmd = """
+    n16 = target - source;
+    setFlag(fn, 1);
+    setFlag(fh, ((target & 0x0F) < (source & 0x0F)));
+    setFlag(fz, (n16 & 0xff) == 0);
+    setFlag(fc, (target < source));
+    return 0;
+""".replace("target", target).replace("source", source)
+            if (source == "n8"):
+                cmd = "\n    n8 = read(pc++);" + cmd
+
+        function_definition = makedefinition(function_name, '{'+cmd+'}\n\n') 
+
+
+    #################################################################################################################
+    ifile.write(function_definition) 
+    #region PROGRESS ################################################################################################
+
     if function_name in ("DAA", "SCF", "CPL", "CCF"):
-        function_definition = makedefinition(function_name, '{ return PROCESS_ALU(enum' + function_name + '); }')
+
+        if function_name == "DAA":
+            cmd = """
+    if (getFlag(fn)) { // subtraction
+        if (getFlag(fc)) { a -= 0x60; }
+        if (getFlag(fh)) { a -= 0x06; }
+    } else {           // addition
+        if (getFlag(fc) || (a & 0xFF) > 0x99) { a += 0x60; setFlag(fc, 1); }
+        if (getFlag(fh) || (a & 0x0F) > 0x09) { a += 0x06; }
+    }
+    setFlag(fz, a == 0);
+    setFlag(fh, 0);
+    return 0;        
+"""
+
+        if function_name == "SCF":
+            cmd = """
+    setFlag(fc, 1);
+    setFlag(fn, 0);
+    setFlag(fh, 0);       
+    return 0;        
+"""
+
+        if function_name == "CPL":
+            cmd = """
+    a = ~a;
+    setFlag(fn, 1);
+    setFlag(fh, 1);
+    return 0;        
+"""
+
+        if function_name == "CCF":
+            cmd = """
+    setFlag(fn, 0);
+    setFlag(fh, 0);
+    setFlag(fc, !getFlag(fc));
+    return 0;        
+"""
+        function_definition = makedefinition(function_name, '{'+cmd+'}\n\n') 
 
     # a rotates
     if unpre[i]["mnemonic"] in ("RLCA", "RLA", "RRCA", "RRA"):
