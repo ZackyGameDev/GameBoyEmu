@@ -2,7 +2,7 @@
 #define SDL_MAIN_HANDLED
 // #define DEBUGMODE_
 // #define EMULATION_CLOCK_SPEED 1048576 // in m clocks per second
-#define EMULATION_CLOCK_SPEED 1048576*9 // in slower clocks per second
+#define EMULATION_CLOCK_SPEED 1048576*2 // in slower clocks per second
 // #define EMULATION_CLOCK_/SPEED 953 // in nanoseconds per machine clock
 #define DEBUG_CLOCK_SPEED 1
 // #define INFINITE_CLOCK_SPEED
