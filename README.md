@@ -208,9 +208,9 @@ The Python files (`codewriter.py`, `codewriter2.py`, `romwriter.py`) are persona
 ## Limitations
 
 * Windows-only input handling
-* Not fully cycle-perfect
 * No advanced MBC types
 * No Game Boy Color support
+* No Audio support
 * Compatibility not exhaustively tested
 
 The emulator runs most **No MBC** and **MBC1** titles, but edge cases may still exist.
