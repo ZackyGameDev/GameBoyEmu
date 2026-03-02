@@ -2,7 +2,7 @@
 
 ## Demo
 
-<video src="./gbemudemo.mp4" controls width="720"></video>
+<video src="https://github.com/ZackyGameDev/GameBoyEmu/raw/refs/heads/main/gbemudemo.mp4" controls width="720"></video>
 
 > All ROMs shown in the demo are legally obtained and are **not** distributed with this repository.
 
