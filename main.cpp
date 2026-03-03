@@ -1,69 +1,110 @@
 #include <iostream>
-// #include <SDL2/SDL.h>
 #include <chrono>
 #include <thread>
 #include <filesystem>
-#include <bitset>
 
 #include "Bus.h"
 
-// const int CPU_CLOCK_SPEED = 4194304; // clock cycle speed
-long long int CPU_CLOCK_SPEED = EMULATION_CLOCK_SPEED; // machine cycle speed 
-#ifdef DEBUGMODE_
-// const float DEBUG_UPDATE_SPEED = 0.1F;
-const int DEBUG_UPDATE_CYCLES = 500;
-int debug_cycles = 0;
-#endif
-// const int CPU_CLOCK_SPEED = 300;
-const long double CYCLE_DURATION = 1.0 / (long double)CPU_CLOCK_SPEED;
-// auto CYCLE_DURATION = std::chrono::nanoseconds(EMULATION_CLOCK_SPEED);
+constexpr double TARGET_RATE = EMULATION_CLOCK_SPEED; // M-cycles/sec
+constexpr double WINDOW_SECONDS = 0.25;
 
 int main() {
-    std::cout << "DID IT WORK <--------------\n";
+
+    std::cout << "Starting emulator\n";
     std::filesystem::path cwd = std::filesystem::current_path();
-    std::cout << "Current working directory: " << cwd << std::endl;
+    std::cout << "Working dir: " << cwd << std::endl;
 
     Bus bus;
-    // bus.cpu.boot();
-    // std::this_thread::sleep_for(std::chrono::duration<double>(3));
     bus.ppu.initLCD();
-    #ifdef DEBUGMODE_
-    CPU_CLOCK_SPEED *= DEBUG_CLOCK_SPEED;
-    // bus.cpu.opDebug();
-    #endif
-    // Sleep(100);
-    // std::cout << "CPU_CLOCK_SPEED: " << CPU_CLOCK_SPEED << std::endl;
-    
-    int test = 0;
-    
-    // Set timer resolution to 1ms for better sleep accuracy on Windows.
-    timeBeginPeriod(1);
-    
-    constexpr double CLOCK_SPEED = EMULATION_CLOCK_SPEED; // 4.194304 MHz
-    // using namespace std::chrono;
-    auto last_time = std::chrono::high_resolution_clock::now();
-    double ns_per_cycle = 1'000'000'000.0 / CLOCK_SPEED;
-    
-    while (bus.running) {
-        #ifdef INFINITE_CLOCK_SPEED
-        bus.cpu.clock();
-        bus.ppu.clock();
-        continue;
-        #endif
-        auto now = std::chrono::high_resolution_clock::now();
-        auto elapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(now - last_time).count();
 
-        if (elapsed >= ns_per_cycle) {
-            bus.cpu.clock();  // Execute one clock cycle
+    using clock = std::chrono::high_resolution_clock;
+
+    double speed_multiplier = 1.0;
+
+    auto previous = clock::now();
+    auto window_start = previous;
+
+    double accumulator = 0.0;
+    double base_cycles_this_window = 0.0;
+
+    while (bus.running) {
+
+        auto now = clock::now();
+        double elapsed =
+            std::chrono::duration<double>(now - previous).count();
+        previous = now;
+
+        accumulator += elapsed * TARGET_RATE * speed_multiplier;
+
+        // Cap debt (100ms max)
+        double max_debt = TARGET_RATE * 0.1;
+        if (accumulator > max_debt)
+            accumulator = max_debt;
+
+        while (accumulator >= 1.0) {
+            bus.cpu.clock();   // 1 M-cycle
+            // Advance PPU 4 T-cycles
             bus.ppu.clock();
-            last_time = now;
-        } else {
-            std::this_thread::sleep_for(std::chrono::nanoseconds(static_cast<int>(ns_per_cycle - elapsed)));
+            bus.ppu.clock();
+            bus.ppu.clock();
+            bus.ppu.clock();
+
+            accumulator -= 1.0;
+
+            // Remove multiplier influence
+            base_cycles_this_window += 1.0 / speed_multiplier;
         }
+
+        double window_elapsed =
+            std::chrono::duration<double>(now - window_start).count();
+
+        if (window_elapsed >= WINDOW_SECONDS) {
+
+            double base_rate =
+                base_cycles_this_window / window_elapsed;
+
+            if (base_rate > 0.0) {
+                speed_multiplier = TARGET_RATE / base_rate;
+            }
+
+            // Clamp to [0.1, 15.0]
+            if (speed_multiplier < 0.1) speed_multiplier = 0.1;
+            if (speed_multiplier > 15.0) speed_multiplier = 15.0;
+
+            std::cout << "Base Rate: " << base_rate
+                      << " | Multiplier: "
+                      << speed_multiplier << std::endl;
+
+            base_cycles_this_window = 0.0;
+            window_start = now;
+        }
+
+        std::this_thread::sleep_for(std::chrono::microseconds(50));
     }
 
+    return 0;
+}
+
+    // while (bus.running) {
+    //     #ifdef INFINITE_CLOCK_SPEED
+    //     bus.cpu.clock();
+    //     bus.ppu.clock();
+    //     continue;
+    //     #endif
+    //     auto now = std::chrono::high_resolution_clock::now();
+    //     auto elapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(now - last_time).count();
+
+    //     if (elapsed >= ns_per_cycle) {
+    //         bus.cpu.clock();  // Execute one clock cycle
+    //         bus.ppu.clock();
+    //         last_time = now;
+    //     } else {
+    //         std::this_thread::sleep_for(std::chrono::nanoseconds(static_cast<int>(ns_per_cycle - elapsed)));
+    //     }
+    // }
+
     // Reset timer granularity before exit.
-    timeEndPeriod(1);
+    // timeEndPeriod(1);
 
     // // using namespace std::chrono;
     // auto last_time = std::chrono::high_resolution_clock::now();
@@ -192,7 +233,7 @@ int main() {
     //     Sleep(1);
     // }
 
-}
+// }
 
 
 // #define SCREEN_WIDTH 1280 
