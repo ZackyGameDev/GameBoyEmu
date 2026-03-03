@@ -43,10 +43,6 @@ int main() {
 
         while (accumulator >= 1.0) {
             bus.cpu.clock();   // 1 M-cycle
-            // Advance PPU 4 T-cycles
-            bus.ppu.clock();
-            bus.ppu.clock();
-            bus.ppu.clock();
             bus.ppu.clock();
 
             accumulator -= 1.0;
